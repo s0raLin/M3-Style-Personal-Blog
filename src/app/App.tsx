@@ -23,6 +23,8 @@ import {
   useParams,
 } from "react-router-dom";
 
+import ScrollToTop from "./components/Common/ScrollToTop";
+
 /**
  * BlogDetailWrapper 的作用：
  * 1. 从 URL 中获取 :id 参数
@@ -179,6 +181,7 @@ export default function App() {
 
   return (
     <HashRouter>
+      <ScrollToTop />
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Toaster position="top-center" richColors />
