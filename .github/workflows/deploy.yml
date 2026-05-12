@@ -1,0 +1,39 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Setup Node ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install and Build 🔧
+        run: |
+          npm install
+          npm run build  # 此时生成的会是 docs 文件夹
+
+      - name: Add .nojekyll 📄
+        run: touch docs/.nojekyll
+
+      # 如果你希望将编译后的 docs 自动推送到仓库的某个分支（例如部署分支）
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs        # 关键修改：指向 docs
+          branch: gh-pages    # 依然建议部署到 gh-pages 分支，保持源码分支干净
+          clean: true
