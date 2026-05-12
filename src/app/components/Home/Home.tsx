@@ -43,7 +43,8 @@ export default function Home({
   const featuredPosts = posts.slice(0, 3);
 
   // 使用动态 categories，如果没有则使用静态后备
-  const displayCategories = categories.length > 0 ? categories : staticCategories;
+  const displayCategories =
+    categories.length > 0 ? categories : staticCategories;
 
   const categoryStats = displayCategories
     .filter((c) => c !== "全部")
@@ -449,7 +450,6 @@ export default function Home({
                       <CardActionArea
                         onClick={() => {
                           onSelectPost(post);
-                          onNavigate("blog");
                         }}
                         sx={{ flexGrow: 1 }}
                       >
