@@ -286,7 +286,7 @@ export default function Home({
           animate="show"
         >
           <Grid container spacing={3}>
-            {categoryStats.map((stat, index) => (
+            {categoryStats.map((stat) => (
               <Grid size={{ xs: 12, sm: 4 }} key={stat.name}>
                 <motion.div variants={itemVariants} whileHover={{ y: -4 }}>
                   <Card
@@ -427,7 +427,7 @@ export default function Home({
             animate="show"
           >
             <Grid container spacing={3}>
-              {featuredPosts.map((post, index) => (
+              {featuredPosts.map((post, _) => (
                 <Grid size={{ xs: 12, md: 4 }} key={post.id}>
                   <motion.div
                     variants={itemVariants}

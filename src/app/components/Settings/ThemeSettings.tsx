@@ -11,7 +11,6 @@ import {
   Paper,
   FormControlLabel,
   Switch,
-  Tooltip,
 } from '@mui/material';
 import {
   Close,

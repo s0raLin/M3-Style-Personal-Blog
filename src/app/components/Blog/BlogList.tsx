@@ -13,8 +13,6 @@ import {
   Tab,
   Avatar,
   CardActionArea,
-  CircularProgress,
-  Alert,
 } from "@mui/material";
 import {
   Search as SearchIcon,

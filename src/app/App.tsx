@@ -126,8 +126,6 @@ function AppContent({
 }
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState("home");
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [sourceColor, setSourceColor] = useState("#6750A4");
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
@@ -167,21 +165,6 @@ export default function App() {
     [dynamicTheme],
   );
 
-  const handleNavigate = (page: string) => {
-    setCurrentPage(page);
-    if (page !== "blog") {
-      setSelectedPost(null);
-    }
-  };
-
-  const handleSelectPost = (post: BlogPost) => {
-    setSelectedPost(post);
-  };
-
-  const handleBackToBlogList = () => {
-    setSelectedPost(null);
-  };
-
   const handleThemeToggle = () => {
     setIsDarkMode(!isDarkMode);
   };
@@ -193,51 +176,6 @@ export default function App() {
   const handleDarkModeChange = (isDark: boolean) => {
     setIsDarkMode(isDark);
   };
-
-  // const renderContent = () => {
-  //   if (currentPage === "blog" && selectedPost) {
-  //     return (
-  //       <BlogDetail
-  //         post={selectedPost}
-  //         onBack={handleBackToBlogList}
-  //         isDarkMode={isDarkMode}
-  //       />
-  //     );
-  //   }
-
-  //   switch (currentPage) {
-  //     case "home":
-  //       return (
-  //         <Home
-  //           onNavigate={handleNavigate}
-  //           onSelectPost={handleSelectPost}
-  //           posts={posts}
-  //           categories={categories}
-  //         />
-  //       );
-  //     case "blog":
-  //       return (
-  //         <BlogList
-  //           onSelectPost={handleSelectPost}
-  //           posts={posts}
-  //           categories={categories}
-  //         />
-  //       );
-  //     case "gallery":
-  //       return <Gallery images={images} />;
-  //     case "about":
-  //       return <About />;
-  //     default:
-  //       return (
-  //         <Home
-  //           onNavigate={handleNavigate}
-  //           onSelectPost={handleSelectPost}
-  //           posts={posts}
-  //           categories={categories}
-  //         />
-  //       );
-  //   }
-  // };
 
   return (
     <HashRouter>

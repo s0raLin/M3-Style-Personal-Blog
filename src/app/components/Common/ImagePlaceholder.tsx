@@ -18,7 +18,6 @@ export default function ImagePlaceholder({
 }: ImagePlaceholderProps) {
   const [imageError, setImageError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const theme = useTheme();
 
   // M3 风格的渐变背景色
   const gradients = {

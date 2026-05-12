@@ -1,9 +1,7 @@
 import {
   argbFromHex,
   themeFromSourceColor,
-  applyTheme,
   hexFromArgb,
-  argbFromRgb,
 } from '@material/material-color-utilities';
 
 export interface DynamicTheme {
