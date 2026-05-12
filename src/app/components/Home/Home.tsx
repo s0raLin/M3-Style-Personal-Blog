@@ -272,6 +272,7 @@ export default function Home({
             right: 0,
             bottom: 0,
             opacity: 0.1,
+            pointerEvents: "none",
             backgroundImage:
               "radial-gradient(circle at 20% 50%, white 0%, transparent 50%), radial-gradient(circle at 80% 80%, white 0%, transparent 50%)",
           }}

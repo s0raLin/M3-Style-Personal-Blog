@@ -21,6 +21,7 @@ import {
   Navigate,
   useNavigate,
   useParams,
+  useLocation,
 } from "react-router-dom";
 
 import ScrollToTop from "./components/Common/ScrollToTop";
@@ -70,13 +71,14 @@ function AppContent({
   handleThemeToggle,
 }: any) {
   const navigate = useNavigate();
+  const location = useLocation();
   // 控制侧边栏显隐的状态依然留在 AppContent 或 App 中
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
 
   return (
     <AppLayout
       // 这里可以根据 location.pathname 来判断当前高亮菜单
-      currentPage={window.location.hash.split("/")[1] || "home"}
+      currentPage={location.pathname.split("/")[1] || "home"}
       onNavigate={(page) => navigate(`/${page}`)}
       onThemeToggle={handleThemeToggle}
       isDarkMode={isDarkMode}
@@ -89,7 +91,7 @@ function AppContent({
           path="/home"
           element={
             <Home
-              onNavigate={navigate}
+              onNavigate={(page) => navigate(`/${page}`)}
               onSelectPost={(post) => navigate(`/blog/${post.id}`)}
               posts={posts}
               categories={categories}
