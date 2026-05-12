@@ -744,20 +744,7 @@ setTimeout(() => {
 Suspense 现在可以在服务端渲染中使用了！
 
 这些特性让 React 应用更加流畅和高效。
-`,rZ=`---
-title: Material Design 3 博客系统使用指南
-excerpt: 动态取色系统,主题自定义,深色/浅色模式,数据持久化,Markdown 支持,代码高亮,响应式设计,流畅动画
-category: 前端开发
-tags: [博客系统]
-date: 2026-05-08
-readTime: 6 分钟
-authorName: 蒼璃
-authorAvatar: https://avatars.githubusercontent.com/u/174418702?v=4
-coverImage: https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=600&fit=crop
----
-
-
-# Material Design 3 博客系统使用指南
+`,rZ=`# Material Design 3 博客系统使用指南
 
 ## 功能特性
 
@@ -798,16 +785,16 @@ coverImage: https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h
 
 编辑 \`src/app/data/blogData.ts\`，在 \`blogPosts\` 数组中添加新文章：
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 {
   id: '7',
   title: '你的文章标题',
   excerpt: '文章摘要',
   coverImage: 'https://example.com/image.jpg', // 可选
-  content: \\\`# 文章标题
+  content: \`# 文章标题
 
 这里是文章内容，支持完整的 Markdown 语法...
-\\\`,
+\`,
   category: '分类',
   tags: ['标签1', '标签2'],
   date: '2026-05-11',
@@ -817,14 +804,14 @@ coverImage: https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h
     avatar: 'https://example.com/avatar.jpg',
   },
 }
-\\\`\\\`\\\`
+\`\`\`
 
 #### 方法二：从 Markdown 文件读取
 
 1. 在 \`public/posts/\` 目录下创建 \`.md\` 文件
 2. 添加 Front Matter 元数据：
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 ---
 title: 文章标题
 excerpt: 文章摘要
@@ -839,7 +826,7 @@ coverImage: https://example.com/image.jpg
 # 文章内容
 
 这里是正文...
-\\\`\\\`\\\`
+\`\`\`
 
 3. 使用 \`loadMarkdownPost()\` 函数加载文章
 
@@ -847,15 +834,15 @@ coverImage: https://example.com/image.jpg
 
 编辑 \`src/app/data/blogData.ts\` 中的 \`categories\` 数组：
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 export const categories = ['全部', '设计', '前端开发', '性能优化', '新分类'];
-\\\`\\\`\\\`
+\`\`\`
 
 ### 4. 添加图库图片
 
 编辑 \`src/app/data/blogData.ts\` 中的 \`galleryImages\` 数组：
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 {
   id: '7',
   url: 'https://images.unsplash.com/photo-xxx',
@@ -863,13 +850,13 @@ export const categories = ['全部', '设计', '前端开发', '性能优化', '
   description: '图片描述',
   category: '分类',
 }
-\\\`\\\`\\\`
+\`\`\`
 
 ### 5. 修改个人信息
 
 编辑 \`src/app/data/blogData.ts\` 中的 \`authorInfo\` 对象：
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 export const authorInfo = {
   name: '你的名字',
   title: '你的职位',
@@ -885,7 +872,7 @@ export const authorInfo = {
   skills: ['技能1', '技能2', ...],
   experience: [...],
 };
-\\\`\\\`\\\`
+\`\`\`
 
 ## 技术栈
 
@@ -902,7 +889,7 @@ export const authorInfo = {
 
 ## 目录结构
 
-\\\`\\\`\\\`
+\`\`\`
 src/app/
 ├── components/
 │   ├── About/          # 关于页面
@@ -921,7 +908,7 @@ src/app/
 └── App.tsx             # 主应用
 
 public/posts/           # Markdown 文章目录
-\\\`\\\`\\\`
+\`\`\`
 
 ## M3 设计规范细节
 
@@ -963,10 +950,10 @@ public/posts/           # Markdown 文章目录
 - 自动在启动时加载
 
 清除数据：
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 import { clearAllData } from './utils/storage';
 await clearAllData();
-\\\`\\\`\\\`
+\`\`\`
 
 ## 开发建议
 
@@ -982,14 +969,14 @@ await clearAllData();
 
 编辑 \`src/app/utils/storage.ts\` 中的 \`DEFAULT_SETTINGS\`：
 
-\\\`\\\`\\\`typescript
+\`\`\`typescript
 const DEFAULT_SETTINGS: BlogSettings = {
   themeSettings: {
     sourceColor: '#你的颜色',
     isDarkMode: false,
   },
 };
-\\\`\\\`\\\`
+\`\`\`
 
 ### 如何添加更多预设颜色？
 
