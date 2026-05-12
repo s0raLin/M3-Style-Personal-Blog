@@ -53,7 +53,7 @@ const BlogDetailWrapper = ({
   return (
     <BlogDetail
       post={post}
-      onBack={() => navigate("/blog")}
+      onBack={() => navigate(-1)} //使用浏览器历史返回
       isDarkMode={isDarkMode}
     />
   );
