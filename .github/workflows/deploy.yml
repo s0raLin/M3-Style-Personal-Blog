@@ -26,11 +26,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm' 
+          cache: 'pnpm'
 
       - name: Install and Build 🔧
         run: |
           pnpm install
+          rm -rf docs
           pnpm run build
 
       - name: Add .nojekyll 📄
