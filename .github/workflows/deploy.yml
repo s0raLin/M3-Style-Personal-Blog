@@ -31,7 +31,6 @@ jobs:
       - name: Install and Build 🔧
         run: |
           pnpm install
-          rm -rf docs
           pnpm run build
 
       - name: Add .nojekyll 📄
