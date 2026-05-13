@@ -155,19 +155,6 @@ export default function App() {
   const [sourceColor, setSourceColor] = useState("#6750A4");
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
 
-  useEffect(() => {
-    // 检查 URL 是否包含 giscus Token
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("giscus")) {
-      // 延迟 2 秒清洗，给 Giscus 留出足够的初始化时间
-      const timer = setTimeout(() => {
-        const cleanUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, document.title, cleanUrl);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
   // 加载博客文章数据
   // const { posts, categories, loading, error } = useBlogPosts();
   const posts = getBlogPosts();
