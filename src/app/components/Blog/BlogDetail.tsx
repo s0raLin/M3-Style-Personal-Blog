@@ -366,11 +366,14 @@ export default function BlogDetail({
                 repoId="R_kgDOSa2OCg"
                 category="Announcements"
                 categoryId="DIC_kwDOSa2OCs4C86-J"
-                mapping="pathname"
+                // 💡 关键修改：针对 HashRouter，使用标题作为唯一标识
+                mapping="specific"
+                term={post.title}
                 strict="0"
                 reactionsEnabled="1"
                 emitMetadata="0"
                 inputPosition="bottom"
+                // 💡 视觉优化：暗色使用透明，亮色使用普通
                 theme={isDarkMode ? "transparent_dark" : "light"}
                 lang="zh-CN"
                 loading="lazy"
