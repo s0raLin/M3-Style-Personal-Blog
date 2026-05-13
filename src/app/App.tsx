@@ -156,6 +156,16 @@ export default function App() {
   const [sourceColor, setSourceColor] = useState("#6750A4");
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
 
+  useEffect(() => {
+    if (window.location.search.includes("giscus")) {
+      // 3秒后再擦除参数，保证登录成功
+      setTimeout(() => {
+        const cleanUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, "", cleanUrl);
+      }, 3000);
+    }
+  }, []);
+
   // 加载博客文章数据
   // const { posts, categories, loading, error } = useBlogPosts();
   const posts = getBlogPosts();
