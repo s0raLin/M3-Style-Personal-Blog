@@ -134,6 +134,7 @@ function AppContent({
         />
         <Route path="/gallery" element={<Gallery images={images} />} />
         <Route path="/about" element={<About />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
 
       {/* 2. 独立于路由的侧边栏组件 */}
