@@ -24,29 +24,6 @@ import {
 } from "react-router-dom";
 
 import ScrollToTop from "./components/Common/ScrollToTop";
-
-/**
- * Hook to clean up URL after Giscus OAuth redirect.
- * When Giscus redirects back with query params like ?giscus=xxx,
- * we need to remove them while preserving the hash router path.
- */
-const useGiscusRedirectCleanup = () => {
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const hasGiscusParam = url.searchParams.has("giscus");
-
-    if (hasGiscusParam) {
-      // Remove all query params, keep the hash router path
-      const hash = window.location.hash;
-      const cleanUrl = hash ? `${window.location.pathname}${hash}` : `${window.location.pathname}`;
-      window.history.replaceState({}, document.title, cleanUrl);
-      
-      // Force router to re-evaluate the current hash
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    }
-  }, []);
-};
-
 /**
  * BlogDetailWrapper 的作用：
  * 1. 从 URL 中获取 :id 参数
@@ -95,9 +72,6 @@ function AppContent({
   const location = useLocation();
   // 控制侧边栏显隐的状态依然留在 AppContent 或 App 中
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
-
-  // Clean up Giscus OAuth redirect URL
-  useGiscusRedirectCleanup();
 
   return (
     <AppLayout
