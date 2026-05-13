@@ -13,7 +13,6 @@ import About from "./components/About/About";
 import ThemeSettings from "./components/Settings/ThemeSettings";
 import { BlogPost } from "./data/blogData";
 import { staticPosts, galleryImages, getBlogPosts } from "@/lib/blogService";
-// import { useBlogPosts } from './hooks/useBlogPosts';
 import {
   HashRouter,
   Routes,
@@ -27,24 +26,26 @@ import {
 import ScrollToTop from "./components/Common/ScrollToTop";
 
 /**
- * 放在文件顶部，App 组件之外
- * 处理 Giscus 登录重定向导致的 URL 异常
+ * Hook to clean up URL after Giscus OAuth redirect.
+ * When Giscus redirects back with query params like ?giscus=xxx,
+ * we need to remove them while preserving the hash router path.
  */
-const handleGiscusRedirect = () => {
-  const url = new URL(window.location.href);
-  const giscusParam = url.searchParams.get("giscus");
+const useGiscusRedirectCleanup = () => {
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const hasGiscusParam = url.searchParams.has("giscus");
 
-  if (giscusParam) {
-    // 1. 清除 search 参数，保留 hash 路径
-    // 例如：/?giscus=xxx#/blog/1  =>  /#/blog/1
-    const cleanUrl = window.location.pathname + window.location.hash;
-
-    // 2. 使用 replaceState 修正浏览器地址栏，不触发页面刷新
-    window.history.replaceState({}, document.title, cleanUrl);
-  }
+    if (hasGiscusParam) {
+      // Remove all query params, keep the hash router path
+      const hash = window.location.hash;
+      const cleanUrl = hash ? `${window.location.pathname}${hash}` : `${window.location.pathname}`;
+      window.history.replaceState({}, document.title, cleanUrl);
+      
+      // Force router to re-evaluate the current hash
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  }, []);
 };
-// 执行清洗逻辑
-handleGiscusRedirect();
 
 /**
  * BlogDetailWrapper 的作用：
@@ -94,6 +95,9 @@ function AppContent({
   const location = useLocation();
   // 控制侧边栏显隐的状态依然留在 AppContent 或 App 中
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
+
+  // Clean up Giscus OAuth redirect URL
+  useGiscusRedirectCleanup();
 
   return (
     <AppLayout
@@ -156,17 +160,7 @@ export default function App() {
   const [sourceColor, setSourceColor] = useState("#6750A4");
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
 
-  useEffect(() => {
-    if (window.location.search.includes("giscus")) {
-      // 3秒后再擦除参数，保证登录成功
-      setTimeout(() => {
-        const cleanUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, "", cleanUrl);
-      }, 3000);
-    }
-  }, []);
-
-  // 加载博客文章数据
+  // Load blog post data
   // const { posts, categories, loading, error } = useBlogPosts();
   const posts = getBlogPosts();
   const categories = useMemo(() => {

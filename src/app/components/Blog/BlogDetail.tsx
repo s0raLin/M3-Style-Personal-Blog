@@ -366,13 +366,12 @@ export default function BlogDetail({
                 repoId="R_kgDOSa2OCg"
                 category="Announcements"
                 categoryId="DIC_kwDOSa2OCs4C86-J"
-                // 💡 针对你的 HashRouter 必须这样改：
                 mapping="specific"
-                term={post.title} // 使用文章标题作为唯一标识
+                term={post.title}
                 strict="0"
                 reactionsEnabled="1"
                 emitMetadata="1"
-                inputPosition="top" // 评论框放在上方
+                inputPosition="top"
                 theme={isDarkMode ? "transparent_dark" : "light"}
                 lang="zh-CN"
                 loading="lazy"
