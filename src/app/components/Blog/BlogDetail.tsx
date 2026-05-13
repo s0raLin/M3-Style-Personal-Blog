@@ -361,7 +361,7 @@ export default function BlogDetail({
               }}
             >
               <Giscus
-                id="comments"
+                // id="comments"
                 repo="s0raLin/M3-Style-Personal-Blog"
                 repoId="R_kgDOSa2OCg"
                 category="Announcements"
