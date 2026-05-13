@@ -134,6 +134,8 @@ function AppContent({
         />
         <Route path="/gallery" element={<Gallery images={images} />} />
         <Route path="/about" element={<About />} />
+
+        <Route path="/comments" element={<div style={{ display: "none" }} />} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
 
