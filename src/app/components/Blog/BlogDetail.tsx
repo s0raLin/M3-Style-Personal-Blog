@@ -295,69 +295,116 @@ export default function BlogDetail({
               {post.content}
             </ReactMarkdown>
           </Box>
-          {/* --- 评论区开始 --- */}
-          <Divider sx={{ my: 6 }} />
+          {/* --- M3 评论区开始 --- */}
+          <Divider sx={{ my: 6, opacity: 0.5 }} />
 
-          <Paper
-            elevation={0}
+          <Box
+            component={motion.section}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             sx={{
-              borderRadius: 6,
+              position: "relative",
+              borderRadius: "28px", // M3 Extra Large Rounding
               overflow: "hidden",
               border: "1px solid",
-              borderColor: "divider",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.1)"
+                : "rgba(103, 80, 164, 0.15)",
 
-              background: isDarkMode
-                ? "rgba(255,255,255,0.03)"
-                : "rgba(255,255,255,0.7)",
+              // M3 Surface Container styling
+              backgroundColor: isDarkMode
+                ? "rgba(28, 27, 31, 0.6)" // Surface Container Low
+                : "rgba(254, 247, 255, 0.8)", // Surface Container High
 
-              backdropFilter: "blur(20px)",
-
-              transition: "all .3s ease",
+              backdropFilter: "blur(12px)",
+              transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
 
               "&:hover": {
-                borderColor: "primary.main",
+                borderColor: "primary.outline",
+                boxShadow: isDarkMode
+                  ? "0 8px 32px rgba(0,0,0,0.4)"
+                  : "0 8px 32px rgba(103, 80, 164, 0.08)",
               },
             }}
           >
+            {/* 头部装饰条 (Primary Indicator) */}
             <Box
               sx={{
-                px: 3,
-                py: 2,
-                borderBottom: "1px solid",
-                borderColor: "divider",
+                height: 6,
+                width: "40px",
+                backgroundColor: "primary.main",
+                borderRadius: "0 0 4px 4px",
+                mx: "auto",
+                mb: -1,
+                opacity: 0.8,
+              }}
+            />
 
-                background: isDarkMode
-                  ? "rgba(255,255,255,0.02)"
-                  : "rgba(103,80,164,0.04)",
+            <Box
+              sx={{
+                px: { xs: 3, md: 4 },
+                pt: 4,
+                pb: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                💬 评论交流
-              </Typography>
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    color: "text.primary",
+                    letterSpacing: "0.02em",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                  }}
+                >
+                  <span style={{ fontSize: "1.4rem" }}>💬</span>
+                  讨论交流
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "primary.main",
+                    fontWeight: 500,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    mt: 0.5,
+                    display: "block",
+                    opacity: 0.8,
+                  }}
+                >
+                  Powered by GitHub Discussions
+                </Typography>
+              </Box>
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 0.5 }}
-              >
-                基于 GitHub Discussions
-              </Typography>
+              {/* 可选：添加一个小 Chip 标识当前状态 */}
+              <Chip
+                label="Open"
+                size="small"
+                sx={{
+                  bgcolor: "success.container",
+                  color: "success.onContainer",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                }}
+              />
             </Box>
 
             <Box
               key={post.title}
               sx={{
-                minHeight: 200,
-                px: { xs: 1, md: 2 },
-                py: 2,
+                minHeight: 280,
+                px: { xs: 2, md: 4 },
+                pb: 4,
+                // 这里的选择器用于微调 Giscus 注入后的 iframe 样式
+                "& iframe": {
+                  transition: "opacity 0.3s ease",
+                },
               }}
             >
               <Giscus
@@ -372,12 +419,13 @@ export default function BlogDetail({
                 reactionsEnabled="1"
                 emitMetadata="1"
                 inputPosition="top"
-                theme={isDarkMode ? "transparent_dark" : "light"}
+                // 使用更契合 M3 的主题颜色
+                theme={isDarkMode ? "dark_dimmed" : "light"}
                 lang="zh-CN"
                 loading="lazy"
               />
             </Box>
-          </Paper>
+          </Box>
           {/* --- 评论区结束 --- */}
         </Paper>
       </motion.div>
