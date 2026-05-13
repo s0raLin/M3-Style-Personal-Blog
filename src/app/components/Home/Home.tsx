@@ -341,72 +341,6 @@ export default function Home({
         </motion.div>
       </Container>
 
-      {/* 快速导航 */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 4 }}>
-            探索更多
-          </Typography>
-        </motion.div>
-
-        <Grid container spacing={3}>
-          {features.map((feature, index) => (
-            <Grid size={{ xs: 12, md: 4 }} key={feature.title}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                whileHover={{ y: -8 }}
-              >
-                <Card
-                  sx={{
-                    height: "100%",
-                    cursor: "pointer",
-                    transition: "box-shadow 0.3s",
-                    "&:hover": {
-                      boxShadow: 6,
-                    },
-                  }}
-                  onClick={feature.onClick}
-                >
-                  <CardActionArea sx={{ p: 3, height: "100%" }}>
-                    <Box
-                      sx={{
-                        width: 72,
-                        height: 72,
-                        borderRadius: 3,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: alpha(feature.color, 0.1),
-                        color: feature.color,
-                        mb: 2,
-                      }}
-                    >
-                      {feature.icon}
-                    </Box>
-                    <Typography
-                      variant="h6"
-                      gutterBottom
-                      sx={{ fontWeight: 600 }}
-                    >
-                      {feature.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {feature.description}
-                    </Typography>
-                  </CardActionArea>
-                </Card>
-              </motion.div>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-
       {/* 热门文章 */}
       <Box sx={{ backgroundColor: theme.palette.background.paper, py: 8 }}>
         <Container maxWidth="lg">
@@ -539,6 +473,72 @@ export default function Home({
           </motion.div>
         </Container>
       </Box>
+
+      {/* 快速导航 */}
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 4 }}>
+            探索更多
+          </Typography>
+        </motion.div>
+
+        <Grid container spacing={3}>
+          {features.map((feature, index) => (
+            <Grid size={{ xs: 12, md: 4 }} key={feature.title}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+                whileHover={{ y: -8 }}
+              >
+                <Card
+                  sx={{
+                    height: "100%",
+                    cursor: "pointer",
+                    transition: "box-shadow 0.3s",
+                    "&:hover": {
+                      boxShadow: 6,
+                    },
+                  }}
+                  onClick={feature.onClick}
+                >
+                  <CardActionArea sx={{ p: 3, height: "100%" }}>
+                    <Box
+                      sx={{
+                        width: 72,
+                        height: 72,
+                        borderRadius: 3,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: alpha(feature.color, 0.1),
+                        color: feature.color,
+                        mb: 2,
+                      }}
+                    >
+                      {feature.icon}
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{ fontWeight: 600 }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {feature.description}
+                    </Typography>
+                  </CardActionArea>
+                </Card>
+              </motion.div>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
     </Box>
   );
 }
