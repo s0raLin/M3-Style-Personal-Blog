@@ -27,6 +27,26 @@ import {
 import ScrollToTop from "./components/Common/ScrollToTop";
 
 /**
+ * 放在文件顶部，App 组件之外
+ * 处理 Giscus 登录重定向导致的 URL 异常
+ */
+const handleGiscusRedirect = () => {
+  const url = new URL(window.location.href);
+  const giscusParam = url.searchParams.get("giscus");
+
+  if (giscusParam) {
+    // 1. 清除 search 参数，保留 hash 路径
+    // 例如：/?giscus=xxx#/blog/1  =>  /#/blog/1
+    const cleanUrl = window.location.pathname + window.location.hash;
+
+    // 2. 使用 replaceState 修正浏览器地址栏，不触发页面刷新
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+};
+// 执行清洗逻辑
+handleGiscusRedirect();
+
+/**
  * BlogDetailWrapper 的作用：
  * 1. 从 URL 中获取 :id 参数
  * 2. 根据 id 从 posts 列表中查找具体文章数据
