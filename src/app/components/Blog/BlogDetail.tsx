@@ -361,19 +361,18 @@ export default function BlogDetail({
               }}
             >
               <Giscus
-                // id="comments"
+                id="comments"
                 repo="s0raLin/M3-Style-Personal-Blog"
                 repoId="R_kgDOSa2OCg"
                 category="Announcements"
                 categoryId="DIC_kwDOSa2OCs4C86-J"
-                // 💡 关键修改：针对 HashRouter，使用标题作为唯一标识
+                // 💡 针对你的 HashRouter 必须这样改：
                 mapping="specific"
-                term={post.title}
+                term={post.title} // 使用文章标题作为唯一标识
                 strict="0"
                 reactionsEnabled="1"
-                emitMetadata="0"
-                inputPosition="bottom"
-                // 💡 视觉优化：暗色使用透明，亮色使用普通
+                emitMetadata="1"
+                inputPosition="top" // 评论框放在上方
                 theme={isDarkMode ? "transparent_dark" : "light"}
                 lang="zh-CN"
                 loading="lazy"
