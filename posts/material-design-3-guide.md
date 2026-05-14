@@ -16,25 +16,28 @@ Material Design 3 (M3) 是 Google 推出的最新设计系统，它引入了许�
 ## 主要特性
 
 ### 1. 动态色彩
+
 M3 引入了动态色彩系统，可以根据用户的壁纸自动生成主题色彩。
 
 ```typescript
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#6750A4',
+      main: "#6750A4",
     },
   },
 });
 ```
 
 ### 2. 新的组件
+
 - **Filled Button**: 主要操作按钮
 - **Outlined Button**: 次要操作按钮
 - **Text Button**: 低优先级操作
 
 ### 3. 自适应布局
+
 响应式设计原则确保在所有设备上都有出色的体验。
 
 ## 设计原则
