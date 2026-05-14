@@ -18,6 +18,7 @@
 ### 🎨 设计规范
 
 严格遵循 Material Design 3 设计规范：
+
 - 动态色彩系统
 - M3 圆角规范（12px）
 - M3 阴影效果
@@ -91,7 +92,7 @@ export const authorInfo = {
 ```typescript
 const DEFAULT_SETTINGS: BlogSettings = {
   themeSettings: {
-    sourceColor: '#6750A4', // 修改为你的颜色
+    sourceColor: "#6750A4", // 修改为你的颜色
     isDarkMode: false,
   },
 };
@@ -156,20 +157,21 @@ docs/                          # 构建输出目录（GitHub Pages 部署）
 
 应用使用 HashRouter，支持以下路由：
 
-| 路径 | 组件 | 说明 |
-|------|------|------|
-| `/` | 重定向到 `/home` | 首页重定向 |
-| `/home` | Home | 主页，展示精选文章和简介 |
-| `/blog` | BlogList | 博客列表，支持分类筛选 |
-| `/blog/:id` | BlogDetail | 博客详情页 |
-| `/gallery` | Gallery | 图库页面 |
-| `/about` | About | 关于页面 |
+| 路径        | 组件             | 说明                     |
+| ----------- | ---------------- | ------------------------ |
+| `/`         | 重定向到 `/home` | 首页重定向               |
+| `/home`     | Home             | 主页，展示精选文章和简介 |
+| `/blog`     | BlogList         | 博客列表，支持分类筛选   |
+| `/blog/:id` | BlogDetail       | 博客详情页               |
+| `/gallery`  | Gallery          | 图库页面                 |
+| `/about`    | About            | 关于页面                 |
 
 ## M3 设计规范细节
 
 ### 颜色系统
 
 系统会根据你选择的主题色自动生成：
+
 - Primary（主色）
 - Secondary（次要色）
 - Tertiary（第三色）
@@ -201,12 +203,14 @@ docs/                          # 构建输出目录（GitHub Pages 部署）
 ## 数据持久化
 
 系统使用 LocalForage 自动保存：
+
 - 主题设置（sourceColor, isDarkMode）
 - 自动在启动时加载
 
 清除所有数据：
+
 ```typescript
-import { clearAllData } from './utils/storage';
+import { clearAllData } from "./utils/storage";
 await clearAllData();
 ```
 
