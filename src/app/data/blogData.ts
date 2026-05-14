@@ -61,4 +61,16 @@ export const authorInfo = {
       description: "参与多个大型项目的前端开发工作",
     },
   ],
+  projects: [
+    {
+      name: "开源 UI 组件库",
+      description: "基于 React 和 TailwindCSS 构建的高性能轻量级组件库。",
+      tech: ["React", "TypeScript", "Tailwind"],
+    },
+    {
+      name: "AI 智能聊天室",
+      description: "集成 LLM API 的实时交互式对话平台。",
+      tech: ["Next.js", "OpenAI", "Socket.io"],
+    },
+  ],
 };
