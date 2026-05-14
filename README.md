@@ -122,7 +122,7 @@ const DEFAULT_SETTINGS: BlogSettings = {
 
 ## 目录结构
 
-```
+```tree
 src/
 ├── app/
 │   ├── components/
