@@ -1,3 +1,15 @@
+---
+title: Android Jetpack Compose 白屏问题分析与解决方案
+excerpt: 解决 setContent 为空导致 Compose 页面白屏的问题
+category: 编程
+tags: [Android]
+date: 2026-05-14
+readTime: 5 分钟
+authorName: 蒼璃
+authorAvatar: https://avatars.githubusercontent.com/u/174418702?v=4
+
+---
+
 # Android Jetpack Compose 白屏问题分析与解决方案
 
 ---
