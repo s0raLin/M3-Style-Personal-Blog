@@ -77,8 +77,27 @@ const presetData: Record<string, any> = {
     description: "好看的动漫壁纸",
     category: "壁纸",
   },
+  "54b782fe885972003ca2b0e507564c3b3493137316055761.jpg": {
+    title: "Второй этаж поражает1",
+    description: "Второй этаж поражает",
+    category: "「从一个极端走向另一个极端」",
+  },
 
-  // ... 依此类推
+  "83a1395a4fffff5fae0967b3ce8744273493137316055761.jpg": {
+    title: "Второй этаж поражает2",
+    description: "Второй этаж поражает",
+    category: "「从一个极端走向另一个极端」",
+  },
+  "297bbf4879a480fed54efbc6d9ab27e03493137316055761.jpg": {
+    title: "Второй этаж поражает3",
+    description: "Второй этаж поражает",
+    category: "「从一个极端走向另一个极端」",
+  },
+  "1634dc90042857abf346b742701cee223493137316055761.jpg": {
+    title: "Второй этаж поражает4",
+    description: "Второй этаж поражает",
+    category: "「从一个极端走向另一个极端」",
+  },
 };
 export const galleryImages: GalleryImage[] = Object.keys(galleryFiles).map(
   (path, index) => {
