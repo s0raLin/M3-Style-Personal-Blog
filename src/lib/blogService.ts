@@ -1,3 +1,4 @@
+import { Category } from "@mui/icons-material";
 import fm from "front-matter";
 
 export interface BlogPost {
@@ -40,7 +41,6 @@ export const staticPosts: BlogPost[] = Object.keys(modules)
   .map((path) => {
     let rawContent = modules[path] as string;
 
-
     //使用gray-matter解析Frontmatter(data)和正文(content)
     const { attributes, body } = fm<any>(rawContent);
     const data = attributes;
@@ -73,7 +73,7 @@ export const staticPosts: BlogPost[] = Object.keys(modules)
 
 const presetData: Record<string, any> = {
   "anime.png": {
-    title: "动漫壁纸",
+    title: "我的壁纸",
     description: "好看的动漫壁纸",
     category: "壁纸",
   },
@@ -98,6 +98,11 @@ const presetData: Record<string, any> = {
     description: "Второй этаж поражает",
     category: "「从一个极端走向另一个极端」",
   },
+  "term.png": {
+    title: "我的终端",
+    description: "",
+    category: "终端",
+  },
 };
 export const galleryImages: GalleryImage[] = Object.keys(galleryFiles).map(
   (path, index) => {
@@ -117,7 +122,7 @@ export const galleryImages: GalleryImage[] = Object.keys(galleryFiles).map(
 );
 
 export function getBlogPosts() {
-  if (staticPosts.length>0) {
+  if (staticPosts.length > 0) {
     //使用打包的静态内容
     return staticPosts;
   }
