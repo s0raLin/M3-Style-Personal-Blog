@@ -762,7 +762,7 @@ BOM 就像一份"版本白皮书"，你只需要指定一个 BOM 的版本，它
 \`\`\`toml
 [versions]
 # 只需要定义一个 BOM 的版本
-compose-bom = "2024.04.00"
+compose-bom = "2026.02.01"
 
 [libraries]
 # 引入 BOM
