@@ -85,6 +85,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 在 `build.gradle.kts` 中先随便写一个版本号（比如 `"2.8.0"`），Sync 之后，如果 Android Studio 发现有更新版本，会在版本号下方画出**黄色波浪线**。
 
 此时按下：
+
 - Windows/Linux：`Alt + Enter`
 - macOS：`Option + Enter`
 
@@ -101,10 +102,10 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 
 ## 总结对比
 
-| 方式 | 适用场景 | 优点 | 缺点 |
-|------|----------|------|------|
-| **BOM 管理** | 使用多个 Compose 组件 | 自动兼容，升级方便 | 需要额外引入 BOM 依赖 |
-| **内联版本号** | 依赖少，结构简单 | 直观，无需 `[versions]` | 多个库需各自手动维护版本 |
-| **`[versions]` 集中管理** | 版本复用场景 | 统一引用，便于共享 | 需要维护 ref 映射 |
+| 方式                      | 适用场景              | 优点                    | 缺点                     |
+| ------------------------- | --------------------- | ----------------------- | ------------------------ |
+| **BOM 管理**              | 使用多个 Compose 组件 | 自动兼容，升级方便      | 需要额外引入 BOM 依赖    |
+| **内联版本号**            | 依赖少，结构简单      | 直观，无需 `[versions]` | 多个库需各自手动维护版本 |
+| **`[versions]` 集中管理** | 版本复用场景          | 统一引用，便于共享      | 需要维护 ref 映射        |
 
 根据项目规模和依赖数量选择最适合你的方式即可。对于 Compose 项目，**推荐优先使用 BOM**，这是 Google 官方推荐的最佳实践。
