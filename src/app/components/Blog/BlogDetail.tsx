@@ -9,6 +9,8 @@ import {
   Divider,
   Button,
   Skeleton,
+  Fab, // 引入 M3 核心悬浮按钮
+  Zoom, // 引入优雅的缩放渐变
 } from "@mui/material";
 import {
   ArrowBack,
@@ -19,6 +21,7 @@ import {
   ContentCopy,
   CalendarToday,
   AccessTime,
+  KeyboardArrowUp, // 引入向上箭头图标
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
@@ -134,6 +137,32 @@ export default function BlogDetail({
   isDarkMode,
 }: BlogDetailProps) {
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false); // 控制回到顶部按钮显隐
+
+  // 监听页面滚动
+  useEffect(() => {
+    const handleScroll = () => {
+      // 当页面向下滚动超过 400 像素时显示按钮
+      if (window.scrollY > 400) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // 回到顶部的平滑滚动逻辑
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // 平滑滚动效果
+    });
+  };
 
   const handleShare = (platform: string) => {
     const url = window.location.href;
@@ -523,6 +552,33 @@ export default function BlogDetail({
           {/* --- 评论区结束 --- */}
         </Paper>
       </motion.div>
+
+      {/* --- M3 回到顶部悬浮组件开始 --- */}
+      <Zoom in={showScrollTop}>
+        <Fab
+          color="primary"
+          size="medium"
+          aria-label="scroll back to top"
+          onClick={scrollToTop}
+          sx={{
+            position: "fixed",
+            bottom: { xs: 24, md: 32 },
+            right: { xs: 24, md: 32 },
+            borderRadius: "16px", // M3 规范中 Small/Medium FAB 使用的圆角大小
+            boxShadow: isDarkMode
+              ? "0 4px 12px rgba(0,0,0,0.5)"
+              : "0 4px 12px rgba(103, 80, 164, 0.2)",
+            // 顺滑的过渡动效
+            transition: "transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s",
+            "&:hover": {
+              transform: "scale(1.08)",
+            }
+          }}
+        >
+          <KeyboardArrowUp />
+        </Fab>
+      </Zoom>
+      {/* --- M3 回到顶部悬浮组件结束 --- */}
     </Container>
   );
 }
