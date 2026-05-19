@@ -18,8 +18,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["react", "react-dom", "vite/client"]
+    "types": ["react", "react-dom", "vite/client", "node"]
   },
-  "include": ["src"],
+  "include": ["src", "scripts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
