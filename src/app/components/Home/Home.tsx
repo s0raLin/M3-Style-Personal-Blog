@@ -319,89 +319,140 @@ export default function Home({
       </Box>
 
       {/* 分类数据 */}
-      <Container maxWidth="lg" sx={{ mt: -6, position: "relative", zIndex: 2 }}>
-        <Box
-          component={motion.div}
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
+      {/* Stats Panel */}
+      <Container
+        maxWidth="lg"
+        sx={{
+          mt: -7,
+          position: "relative",
+          zIndex: 5,
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
         >
-          <Grid container spacing={3}>
-            {categoryStats.map((stat) => (
-              <Grid size={{ xs: 12, sm: 4 }} key={stat.name}>
-                <motion.div
-                  variants={itemVariants}
-                  whileHover={{ y: -6 }}
-                  style={{ height: "100%" }}
+          <Card
+            sx={{
+              borderRadius: "32px",
+              overflow: "hidden",
+              backdropFilter: "blur(24px)",
+              background: isDarkMode
+                ? "rgba(24,24,28,0.72)"
+                : "rgba(255,255,255,0.78)",
+              border: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(255,255,255,0.9)",
+              boxShadow: isDarkMode
+                ? "0 10px 40px rgba(0,0,0,0.35)"
+                : "0 10px 40px rgba(0,0,0,0.06)",
+            }}
+          >
+            <Grid container>
+              {[
+                {
+                  label: "文章",
+                  value: posts.length,
+                  icon: <Article />,
+                },
+                {
+                  label: "分类",
+                  value: displayCategories.filter((c) => c !== "全部").length,
+                  icon: <Code />,
+                },
+                {
+                  label: "最近更新",
+                  value: "2026",
+                  icon: <Speed />,
+                },
+                {
+                  label: "照片",
+                  value: "48",
+                  icon: <PhotoLibrary />,
+                },
+              ].map((item, index) => (
+                <Grid
+                  key={item.label}
+                  size={{ xs: 6, md: 3 }}
+                  sx={{
+                    borderRight:
+                      index !== 3
+                        ? `1px solid ${
+                            isDarkMode
+                              ? "rgba(255,255,255,0.05)"
+                              : "rgba(0,0,0,0.04)"
+                          }`
+                        : "none",
+                    borderBottom: {
+                      xs:
+                        index < 2
+                          ? `1px solid ${
+                              isDarkMode
+                                ? "rgba(255,255,255,0.05)"
+                                : "rgba(0,0,0,0.04)"
+                            }`
+                          : "none",
+                      md: "none",
+                    },
+                  }}
                 >
-                  <Card
+                  <Box
                     sx={{
-                      borderRadius: "20px",
-                      height: "100%",
-                      backgroundColor: isDarkMode
-                        ? "rgba(28, 27, 31, 0.9)"
-                        : "#ffffff",
-                      border: "1px solid",
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.05)"
-                        : "rgba(0,0,0,0.04)",
-                      boxShadow: isDarkMode
-                        ? "0 4px 20px rgba(0,0,0,0.4)"
-                        : "0 4px 20px rgba(0,0,0,0.02)",
+                      p: { xs: 3, md: 4 },
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1.5,
                     }}
                   >
-                    <CardContent sx={{ p: 3 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Box
-                            sx={{
-                              p: 1.5,
-                              borderRadius: "12px",
-                              backgroundColor: "secondary.container",
-                              color: "secondary.onContainer",
-                              display: "flex",
-                            }}
-                          >
-                            {stat.icon}
-                          </Box>
+                    <Box
+                      sx={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: "14px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: alpha(
+                          theme.palette.primary.main,
+                          0.08,
+                        ),
+                        color: "primary.main",
+                      }}
+                    >
+                      {item.icon}
+                    </Box>
 
-                          <Typography
-                            variant="subtitle1"
-                            sx={{
-                              fontWeight: 600,
-                              color: "text.secondary",
-                            }}
-                          >
-                            {stat.name}
-                          </Typography>
-                        </Box>
+                    <Typography
+                      sx={{
+                        fontSize: {
+                          xs: "1.8rem",
+                          md: "2.2rem",
+                        },
+                        fontWeight: 800,
+                        letterSpacing: "-0.04em",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {item.value}
+                    </Typography>
 
-                        <Typography
-                          variant="h3"
-                          sx={{
-                            fontWeight: 800,
-                            fontFamily: "monospace",
-                            letterSpacing: "-1px",
-                          }}
-                        >
-                          {stat.count}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        fontWeight: 500,
+                      }}
+                    >
+                      {item.label}
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Card>
+        </motion.div>
       </Container>
 
       {/* 最新文章 */}
