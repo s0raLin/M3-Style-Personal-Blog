@@ -1,4 +1,3 @@
-import { Category } from "@mui/icons-material";
 import fm from "front-matter";
 
 export interface BlogPost {
