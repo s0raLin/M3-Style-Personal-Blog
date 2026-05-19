@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react"; // 💡 引入 useMemo 优化性能
 import {
   Container,
   Grid,
@@ -38,7 +38,27 @@ export default function BlogList({
 }: BlogListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("全部");
+  const [selectedTag, setSelectedTag] = useState("全部"); // 💡 新增：选中的标签状态
 
+  // 💡 当分类切换时，自动把选中的标签重置为“全部”
+  const handleCategoryChange = (_: any, newValue: string) => {
+    setSelectedCategory(newValue);
+    setSelectedTag("全部");
+  };
+
+  // 💡 动态提取当前分类下所有可用的 Tags
+  const availableTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+    posts.forEach((post) => {
+      // 如果是“全部”或者分类匹配，就把它的标签加进来
+      if (selectedCategory === "全部" || post.category === selectedCategory) {
+        post.tags.forEach((tag) => tagsSet.add(tag));
+      }
+    });
+    return ["全部", ...Array.from(tagsSet)];
+  }, [posts, selectedCategory]);
+
+  // 💡 联动过滤：加入对 selectedTag 的判断
   const filteredPosts = posts.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,7 +70,11 @@ export default function BlogList({
     const matchesCategory =
       selectedCategory === "全部" || post.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
+    // 新增：判断文章是否包含选中的标签
+    const matchesTag =
+      selectedTag === "全部" || post.tags.includes(selectedTag);
+
+    return matchesSearch && matchesCategory && matchesTag;
   });
 
   const containerVariants = {
@@ -86,54 +110,99 @@ export default function BlogList({
       </motion.div>
 
       {/* 搜索框 */}
-      {
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="搜索文章标题、内容或标签..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ mb: 3 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </motion.div>
-      }
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="搜索文章标题、内容或标签..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ mb: 3 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </motion.div>
 
-      {/* 分类 */}
-      {
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+      {/* 分类 Tabs */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <Tabs
+          value={selectedCategory}
+          onChange={handleCategoryChange} // 💡 使用新处理函数
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            mb: 2, // 💡 缩短下边距，给下方的 Tags 腾出空间
+            borderBottom: 1,
+            borderColor: "divider",
+          }}
         >
-          <Tabs
-            value={selectedCategory}
-            onChange={(_, newValue) => setSelectedCategory(newValue)}
-            variant="scrollable"
-            scrollButtons="auto"
+          {categories.map((category) => (
+            <Tab key={category} label={category} value={category} />
+          ))}
+        </Tabs>
+      </motion.div>
+
+      {/* 💡 新增：M3 风格的标签过滤按钮组 (Filter Chips) */}
+      {availableTags.length > 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.35 }}
+        >
+          <Box
             sx={{
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
               mb: 4,
-              borderBottom: 1,
-              borderColor: "divider",
+              overflowX: "auto",
+              py: 0.5,
+              // 隐藏滚动条但保持可横向滚动（移动端体验更好）
+              "&::-webkit-scrollbar": { display: "none" },
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
             }}
           >
-            {categories.map((category) => (
-              <Tab key={category} label={category} value={category} />
-            ))}
-          </Tabs>
+            {availableTags.map((tag) => {
+              const isSelected = selectedTag === tag;
+              return (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  // 💡 通过配置 variant 和 color 模拟 Material 3 的 Filter Chip 风格
+                  variant={isSelected ? "filled" : "outlined"}
+                  color={isSelected ? "secondary" : "default"}
+                  sx={{
+                    borderRadius: "8px", // M3 偏向于使用圆角矩形而不是完全的椭圆
+                    fontWeight: isSelected ? 600 : 400,
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      backgroundColor: isSelected
+                        ? "secondary.dark"
+                        : "action.hover",
+                    },
+                  }}
+                />
+              );
+            })}
+          </Box>
         </motion.div>
-      }
+      )}
 
       {/* 空状态 */}
       {filteredPosts.length === 0 ? (
@@ -237,6 +306,11 @@ export default function BlogList({
                               label={tag}
                               size="small"
                               variant="outlined"
+                              // 💡 顺手做个小联动：点击卡片内部的 tag 也能直接触发过滤
+                              onClick={(e) => {
+                                e.stopPropagation(); // 阻止冒泡，不触发卡片的点击事件
+                                setSelectedTag(tag);
+                              }}
                             />
                           ))}
                         </Box>
