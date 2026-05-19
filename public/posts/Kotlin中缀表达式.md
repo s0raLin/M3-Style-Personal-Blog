@@ -1,8 +1,8 @@
 ---
 title: Kotlin中缀表达式
-excerpt: 对比 Flutter 内置图标的便利性，深入讲解 Android Compose 中引入 material-icons-extended 的完整步骤
+excerpt: 一个非常有趣的机制是 中缀表达式。它允许我们定义和调用函数时省略点号（`.`）和括号。
 category: 编程
-tags: [Android]
+tags: [Kotlin]
 date: 2025-07-12
 readTime: 6 分钟
 authorName: 蒼璃
