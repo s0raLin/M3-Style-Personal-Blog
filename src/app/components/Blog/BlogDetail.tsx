@@ -305,7 +305,23 @@ export default function BlogDetail({
           </Box>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 4 }}>
             {post.tags.map((tag) => (
-              <Chip key={tag} label={tag} variant="outlined" size="small" />
+              <Chip
+                key={tag}
+                label={tag}
+                size="small"
+                sx={{
+                  borderRadius: "8px", // M3 规定的标准小组件圆角
+                  fontWeight: 500,
+                  // 采用类似 M3 Surface Variant / On Surface Variant 的配色
+                  bgcolor: isDarkMode
+                    ? "rgba(255, 255, 255, 0.08)"
+                    : "rgba(0, 0, 0, 0.05)",
+                  color: isDarkMode
+                    ? "rgba(255, 255, 255, 0.87)"
+                    : "rgba(0, 0, 0, 0.87)",
+                  border: "none", // 彻底抛弃边框，告别锯齿
+                }}
+              />
             ))}
           </Box>
           <Divider sx={{ mb: 4 }} />
