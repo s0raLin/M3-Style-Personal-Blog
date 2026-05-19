@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import { ImageOutlined } from '@mui/icons-material';
 import { motion } from 'motion/react';
 
