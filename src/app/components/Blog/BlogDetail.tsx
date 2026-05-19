@@ -8,6 +8,7 @@ import {
   Paper,
   Divider,
   Button,
+  Skeleton,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -21,23 +22,110 @@ import {
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-  vscDarkPlus,
-  vs,
-} from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
 import { BlogPost } from "../../data/blogData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 
 import Giscus from "@giscus/react";
+// 引入 shiki 的核心单例创建方法
+import { createHighlighter } from "shiki";
 
 interface BlogDetailProps {
   post: BlogPost;
   onBack: () => void;
   isDarkMode: boolean;
+}
+
+/**
+ * 专为 Shiki 高亮设计的异步渲染微组件
+ * 完美支持 Kotlin 且完全杜绝 React-Markdown 的同步流崩溃错误
+ */
+function ShikiCodeBlock({
+  code,
+  language,
+  isDarkMode,
+}: {
+  code: string;
+  language: string;
+  isDarkMode: boolean;
+}) {
+  const [html, setHtml] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+
+  const normalizedLang = language === "kt" ? "kotlin" : language || "plaintext";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function highlight() {
+      try {
+        const highlighter = await createHighlighter({
+          // 修正：使用全量包中绝对存在的标准主题名称
+          themes: ["github-light", "github-dark"],
+          langs: [
+            "kotlin",
+            "java",
+            "typescript",
+            "tsx",
+            "javascript",
+            "plaintext",
+          ],
+        });
+
+        if (isMounted) {
+          const highlightedHtml = highlighter.codeToHtml(code, {
+            lang: normalizedLang,
+            // 对应上面注册的主题
+            theme: isDarkMode ? "github-dark" : "github-light",
+          });
+          setHtml(highlightedHtml);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Shiki 渲染失败:", error);
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    highlight();
+    return () => {
+      isMounted = false;
+    };
+  }, [code, normalizedLang, isDarkMode]);
+
+  if (loading) {
+    return (
+      <Skeleton
+        variant="rounded"
+        height={120}
+        sx={{
+          borderRadius: "12px",
+          mb: 2,
+          bgcolor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
+        }}
+      />
+    );
+  }
+
+  return (
+    <Box
+      dangerouslySetInnerHTML={{ __html: html }}
+      sx={{
+        mb: 2,
+        "& pre": {
+          padding: "16px",
+          borderRadius: "12px",
+          overflowX: "auto",
+          fontSize: "0.875rem",
+          fontFamily: "'Fira Code', Consolas, Monaco, monospace",
+          backgroundColor: "transparent !important",
+          margin: "0 !important",
+        },
+      }}
+    />
+  );
 }
 
 export default function BlogDetail({
@@ -221,6 +309,8 @@ export default function BlogDetail({
             ))}
           </Box>
           <Divider sx={{ mb: 4 }} />
+
+          {/* 文章正文包裹容器 */}
           <Box
             sx={{
               "& h1, & h2, & h3": {
@@ -250,7 +340,8 @@ export default function BlogDetail({
                   : "rgba(103, 80, 164, 0.05)",
                 fontStyle: "italic",
               },
-              "& code": {
+              // 仅对行内代码块（`code`）生效的样式
+              "& :not(pre) > code": {
                 backgroundColor: isDarkMode
                   ? "rgba(255, 255, 255, 0.1)"
                   : "rgba(0, 0, 0, 0.05)",
@@ -259,10 +350,6 @@ export default function BlogDetail({
                 fontFamily: "monospace",
                 fontSize: "0.9em",
               },
-              "& pre code": {
-                backgroundColor: "transparent",
-                padding: 0,
-              },
             }}
           >
             <ReactMarkdown
@@ -270,20 +357,13 @@ export default function BlogDetail({
               components={{
                 code({ node, inline, className, children, ...props }: any) {
                   const match = /language-(\w+)/.exec(className || "");
+                  // 如果不是行内代码且匹配到了语言，则转交给安全的 Shiki 渲染块
                   return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={isDarkMode ? vscDarkPlus : vs}
+                    <ShikiCodeBlock
+                      code={String(children).replace(/\n$/, "")}
                       language={match[1]}
-                      PreTag="div"
-                      customStyle={{
-                        borderRadius: 8,
-                        padding: 16,
-                        marginBottom: 16,
-                      }}
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
+                      isDarkMode={isDarkMode}
+                    />
                   ) : (
                     <code className={className} {...props}>
                       {children}
@@ -295,6 +375,7 @@ export default function BlogDetail({
               {post.content}
             </ReactMarkdown>
           </Box>
+
           {/* --- M3 评论区开始 --- */}
           <Divider sx={{ my: 6, opacity: 0.5 }} />
 
@@ -382,7 +463,6 @@ export default function BlogDetail({
                 </Typography>
               </Box>
 
-              {/* 可选：添加一个小 Chip 标识当前状态 */}
               <Chip
                 label="Open"
                 size="small"
@@ -401,7 +481,6 @@ export default function BlogDetail({
                 minHeight: 280,
                 px: { xs: 2, md: 4 },
                 pb: 4,
-                // 这里的选择器用于微调 Giscus 注入后的 iframe 样式
                 "& iframe": {
                   transition: "opacity 0.3s ease",
                 },
@@ -419,7 +498,6 @@ export default function BlogDetail({
                 reactionsEnabled="1"
                 emitMetadata="1"
                 inputPosition="top"
-                // 使用更契合 M3 的主题颜色
                 theme={isDarkMode ? "dark_dimmed" : "light"}
                 lang="zh-CN"
                 loading="lazy"
