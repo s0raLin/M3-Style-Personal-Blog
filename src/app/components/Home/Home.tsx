@@ -24,6 +24,7 @@ import {
 import { motion } from "motion/react";
 import { BlogPost, categories as staticCategories } from "../../data/blogData";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
+import { galleryImages } from "@/lib/blogService";
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -304,7 +305,6 @@ export default function Home({
       </Box>
 
       {/* 分类数据 */}
-      {/* Stats Panel */}
       <Container
         maxWidth="lg"
         sx={{
@@ -354,7 +354,7 @@ export default function Home({
                 },
                 {
                   label: "照片",
-                  value: "48",
+                  value: galleryImages.length,
                   icon: <PhotoLibrary />,
                 },
               ].map((item, index) => (
