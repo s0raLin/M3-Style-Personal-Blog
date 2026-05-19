@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"; // 💡 引入 useMemo 优化性能
+import { useState, useMemo } from "react";
 import {
   Container,
   Grid,
@@ -13,6 +13,8 @@ import {
   Tab,
   Avatar,
   CardActionArea,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -22,7 +24,6 @@ import {
 import { motion } from "motion/react";
 
 import { BlogPost } from "../../data/blogData";
-
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 
 interface BlogListProps {
@@ -36,21 +37,21 @@ export default function BlogList({
   posts,
   categories,
 }: BlogListProps) {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("全部");
-  const [selectedTag, setSelectedTag] = useState("全部"); // 💡 新增：选中的标签状态
+  const [selectedTag, setSelectedTag] = useState("全部");
 
-  // 💡 当分类切换时，自动把选中的标签重置为“全部”
   const handleCategoryChange = (_: any, newValue: string) => {
     setSelectedCategory(newValue);
     setSelectedTag("全部");
   };
 
-  // 💡 动态提取当前分类下所有可用的 Tags
   const availableTags = useMemo(() => {
     const tagsSet = new Set<string>();
     posts.forEach((post) => {
-      // 如果是“全部”或者分类匹配，就把它的标签加进来
       if (selectedCategory === "全部" || post.category === selectedCategory) {
         post.tags.forEach((tag) => tagsSet.add(tag));
       }
@@ -58,7 +59,6 @@ export default function BlogList({
     return ["全部", ...Array.from(tagsSet)];
   }, [posts, selectedCategory]);
 
-  // 💡 联动过滤：加入对 selectedTag 的判断
   const filteredPosts = posts.filter((post) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -70,7 +70,6 @@ export default function BlogList({
     const matchesCategory =
       selectedCategory === "全部" || post.category === selectedCategory;
 
-    // 新增：判断文章是否包含选中的标签
     const matchesTag =
       selectedTag === "全部" || post.tags.includes(selectedTag);
 
@@ -103,7 +102,6 @@ export default function BlogList({
         <Typography variant="h3" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
           博客文章
         </Typography>
-
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
           分享技术见解与设计思考
         </Typography>
@@ -140,11 +138,11 @@ export default function BlogList({
       >
         <Tabs
           value={selectedCategory}
-          onChange={handleCategoryChange} // 💡 使用新处理函数
+          onChange={handleCategoryChange}
           variant="scrollable"
           scrollButtons="auto"
           sx={{
-            mb: 2, // 💡 缩短下边距，给下方的 Tags 腾出空间
+            mb: 2,
             borderBottom: 1,
             borderColor: "divider",
           }}
@@ -155,7 +153,7 @@ export default function BlogList({
         </Tabs>
       </motion.div>
 
-      {/* 💡 新增：M3 风格的标签过滤按钮组 (Filter Chips) */}
+      {/* M3 风格标签过滤芯片组 (Filter Chips) */}
       {availableTags.length > 1 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -170,7 +168,6 @@ export default function BlogList({
               mb: 4,
               overflowX: "auto",
               py: 0.5,
-              // 隐藏滚动条但保持可横向滚动（移动端体验更好）
               "&::-webkit-scrollbar": { display: "none" },
               msOverflowStyle: "none",
               scrollbarWidth: "none",
@@ -183,17 +180,26 @@ export default function BlogList({
                   key={tag}
                   label={tag}
                   onClick={() => setSelectedTag(tag)}
-                  // 💡 通过配置 variant 和 color 模拟 Material 3 的 Filter Chip 风格
                   variant={isSelected ? "filled" : "outlined"}
-                  color={isSelected ? "secondary" : "default"}
                   sx={{
-                    borderRadius: "8px", // M3 偏向于使用圆角矩形而不是完全的椭圆
+                    borderRadius: "8px",
                     fontWeight: isSelected ? 600 : 400,
                     cursor: "pointer",
+                    backgroundColor: isSelected
+                      ? (theme.palette.secondary as any).container ||
+                        alpha(theme.palette.secondary.main, 0.16)
+                      : "transparent",
+                    color: isSelected
+                      ? (theme.palette.secondary as any).onContainer ||
+                        theme.palette.secondary.main
+                      : "text.primary",
+                    border: isSelected ? "none" : "1px solid",
+                    borderColor: "divider",
                     transition: "all 0.2s ease",
                     "&:hover": {
                       backgroundColor: isSelected
-                        ? "secondary.dark"
+                        ? (theme.palette.secondary as any).container ||
+                          alpha(theme.palette.secondary.main, 0.24)
                         : "action.hover",
                     },
                   }}
@@ -211,21 +217,15 @@ export default function BlogList({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <Box
-            sx={{
-              textAlign: "center",
-              py: 8,
-              color: "text.secondary",
-            }}
-          >
+          <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
             <Typography variant="h6">没有找到相关文章</Typography>
-
             <Typography variant="body2" sx={{ mt: 1 }}>
               尝试其他搜索关键词或分类
             </Typography>
           </Box>
         </motion.div>
       ) : (
+        /* 文章网格面板 */
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -238,41 +238,79 @@ export default function BlogList({
                   variants={itemVariants}
                   whileHover={{ y: -8 }}
                   transition={{ duration: 0.3 }}
+                  style={{ height: "100%" }}
                 >
+                  {/* ✨ 完美的 M3 风格卡片外层 */}
                   <Card
                     sx={{
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
-                      transition: "box-shadow 0.3s",
-                      "&:hover": {
-                        boxShadow: 6,
-                      },
+                      borderRadius: "24px", // M3 容器标准圆角
+                      backgroundColor: theme.palette.background.paper,
+                      border: "1px solid",
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.05)",
+                      boxShadow: "none", // M3 默认去阴影扁平化
+                      overflow: "hidden",
                     }}
                   >
                     <CardActionArea
                       onClick={() => onSelectPost(post)}
-                      sx={{ flexGrow: 1 }}
+                      sx={{
+                        flexGrow: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "stretch",
+                        height: "100%",
+                      }}
                     >
-                      <ImagePlaceholder
-                        src={post.coverImage}
-                        alt={post.title}
-                        height={200}
-                        category={post.category}
-                      />
-
-                      <CardContent sx={{ flexGrow: 1 }}>
+                      {/* 封面图与悬浮分类标签 */}
+                      <Box sx={{ position: "relative", overflow: "hidden" }}>
+                        <ImagePlaceholder
+                          src={post.coverImage}
+                          alt={post.title}
+                          height={200}
+                          category={post.category}
+                        />
+                        {/* ✨ 绝对定位的毛玻璃分类标签 */}
                         <Chip
                           label={post.category}
                           size="small"
-                          color="primary"
-                          sx={{ mb: 1.5 }}
+                          sx={{
+                            position: "absolute",
+                            top: 16,
+                            left: 16,
+                            backdropFilter: "blur(8px)",
+                            backgroundColor: isDarkMode
+                              ? "rgba(30,30,30,0.75)"
+                              : "rgba(255,255,255,0.85)",
+                            color: "text.primary",
+                            fontWeight: 600,
+                            border: "none",
+                          }}
                         />
+                      </Box>
 
+                      {/* 卡片正文区 */}
+                      <CardContent
+                        sx={{
+                          p: 3,
+                          flexGrow: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
                         <Typography
                           variant="h6"
                           gutterBottom
-                          sx={{ fontWeight: 600 }}
+                          sx={{
+                            fontWeight: 700,
+                            lineHeight: 1.4,
+                            mb: 1.5,
+                            color: "text.primary",
+                          }}
                         >
                           {post.title}
                         </Typography>
@@ -281,7 +319,8 @@ export default function BlogList({
                           variant="body2"
                           color="text.secondary"
                           sx={{
-                            mb: 2,
+                            mb: 3,
+                            lineHeight: 1.6,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             display: "-webkit-box",
@@ -292,12 +331,13 @@ export default function BlogList({
                           {post.excerpt}
                         </Typography>
 
+                        {/* 卡片内部的标签联动组 */}
                         <Box
                           sx={{
                             display: "flex",
                             gap: 1,
                             flexWrap: "wrap",
-                            mb: 2,
+                            mb: 3,
                           }}
                         >
                           {post.tags.slice(0, 3).map((tag) => (
@@ -306,41 +346,57 @@ export default function BlogList({
                               label={tag}
                               size="small"
                               variant="outlined"
-                              // 💡 顺手做个小联动：点击卡片内部的 tag 也能直接触发过滤
                               onClick={(e) => {
-                                e.stopPropagation(); // 阻止冒泡，不触发卡片的点击事件
+                                e.stopPropagation(); // 阻止冒泡，不触发卡片跳转
                                 setSelectedTag(tag);
+                              }}
+                              sx={{
+                                borderRadius: "6px",
+                                fontSize: "0.75rem",
+                                fontWeight: 500,
+                                borderColor: isDarkMode
+                                  ? "rgba(255,255,255,0.12)"
+                                  : "rgba(0,0,0,0.08)",
+                                "&:hover": {
+                                  backgroundColor: alpha(
+                                    theme.palette.primary.main,
+                                    0.08,
+                                  ),
+                                  borderColor: theme.palette.primary.main,
+                                },
                               }}
                             />
                           ))}
                         </Box>
 
+                        {/* 元数据及作者栏 (底部对齐) */}
                         <Box
                           sx={{
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
                             mt: "auto",
+                            pt: 1.5,
+                            borderTop: "1px dashed",
+                            borderColor: isDarkMode
+                              ? "rgba(255,255,255,0.06)"
+                              : "rgba(0,0,0,0.04)",
                           }}
                         >
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 1,
+                              gap: 1.2,
                             }}
                           >
                             <Avatar
                               src={post.author.avatar}
-                              sx={{
-                                width: 24,
-                                height: 24,
-                              }}
+                              sx={{ width: 26, height: 26 }}
                             />
-
                             <Typography
                               variant="caption"
-                              color="text.secondary"
+                              sx={{ fontWeight: 600, color: "text.primary" }}
                             >
                               {post.author.name}
                             </Typography>
@@ -351,6 +407,7 @@ export default function BlogList({
                               display: "flex",
                               alignItems: "center",
                               gap: 2,
+                              color: "text.secondary",
                             }}
                           >
                             <Box
@@ -360,16 +417,11 @@ export default function BlogList({
                                 gap: 0.5,
                               }}
                             >
-                              <CalendarToday sx={{ fontSize: 14 }} />
-
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
+                              <CalendarToday sx={{ fontSize: 13 }} />
+                              <Typography variant="caption">
                                 {post.date}
                               </Typography>
                             </Box>
-
                             <Box
                               sx={{
                                 display: "flex",
@@ -377,12 +429,8 @@ export default function BlogList({
                                 gap: 0.5,
                               }}
                             >
-                              <AccessTime sx={{ fontSize: 14 }} />
-
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
+                              <AccessTime sx={{ fontSize: 13 }} />
+                              <Typography variant="caption">
                                 {post.readTime}
                               </Typography>
                             </Box>
