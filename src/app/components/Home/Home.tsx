@@ -70,21 +70,6 @@ export default function Home({
   const displayCategories =
     categories.length > 0 ? categories : staticCategories;
 
-  const categoryStats = displayCategories
-    .filter((c) => c !== "全部")
-    .map((category) => ({
-      name: category,
-      count: posts.filter((p) => p.category === category).length,
-      icon:
-        category === "设计" ? (
-          <Palette sx={{ fontSize: 22 }} />
-        ) : category === "前端开发" ? (
-          <Code sx={{ fontSize: 22 }} />
-        ) : (
-          <Speed sx={{ fontSize: 22 }} />
-        ),
-    }));
-
   const features = [
     {
       icon: <Article sx={{ fontSize: 32 }} />,
