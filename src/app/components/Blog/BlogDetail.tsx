@@ -74,6 +74,10 @@ function ShikiCodeBlock({
             "tsx",
             "javascript",
             "plaintext",
+            "xml",
+            "rust",
+            "scala",
+            "go",
           ],
         });
 
