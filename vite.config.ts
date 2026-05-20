@@ -39,7 +39,7 @@ export default defineConfig(({ command }) => {
         },
       }),
       Sitemap({
-        hostname: "https://s0ralin.github.io", // 这里只留纯域名
+        hostname: "https://s0ralin.github.io/M3-Style-Personal-Blog/", // 这里只留纯域名
         outDir: "docs",
         // 显式告诉插件你要生成的完整路径
         // 插件默认生成的根路径是 '/'，我们在这里把它映射到你的子路径上
