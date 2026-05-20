@@ -39,8 +39,13 @@ export default defineConfig(({ command }) => {
         },
       }),
       Sitemap({
-        hostname: "https://s0ralin.github.io/M3-Style-Personal-Blog/",
+        hostname: "https://s0ralin.github.io", // 这里只留纯域名
         outDir: "docs",
+        // 显式告诉插件你要生成的完整路径
+        // 插件默认生成的根路径是 '/'，我们在这里把它映射到你的子路径上
+        dynamicRoutes: ["/M3-Style-Personal-Blog/"],
+        // 既然手动加了子路径，就可以让插件不自动去抓取那个错误的根路径 '/'
+        exclude: ["/"],
       }),
     ],
     resolve: {
