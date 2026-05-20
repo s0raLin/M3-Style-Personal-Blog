@@ -6,7 +6,9 @@
   "scripts": {
     "new-post": "tsx ./scripts/new-blog.ts new",
     "build": "vite build",
-    "dev": "vite"
+    "dev:web": "vite",
+    "dev:server": "pnpm --dir server dev",
+    "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:server\""
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -92,6 +94,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-responsive-masonry": "^2.7.0",
     "@vitejs/plugin-react": "4.7.0",
+    "concurrently": "^9.2.1",
     "tailwindcss": "4.1.12",
     "tsx": "^4.22.3",
     "vite": "6.3.5"
