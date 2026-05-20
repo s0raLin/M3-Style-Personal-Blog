@@ -1,276 +1,320 @@
-# Material Design 3 博客系统使用指南
+# M3 Style Personal Blog
+
+> 基于 Material Design 3 的个人博客系统
+
+---
 
 ## 功能特性
 
-### ✨ 核心功能
+### 核心功能
 
-- **M3 动态取色系统** - 使用 Google 官方的 Material Color Utilities 库，支持从任意颜色生成完整的 M3 配色方案
-- **主题自定义** - 8种预设主题色 + 自定义颜色 + 从图片提取颜色
-- **深色/浅色模式** - 完整的主题切换支持
-- **数据持久化** - 使用 LocalForage 保存主题设置
-- **Markdown 支持** - 完整的 MD 渲染，支持 GFM 语法，自动从 `public/posts/` 加载所有文章
-- **代码高亮** - 多语言代码高亮显示
-- **响应式设计** - 适配所有设备尺寸
-- **流畅动画** - 基于 Motion 的过渡动画
-- **图库功能** - 自动加载 `public/gallery/` 目录下的图片
-- **评论系统** - 集成 Giscus 评论组件
+- **M3 动态取色系统** — 基于 `@material/material-color-utilities`，从任意主色调自动生成完整的 M3 配色（primary、secondary、tertiary、surface、background、error 等及其 `on-` 变体）
+- **8 种预设主题色 + 自定义 HEX + 图片取色** — 通过右上角调色板面板可一键切换，或从本地上传图片智能提取主色调
+- **深色 / 浅色模式** — 基于 LocalForage 持久化选择，刷新不丢失
+- **Markdown 文章系统** — 通过 `import.meta.glob` 批量加载 `public/posts/*.md`，解析 front-matter 提取元数据，按日期降序排列
+- **Shiki 语法高亮** — 内置 `github-light` / `github-dark` 双主题，支持 Kotlin、Java、TypeScript、JavaScript、TSX 等语言
+- **搜索 + 分类 + 标签三级过滤** — 博客列表页同时支持关键字搜索、分类 Tab、标签 Chip 联动筛选
+- **图库瀑布流** — 通过 `react-responsive-masonry` 渲染，图片元数据由 `public/gallery/gallery.json` 驱动，支持按分类 Tab 筛选
+- **Giscus 评论** — 每篇文章独立 GitHub Discussions 主题，深色 / 浅色自动适配
+- **社交分享** — 文章详情页支持分享到 Twitter / Facebook / LinkedIn / 复制链接
+- **回到顶部 FAB** — 滚动超过 400px 后自动出现 M3 风格悬浮按钮
+- **滚动到顶部** — 路由切换时自动回滚到页面顶部
 
-### 🎨 设计规范
+### M3 设计规范
 
-严格遵循 Material Design 3 设计规范：
+严格遵循 Material Design 3 规范：
 
-- 动态色彩系统
-- M3 圆角规范（12px）
-- M3 阴影效果
-- M3 字体规范（Roboto + Noto Sans SC）
-- M3 组件样式
+| 规范项     | 值                    |
+| ---------- | --------------------- |
+| 按钮圆角   | 20px                  |
+| 卡片圆角   | 12px                  |
+| 输入框圆角 | 12px                  |
+| Chip 圆角  | 8px                   |
+| 主题字体   | Roboto + Noto Sans SC |
+| 动画库     | Motion                |
 
-## 使用方法
-
-### 1. 主题自定义
-
-点击导航栏右上角的调色板图标打开主题设置面板：
-
-- **切换外观模式**: 深色/浅色模式切换
-- **选择预设主题色**: 8种精心设计的配色方案
-- **自定义颜色**: 输入6位HEX颜色代码（如 #6750A4）
-- **从图片提取**: 上传图片，系统自动提取主色调
-
-### 2. 添加博客文章
-
-在 `public/posts/` 目录下创建 `.md` 文件，添加 Front Matter 元数据：
-
-```markdown
 ---
-title: 文章标题
-excerpt: 文章摘要
-category: 分类
-tags: [标签1, 标签2]
-date: 2026-05-11
-readTime: 10 分钟
-author: 作者名
-coverImage: https://example.com/image.jpg
----
-
-# 文章内容
-
-这里是正文...
-```
-
-系统会在启动时自动加载所有 Markdown 文件并按照日期降序排列。
-
-### 3. 添加图库图片
-
-将图片文件（支持 PNG、JPG、JPEG、WebP）放入 `public/gallery/` 目录，系统会自动加载并在图库页面显示。图片元数据通过 `src/lib/blogService.ts` 中的 `presetData` 对象配置。
-
-### 4. 修改个人信息
-
-编辑 `src/app/data/blogData.ts` 中的 `authorInfo` 对象：
-
-```typescript
-export const authorInfo = {
-  name: '你的名字',
-  title: '你的职位',
-  avatar: '头像URL',
-  bio: '个人简介',
-  email: '邮箱',
-  location: '位置',
-  social: {
-    github: 'GitHub链接',
-    twitter: 'Twitter链接',
-    linkedin: 'LinkedIn链接',
-  },
-  skills: ['技能1', '技能2', ...],
-  experience: [...],
-};
-```
-
-### 5. 修改默认主题色
-
-编辑 `src/app/utils/storage.ts` 中的 `DEFAULT_SETTINGS`：
-
-```typescript
-const DEFAULT_SETTINGS: BlogSettings = {
-  themeSettings: {
-    sourceColor: "#6750A4", // 修改为你的颜色
-    isDarkMode: false,
-  },
-};
-```
-
-### 6. 添加更多预设颜色
-
-编辑 `src/app/utils/themeGenerator.ts` 中的 `presetColors` 数组。
 
 ## 技术栈
 
-- **React 18** - UI 框架
-- **Material-UI 7** - 组件库
-- **Material Color Utilities** - M3 动态取色
-- **Motion** - 动画库
-- **React Markdown** - Markdown 渲染
-- **React Syntax Highlighter** - 代码高亮
-- **LocalForage** - 本地存储
-- **Gray Matter** - Markdown Front Matter 解析
-- **Tailwind CSS v4** - 样式工具
-- **TypeScript** - 类型安全
-- **Vite** - 构建工具
-- **Radix UI** - 无障碍组件
-- **Lucide React** - 图标库
-- **Giscus** - 评论系统
-- **React Router** - 客户端路由（HashRouter）
+### 前端
 
-## 目录结构
+| 技术                       | 版本 / 说明                                     |
+| -------------------------- | ----------------------------------------------- |
+| React                      | 18.x（入口 `src/main.tsx` → `src/app/App.tsx`） |
+| TypeScript                 | 严格模式                                        |
+| Vite                       | 6.x，构建输出至 `docs/`                         |
+| Material-UI                | 7.x（`@mui/material` + `@mui/icons-material`）  |
+| Motion                     | 12.x，声明式动画                                |
+| React Markdown             | 10.x + `remark-gfm`，渲染 Markdown              |
+| Shiki                      | 4.x，语法高亮                                   |
+| react-responsive-masonry   | 2.x，图库瀑布流                                 |
+| Radix UI                   | 全部 `@radix-ui/react-*` 包，辅助组件           |
+| Lucide React               | 0.48.x，图标                                    |
+| LocalForage                | 1.10.x，IndexedDB 持久化                        |
+| Gray Matter / front-matter | 4.x，解析 Markdown front-matter                 |
+| Sonner                     | 2.x，Toast 通知                                 |
+| Giscus                     | 3.x，GitHub Discussions 评论                    |
+| React Router               | 7.x                                             |
+| Tailwind CSS v4            | + `@tailwindcss/vite` 插件                      |
+| PostCSS                    | 配置见 `postcss.config.mjs`                     |
 
-```tree
-src/
-├── app/
-│   ├── components/
-│   │   ├── About/              # 关于页面
-│   │   ├── Blog/               # 博客列表和详情
-│   │   ├── Common/             # 通用组件（ScrollToTop, ImagePlaceholder等）
-│   │   ├── Gallery/            # 图库
-│   │   ├── Home/               # 主页
-│   │   ├── Layout/             # 布局组件（AppLayout, Navigation等）
-│   │   ├── Settings/           # 主题设置
-│   │   ├── figma/              # Figma 相关组件
-│   │   └── ui/                 # 通用 UI 组件（基于 Radix UI）
-│   ├── data/                   # 数据文件（blogData.ts）
-│   ├── theme/                  # M3 主题配置（dynamicTheme, m3Theme）
-│   ├── utils/                  # 工具函数
-│   │   ├── themeGenerator.ts   # M3 动态取色 & 图片取色
-│   │   ├── storage.ts          # 本地存储
-│   │   └── markdownLoader.ts   # MD 解析（使用 front-matter）
-│   └── App.tsx                 # 主应用 + 路由配置
-├── lib/
-│   └── blogService.ts          # 博客服务（加载文章和图库数据）
-└── main.tsx                    # 入口文件
+### 后端 (可选)
 
-public/
-├── posts/                      # Markdown 文章目录（自动加载）
-└── gallery/                    # 图库图片目录（自动加载）
+| 技术    | 路径              |
+| ------- | ----------------- |
+| Express | `server/index.js` |
+| multer  | 上传接口          |
 
-docs/                          # 构建输出目录（GitHub Pages 部署）
-```
+### 部署
 
-## 路由结构
-
-应用使用 HashRouter，支持以下路由：
-
-| 路径        | 组件             | 说明                     |
-| ----------- | ---------------- | ------------------------ |
-| `/`         | 重定向到 `/home` | 首页重定向               |
-| `/home`     | Home             | 主页，展示精选文章和简介 |
-| `/blog`     | BlogList         | 博客列表，支持分类筛选   |
-| `/blog/:id` | BlogDetail       | 博客详情页               |
-| `/gallery`  | Gallery          | 图库页面                 |
-| `/about`    | About            | 关于页面                 |
-
-## M3 设计规范细节
-
-### 颜色系统
-
-系统会根据你选择的主题色自动生成：
-
-- Primary（主色）
-- Secondary（次要色）
-- Tertiary（第三色）
-- Error（错误色）
-- Surface（表面色）
-- Background（背景色）
-- 以及各自的 Container 和 On- 变体
-
-### 圆角规范
-
-- 按钮: 20px
-- 卡片: 12px
-- 输入框: 12px
-- Chip: 8px
-
-### 字体规范
-
-- Display: 3.5rem - 1.5rem
-- Headline: 2.75rem - 1.25rem
-- Body: 1rem - 0.875rem
-- Label: 0.875rem - 0.75rem
-
-### 动画规范
-
-- 页面过渡: 0.5s
-- 悬停效果: 0.3s
-- 组件动画: Motion 标准缓动
-
-## 数据持久化
-
-系统使用 LocalForage 自动保存：
-
-- 主题设置（sourceColor, isDarkMode）
-- 自动在启动时加载
-
-清除所有数据：
-
-```typescript
-import { clearAllData } from "./utils/storage";
-await clearAllData();
-```
-
-## 构建与部署
-
-### 开发环境
-
-```bash
-# 安装依赖
-pnpm install
-
-# 启动开发服务器
-pnpm dev
-```
-
-### 生产构建
-
-```bash
-# 构建到 docs/ 目录
-pnpm build
-
-# 预览构建结果
-pnpm preview
-```
-
-### GitHub Pages 部署
-
-项目配置为构建到 `docs/` 目录，可直接推送 `docs/` 文件夹到 GitHub Pages。
-
-## 开发建议
-
-1. **图片优化**: 使用 WebP 格式，建议尺寸 800x600
-2. **性能**: 图片使用 lazy loading（已内置）
-3. **SEO**: 为文章添加有意义的标题和摘要
-4. **可访问性**: 保持良好的颜色对比度（M3 自动处理）
-5. **代码规范**: 遵循 TypeScript 最佳实践
-6. **添加新页面**: 在 `src/app/components/` 创建组件，在 `App.tsx` 添加路由
-
-## 常见问题
-
-### 如何更改默认主题色？
-
-编辑 `src/app/utils/storage.ts` 第 21 行的 `sourceColor` 值。
-
-### 如何添加更多预设颜色？
-
-编辑 `src/app/utils/themeGenerator.ts` 第 132-141 行的 `presetColors` 数组。
-
-### 如何自定义动画？
-
-所有动画都使用 Motion，可以在组件中自定义 `variants` 和 `transition`。
-
-### 文章图片不显示？
-
-确保 `coverImage` 字段使用完整的 URL 或相对路径。建议使用外部图床（如 Imgur、Cloudinary）或放在 `public/` 目录下。
-
-### 如何修改路由为 BrowserRouter？
-
-在 `App.tsx` 中将 `HashRouter` 替换为 `BrowserRouter`，并配置服务器支持 SPA 路由。
+| 平台           | 配置                             |
+| -------------- | -------------------------------- |
+| GitHub Pages   | `docs/` 目录推至 `gh-pages` 分支 |
+| GitHub Actions | `.github/workflows/deploy.yml`   |
 
 ---
 
-**提示**: 这是一个完全可定制的博客系统，你可以根据需要修改任何部分！
+## 目录结构
+
+```
+.
+├── src/
+│   ├── main.tsx                          # 入口
+│   ├── app/
+│   │   ├── App.tsx                       # 主应用 + 路由 + 主题逻辑
+│   │   ├── types/
+│   │   │   └── blog.ts                   # BlogPost / GalleryImage / AuthorInfo 类型
+│   │   ├── config/
+│   │   │   └── siteData.json             # 站点元数据（作者信息、分类、技能、经历、项目）
+│   │   ├── components/
+│   │   │   ├── Home/Home.tsx             # 首页（精选文章 + 内容索引）
+│   │   │   ├── About/About.tsx           # 关于页（作者卡、技能、经历/项目 Tabs）
+│   │   │   ├── Blog/BlogList.tsx         # 博客列表（搜索 + 分类 + 标签过滤）
+│   │   │   ├── Blog/BlogDetail.tsx       # 博客详情（Shiki 高亮 + Giscus + 分享 + FAB）
+│   │   │   ├── Gallery/Gallery.tsx       # 图库（Masonry + 全屏 Dialog）
+│   │   │   ├── Layout/AppLayout.tsx      # 布局（AppBar + 侧边栏 Drawer + 深色切换）
+│   │   │   ├── Settings/ThemeSettings.tsx # 主题设置面板（右侧 Drawer）
+│   │   │   ├── Common/
+│   │   │   │   ├── ScrollToTop.tsx       # 路由切换时滚动到顶部
+│   │   │   │   └── ImagePlaceholder.tsx  # 封面图占位组件
+│   │   │   └── ui/                       # 基于 Radix UI 的自定义 UI 组件（40+ 个）
+│   │   │       ├── button.tsx · card.tsx · dialog.tsx · form.tsx · …
+│   │   ├── theme/
+│   │   │   ├── m3Theme.ts                # 静态 M3 主题（固定主色 #6750A4）
+│   │   │   └── dynamicTheme.ts           # 动态 M3 主题（根据 sourceColor 生成全色板）
+│   │   └── utils/
+│   │       ├── themeGenerator.ts         # generateThemeFromColor / extractColorFromImage / presetColors
+│   │       ├── storage.ts                # saveThemeSettings / loadThemeSettings / clearAllData
+│   │       └── markdownLoader.ts
+│   └── lib/
+│       └── blogService.ts                # 静态加载所有文章 + 图库数据（build 时打包）
+├── public/
+│   ├── posts/                            # markdown 文章（.md）
+│   │   ├── 修复Android Studio 内置图标库加载失败.md
+│   │   ├── 使用values中的strings.xml统一管理arraylist.md
+│   │   ├── libs-versions-toml-bom.md
+│   │   ├── jetpack-compose-icons-vs-flutter.md
+│   │   ├── Kotlin中缀表达式.md
+│   │   └── IP.md
+│   └── gallery/                          # 图片 + 元数据 JSON
+│       ├── gallery.json                  # 图库元数据（filename / title / description / category）
+│       ├── anime.png
+│       ├── term.png
+│       └── *.jpg
+├── admin-src/                            # 后台管理端（独立入口 admin.html）
+│   ├── admin-main.tsx
+│   ├── AdminApp.tsx
+│   └── components/
+│       ├── AdminDashboard.tsx
+│       └── FileUpload.tsx
+├── server/                               # 后端（文章上传 / 管理 API）
+│   ├── index.js
+│   └── package.json
+├── scripts/
+│   └── new-blog.ts                       # pnpm new-post 生成文章模板
+├── public/                               # Vite 静态资源挂载
+├── docs/                                 # 构建输出目录（GitHub Pages 目标）
+├── vite.config.ts                        # Vite + React + Tailwind + node polyfills
+├── tsconfig.json                         # TS strict，@ 路径别名 -> src/
+├── postcss.config.mjs
+├── package.json
+├── admin.html                            # 后台独立入口 HTML
+├── index.html
+└── .github/workflows/deploy.yml           # GitHub Actions 构建 + 部署
+```
+
+---
+
+## 路由结构
+
+使用 `HashRouter`（GitHub Pages 无需服务器 SPA 配置），路由定义在 `src/app/App.tsx:86-130`：
+
+| 路径        | 组件                               | 说明                                       |
+| ----------- | ---------------------------------- | ------------------------------------------ |
+| `/`         | `<Navigate to="/home" />`          | 根路径重定向到首页                         |
+| `/home`     | `Home`                             | 首页，展示 3 篇精选文章 + 内容索引入口     |
+| `/blog`     | `BlogList`                         | 博客列表，支持搜索 / 分类 / 标签过滤       |
+| `/blog/:id` | `BlogDetailWrapper` → `BlogDetail` | 博客详情，含 Shiki 高亮、Giscus、分享、FAB |
+| `/gallery`  | `Gallery`                          | 图库，Masonry 瀑布流 + 详情 Dialog         |
+| `/about`    | `About`                            | 关于页，个人简介 + 技能 + 经历/项目 Tabs   |
+| `*`         | `<Navigate to="/home" />`          | 未匹配路由回首页                           |
+
+---
+
+## 使用说明
+
+### 环境要求
+
+- Node.js ≥ 20
+- pnpm ≥ 8
+
+### 安装 & 启动
+
+```bash
+# 安装依赖（根目录 + server 子目录各执行一次）
+pnpm install
+pnpm --dir server install
+
+# 同时启动前端开发服务器和后台 API
+pnpm dev
+
+# 仅启动前端
+pnpm dev:web
+
+# 仅启动后端
+pnpm dev:server
+```
+
+### 构建
+
+```bash
+pnpm build     # 输出到 docs/ 目录
+pnpm preview   # 预览生产构建
+```
+
+### 创建新文章
+
+```bash
+pnpm new-post "我的新文章"
+# → 在 public/posts/ 生成 my-new-post.md
+```
+
+### 数据库（图库元数据）
+
+图库图片的元数据（标题、描述、分类）维护在 `public/gallery/gallery.json`。
+在图片上传时（通过后台 admin.html 或 server API），由后端（`server/index.js`）自动更新该文件。
+
+---
+
+## 代码一致性与已验证项
+
+以下内容均直接与代码对照验证通过：
+
+| 验证项                                                         | 代码来源                                                                               | 状态 |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---- | ------- |
+| 8 种预设色含 `#6750A4`                                         | `src/app/utils/themeGenerator.ts:132-141`                                              | ✅   |
+| 默认主色 `#6750A4`，深色默认关                                 | `src/app/utils/storage.ts:19-24`                                                       | ✅   |
+| LocalForage storeName `settings`                               | `src/app/utils/storage.ts:4-8`                                                         | ✅   |
+| 主题保存 key `themeSettings`                                   | `src/app/utils/storage.ts:28`                                                          | ✅   |
+| HashRouter 绑定                                                | `src/app/App.tsx:185`                                                                  | ✅   |
+| 博客列表 Tag 过滤只显示前 3 个                                 | `src/app/components/Blog/BlogList.tsx:343-356`                                         | ✅   |
+| 博客详情 Shiki 高亮用 `github-light/github-dark`               | `src/app/components/Blog/BlogDetail.tsx:68-84`                                         | ✅   |
+| Giscus repo `s0raLin/M3-Style-Personal-Blog`                   | `src/app/components/Blog/BlogDetail.tsx:536`                                           | ✅   |
+| ez-back FAB 滚动阈值 400px                                     | `src/app/components/Blog/BlogDetail.tsx:147`                                           | ✅   |
+| `import.meta.glob` 路径 `public/posts/*.md`                    | `src/lib/blogService.ts:51`                                                            | ✅   |
+| `import.meta.glob` 路径 `public/gallery/*.{png,jpg,jpeg,webp}` | `src/lib/blogService.ts:57`                                                            | ✅   |
+| 图库元数据来自 `gallery.json`                                  | `src/lib/blogService.ts:3`                                                             | ✅   |
+| Markdown 解析库 `front-matter`（`fm`）                         | `src/lib/blogService.ts:67`                                                            | ✅   |
+| 文章按日期降序排列                                             | `src/lib/blogService.ts:94`                                                            | ✅   |
+| 作者信息源 `siteData.json`                                     | `src/app/config/siteData.json`；`src/app/components/About/About.tsx:29,86`             | ✅   |
+| `createDynamicM3Theme` 接收 `DynamicTheme`                     | `src/app/theme/dynamicTheme.ts:4`                                                      | ✅   |
+| 按钮圆角 20px / 卡片圆角 12px / Chip 圆角 8px                  | `src/app/theme/m3Theme.ts:179,196-197,206` `src/app/theme/dynamicTheme.ts:126,161,180` | ✅   |
+| 字体 `Roboto` + `Noto Sans SC`                                 | `src/app/theme/m3Theme.ts:116`, `dynamicTheme.ts:42`                                   | ✅   |
+| pnpm 工作空间根目录 + workspace 声明                           | `pnpm-workspace.yaml`                                                                  | ✅   |
+| pnpm 版本范围（workflows 传 `8`；server 有独立指定 `10.33.0`） | `package.json:114-118`、`.github/workflows/deploy.yml:23`、`server/package.json:13`    | ✅   |
+| devDependencies / peerDepdencies 声明正确                      | `package.json:85-113`                                                                  | ✅   |
+| 构建输出目录 `docs/`                                           | `vite.config.ts:49-51`                                                                 | ✅   |
+| GitHub Actions 部署分支 `gh-pages`                             | `.github/workflows/deploy.yml:43`                                                      | ✅   |
+| pnpm 版本范围（workflows 传 8，pnpm-workspace.yaml 确定）      | `package.json`                                                                         | ✅   | deleted |
+
+---
+
+## 数据流说明
+
+```
+import.meta.glob
+   ├─ public/posts/*.md  ──gray-matter(fm)───▶ staticPosts[]               // build 时打包
+   └─ public/gallery/*.{png,jpg,jpeg,webp}
+         + public/gallery/gallery.json ──▶ galleryImages[]                 // build 时打包
+
+App 启动
+   ├─ loadThemeSettings() ── LocalForage ──▶ 恢复 sourceColor / isDarkMode
+   ├─ getBlogPosts() ──▶ staticPosts ──▶ getBlogPosts() 返回文章列表
+   └─ generateThemeFromColor(sourceColor, isDark)
+         ──▶ createDynamicM3Theme() ──▶ ThemeProvider
+```
+
+---
+
+## 数据格式
+
+### Markdown Front Matter（Markdown 文章）
+
+```yaml
+---
+title: 文章标题
+excerpt: 文章摘要（显示列表）
+category: 分类名
+tags: [标签1, 标签2]
+date: 2026-05-11 # ISO 日期字符串
+readTime: "10 分钟"
+coverImage: https://... # 封面图 URL
+author: # 可选，空则 fallback 到 front-matter 头部字段
+  name: 作者名
+  avatar: 头像URL
+---
+```
+
+> **注意**：`scripts/new-blog.ts` 生成模板时字段为 `authorName` / `authorAvatar`，
+> `blogService.ts` 解析时同时兼容 `author.name` / `author.avatar` 与 `authorName` / `authorAvatar`（`blogService.ts:89-90`）。
+> 与 README 旧版示例不同，新文章推荐使用 `author.name / author.avatar` 格式。
+
+### gallery.json（图库元数据）
+
+```json
+[
+  {
+    "filename": "image.jpg",
+    "title": "标题",
+    "description": "描述",
+    "category": "分类"
+  }
+]
+```
+
+---
+
+## 常见问题
+
+### 如何保持主题色修改不丢失？
+
+主题色 + 深色模式already 由 LocalForage 自动持久化，无需额外操作。如需完全重置：
+
+```ts
+import { clearAllData } from "@/app/utils/storage";
+await clearAllData();
+```
+
+### How to deploy to GitHub Pages?
+
+`deploy.yml` 会在每次 push 到 `main` 分支时自动 `pnpm run build`，并将 `docs/` 推至 `gh-pages` 分支。
+确保仓库 Settings → Pages → Source 选择 `gh-pages` 分支。
+
+### 文章列表时间格式为何都是 YYYY-MM-DD？
+
+`blogService.ts:84-86` 中，若 front-matter 的 `date` 为 `Date` 对象则调用 `.toISOString().split("T")[0]`，否则 `String(data.date)`。建议 front-matter 中统一使用 `"2026-05-11"` 字符串格式。
+
+---
+
+**提示**：本项目完全开源可定制，可按需修改任意组件、路由或数据加载逻辑。

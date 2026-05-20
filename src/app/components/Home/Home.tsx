@@ -24,7 +24,7 @@ import {
 import { motion } from "motion/react";
 import { BlogPost } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
-import { galleryImages } from "@/lib/blogService";
+import { galleryImages } from "@/app/service/blogService";
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -32,7 +32,6 @@ interface HomeProps {
   posts: BlogPost[];
   categories: string[];
 }
-
 
 const itemVariants = {
   hidden: { opacity: 0, y: 24 },

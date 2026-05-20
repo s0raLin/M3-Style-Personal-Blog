@@ -43,3 +43,13 @@ export interface AuthorInfo {
   }[];
   projects: { name: string; description: string; tech: string[] }[];
 }
+
+
+export interface GalleryImage {
+  id: string;
+  url: string;
+  title: string;
+  description: string;
+  category: string;
+}
+
