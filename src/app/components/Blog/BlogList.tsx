@@ -23,7 +23,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 
-import { BlogPost } from "../../data/blogData";
+import { BlogPost } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 
 interface BlogListProps {

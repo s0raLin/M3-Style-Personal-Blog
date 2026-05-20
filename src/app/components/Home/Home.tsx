@@ -22,7 +22,7 @@ import {
   Person,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
-import { BlogPost, categories as staticCategories } from "../../data/blogData";
+import { BlogPost, categories as staticCategories } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 import { galleryImages } from "@/lib/blogService";
 

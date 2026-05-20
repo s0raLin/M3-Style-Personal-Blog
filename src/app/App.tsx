@@ -11,7 +11,7 @@ import BlogDetail from "./components/Blog/BlogDetail";
 import Gallery from "./components/Gallery/Gallery";
 import About from "./components/About/About";
 import ThemeSettings from "./components/Settings/ThemeSettings";
-import { BlogPost } from "./data/blogData";
+import { BlogPost } from "./types/blog";
 import { staticPosts, galleryImages, getBlogPosts } from "@/lib/blogService";
 import {
   HashRouter,

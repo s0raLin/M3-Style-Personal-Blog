@@ -12,7 +12,7 @@ import {
 import { Close as CloseIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "motion/react";
 import Masonry from "react-responsive-masonry";
-import { GalleryImage } from "../../data/blogData";
+import { GalleryImage } from "../../types/blog";
 
 export default function Gallery({ images }: { images: GalleryImage[] }) {
   const [selectedCategory, setSelectedCategory] = useState("全部");

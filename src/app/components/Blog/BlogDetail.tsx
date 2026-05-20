@@ -26,7 +26,7 @@ import {
 import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BlogPost } from "../../data/blogData";
+import { BlogPost } from "../../types/blog";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
@@ -569,10 +569,11 @@ export default function BlogDetail({
               ? "0 4px 12px rgba(0,0,0,0.5)"
               : "0 4px 12px rgba(103, 80, 164, 0.2)",
             // 顺滑的过渡动效
-            transition: "transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s",
+            transition:
+              "transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s",
             "&:hover": {
               transform: "scale(1.08)",
-            }
+            },
           }}
         >
           <KeyboardArrowUp />

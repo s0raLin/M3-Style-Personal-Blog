@@ -24,7 +24,11 @@ import {
   Code, // 引入新图标
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "motion/react";
-import { authorInfo } from "../../data/blogData";
+
+// 1. 引入分离出的 JSON 数据
+import siteData from "../../config/siteData.json";
+// 2. 引入类型定义（可选，有助于提供完善的代码补全）
+import { AuthorInfo } from "../../types/blog";
 
 export interface Experience {
   title: string;
@@ -38,23 +42,6 @@ export interface Project {
   description: string;
   tech: string[];
   link?: string;
-}
-
-export interface AuthorInfo {
-  name: string;
-  title: string;
-  email: string;
-  location: string;
-  avatar: string;
-  bio: string;
-  skills: string[];
-  social: {
-    github: string;
-    twitter: string;
-    linkedin: string;
-  };
-  experience: Experience[];
-  projects: Project[]; // 新增项目字段
 }
 
 // 定义 TabPanel 的 Props 类型
@@ -95,6 +82,8 @@ function TabPanel(props: TabPanelProps) {
 
 export default function About() {
   const [tabValue, setTabValue] = useState<number>(0);
+
+  const authorInfo = siteData.authorInfo as AuthorInfo;
 
   // 处理 Tab 切换的类型
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
