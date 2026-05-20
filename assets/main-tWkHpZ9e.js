@@ -561,8 +561,9 @@ category: 编程
 tags: [Kotlin]
 date: 2025-07-12
 readTime: 6 分钟
-authorName: 蒼璃
-authorAvatar: https://avatars.githubusercontent.com/u/174418702?v=4
+author:
+    name: 蒼璃
+    avatar: https://avatars.githubusercontent.com/u/174418702?v=4
 ---
 
 
