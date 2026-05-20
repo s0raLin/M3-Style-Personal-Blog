@@ -1,5 +1,7 @@
 import fm from "front-matter";
 
+import galleryData from '../../public/gallery/gallery.json';
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -22,6 +24,27 @@ export interface GalleryImage {
   title: string;
   description: string;
   category: string;
+}
+
+interface GalleryJsonItem {
+  filename: string;
+  title?: string;
+  description?: string;
+  category?: string;
+  size?: number;
+  url?: string;
+  createdAt?: string;
+}
+
+// 2. 为了提高查找性能，将 JSON 数组转换为以 filename 为 Key 的 Map 映射结构
+const presetDataMap: Record<string, GalleryJsonItem> = {};
+if (Array.isArray(galleryData)) {
+  galleryData.forEach((item: GalleryJsonItem) => {
+    // 如果本地 gallery.json 存在重复的 filename，后面的记录会覆盖前面的（使用最新更新的那条）
+    if (item && item.filename) {
+      presetDataMap[item.filename] = item;
+    }
+  });
 }
 
 // 1. 批量导入所有 .md 文件原始内容
@@ -70,45 +93,45 @@ export const staticPosts: BlogPost[] = Object.keys(modules)
   })
   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); //按日期时间排序
 
-const presetData: Record<string, any> = {
-  "anime.png": {
-    title: "我的壁纸",
-    description: "好看的动漫壁纸",
-    category: "壁纸",
-  },
-  "54b782fe885972003ca2b0e507564c3b3493137316055761.jpg": {
-    title: "Второй этаж поражает1",
-    description: "Второй этаж поражает",
-    category: "「从一个极端走向另一个极端」",
-  },
+// const presetData: Record<string, any> = {
+//   "anime.png": {
+//     title: "我的壁纸",
+//     description: "好看的动漫壁纸",
+//     category: "壁纸",
+//   },
+//   "54b782fe885972003ca2b0e507564c3b3493137316055761.jpg": {
+//     title: "Второй этаж поражает1",
+//     description: "Второй этаж поражает",
+//     category: "「从一个极端走向另一个极端」",
+//   },
 
-  "83a1395a4fffff5fae0967b3ce8744273493137316055761.jpg": {
-    title: "Второй этаж поражает2",
-    description: "Второй этаж поражает",
-    category: "「从一个极端走向另一个极端」",
-  },
-  "297bbf4879a480fed54efbc6d9ab27e03493137316055761.jpg": {
-    title: "Второй этаж поражает3",
-    description: "Второй этаж поражает",
-    category: "「从一个极端走向另一个极端」",
-  },
-  "1634dc90042857abf346b742701cee223493137316055761.jpg": {
-    title: "Второй этаж поражает4",
-    description: "Второй этаж поражает",
-    category: "「从一个极端走向另一个极端」",
-  },
-  "term.png": {
-    title: "我的终端",
-    description: "",
-    category: "终端",
-  },
-};
+//   "83a1395a4fffff5fae0967b3ce8744273493137316055761.jpg": {
+//     title: "Второй этаж поражает2",
+//     description: "Второй этаж поражает",
+//     category: "「从一个极端走向另一个极端」",
+//   },
+//   "297bbf4879a480fed54efbc6d9ab27e03493137316055761.jpg": {
+//     title: "Второй этаж поражает3",
+//     description: "Второй этаж поражает",
+//     category: "「从一个极端走向另一个极端」",
+//   },
+//   "1634dc90042857abf346b742701cee223493137316055761.jpg": {
+//     title: "Второй этаж поражает4",
+//     description: "Второй этаж поражает",
+//     category: "「从一个极端走向另一个极端」",
+//   },
+//   "term.png": {
+//     title: "我的终端",
+//     description: "",
+//     category: "终端",
+//   },
+// };
 export const galleryImages: GalleryImage[] = Object.keys(galleryFiles).map(
   (path, index) => {
     const filename = path.split("/").pop() || "";
     const viteUrl = galleryFiles[path] as string; //vite处理后的本地路径
 
-    const preset = presetData[filename];
+    const preset = presetDataMap[filename];
 
     return {
       id: String(index + 1),
