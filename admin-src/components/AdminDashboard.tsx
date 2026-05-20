@@ -419,6 +419,7 @@ export default function AdminDashboard() {
       </Paper>
 
       {/* 编辑对话框 */}
+      {/* 编辑对话框 */}
       <Dialog
         open={editDialog.open}
         onClose={() => setEditDialog({ ...editDialog, open: false })}
@@ -430,8 +431,8 @@ export default function AdminDashboard() {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
-            {/* ✨ Grid2 改造：弹窗内部的嵌套表单排版 */}
             <Grid container spacing={2}>
+              {/* 公共字段：标题 */}
               <Grid size={12}>
                 <TextField
                   fullWidth
@@ -453,8 +454,23 @@ export default function AdminDashboard() {
                 />
               </Grid>
 
+              {/* 文章专属字段 */}
               {editDialog.type === "post" ? (
                 <>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="封面图 URL (Cover Image)"
+                      value={editDialog.item?.metadata?.coverImage || ""}
+                      onChange={(e) => {
+                        const newItem = { ...editDialog.item };
+                        if (!newItem.metadata) newItem.metadata = {};
+                        newItem.metadata.coverImage = e.target.value;
+                        setEditDialog({ ...editDialog, item: newItem });
+                      }}
+                    />
+                  </Grid>
+
                   <Grid size={12}>
                     <TextField
                       fullWidth
@@ -470,7 +486,7 @@ export default function AdminDashboard() {
                       }}
                     />
                   </Grid>
-                  {/* 一行平分两列 */}
+
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       fullWidth
@@ -484,21 +500,110 @@ export default function AdminDashboard() {
                       }}
                     />
                   </Grid>
+
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                       fullWidth
-                      label="作者 (Author)"
-                      value={editDialog.item?.metadata?.author || ""}
+                      label="标签 (Tags, 逗号或空格隔开)"
+                      value={
+                        Array.isArray(editDialog.item?.metadata?.tags)
+                          ? editDialog.item.metadata.tags.join(", ")
+                          : editDialog.item?.metadata?.tags || ""
+                      }
                       onChange={(e) => {
                         const newItem = { ...editDialog.item };
                         if (!newItem.metadata) newItem.metadata = {};
-                        newItem.metadata.author = e.target.value;
+                        // 如果后端需要数组，这里转为数组；如果需要字符串，直接传 e.target.value
+                        newItem.metadata.tags = e.target.value
+                          .split(/[,，\s]+/)
+                          .filter(Boolean);
+                        setEditDialog({ ...editDialog, item: newItem });
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="作者 (Author Name)"
+                      value={
+                        editDialog.item?.metadata?.author?.name ||
+                        editDialog.item?.metadata?.author ||
+                        ""
+                      }
+                      onChange={(e) => {
+                        const newItem = { ...editDialog.item };
+                        if (!newItem.metadata) newItem.metadata = {};
+                        if (typeof newItem.metadata.author === "object") {
+                          newItem.metadata.author.name = e.target.value;
+                        } else {
+                          newItem.metadata.author = {
+                            name: e.target.value,
+                            avatar: "",
+                          };
+                        }
+                        setEditDialog({ ...editDialog, item: newItem });
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="作者头像 URL (Avatar)"
+                      value={editDialog.item?.metadata?.author?.avatar || ""}
+                      onChange={(e) => {
+                        const newItem = { ...editDialog.item };
+                        if (!newItem.metadata) newItem.metadata = {};
+                        if (typeof newItem.metadata.author === "object") {
+                          newItem.metadata.author.avatar = e.target.value;
+                        } else {
+                          newItem.metadata.author = {
+                            name: "",
+                            avatar: e.target.value,
+                          };
+                        }
+                        setEditDialog({ ...editDialog, item: newItem });
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="发布日期 (Date)"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      value={
+                        editDialog.item?.metadata?.date
+                          ? editDialog.item.metadata.date.split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const newItem = { ...editDialog.item };
+                        if (!newItem.metadata) newItem.metadata = {};
+                        newItem.metadata.date = e.target.value;
+                        setEditDialog({ ...editDialog, item: newItem });
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="阅读时间 (Read Time)"
+                      value={editDialog.item?.metadata?.readTime || ""}
+                      onChange={(e) => {
+                        const newItem = { ...editDialog.item };
+                        if (!newItem.metadata) newItem.metadata = {};
+                        newItem.metadata.readTime = e.target.value;
                         setEditDialog({ ...editDialog, item: newItem });
                       }}
                     />
                   </Grid>
                 </>
               ) : (
+                /* 图片专属字段 */
                 <>
                   <Grid size={12}>
                     <TextField
@@ -522,6 +627,18 @@ export default function AdminDashboard() {
                       onChange={(e) => {
                         const newItem = { ...editDialog.item };
                         newItem.category = e.target.value;
+                        setEditDialog({ ...editDialog, item: newItem });
+                      }}
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      label="标签 (Tags, 逗号隔开)"
+                      value={editDialog.item?.tags || ""}
+                      onChange={(e) => {
+                        const newItem = { ...editDialog.item };
+                        newItem.tags = e.target.value;
                         setEditDialog({ ...editDialog, item: newItem });
                       }}
                     />
