@@ -3,6 +3,7 @@ import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
+import Sitemap from "vite-plugin-sitemap";
 
 function figmaAssetResolver() {
   return {
@@ -36,6 +37,10 @@ export default defineConfig(({ command }) => {
           global: true,
           process: true,
         },
+      }),
+      Sitemap({
+        hostname: "https://s0ralin.github.io/M3-Style-Personal-Blog/",
+        outDir: "docs",
       }),
     ],
     resolve: {
