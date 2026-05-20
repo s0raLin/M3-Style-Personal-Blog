@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://s0ralin.github.io/sitemap.xml
+Sitemap: https://s0ralin.github.io/M3-Style-Personal-Blog/sitemap.xml
