@@ -11,6 +11,7 @@ import {
   Avatar,
   useTheme,
   alpha,
+  Skeleton,
 } from "@mui/material";
 import {
   ArrowForward,
@@ -20,8 +21,10 @@ import {
   Article,
   PhotoLibrary,
   Person,
+  FormatQuote,
 } from "@mui/icons-material";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
+import { useState, useEffect } from "react";
 import { BlogPost } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 import { galleryImages } from "@/app/service/blogService";
@@ -31,6 +34,12 @@ interface HomeProps {
   onSelectPost: (post: BlogPost) => void;
   posts: BlogPost[];
   categories: string[];
+}
+
+interface HitokotoData {
+  hitokoto: string;
+  from?: string;
+  from_who?: string;
 }
 
 const itemVariants = {
@@ -46,6 +55,41 @@ const itemVariants = {
   },
 };
 
+function useHitokoto() {
+  const [data, setData] = useState<HitokotoData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchHitokoto = async () => {
+      setLoading(true);
+      setError(false);
+      try {
+        // type=i: 诗词；type=k: 动漫；可根据需要修改或去掉 type 参数以随机
+        const res = await fetch("https://v1.hitokoto.cn/?encode=json");
+        if (!res.ok) throw new Error("fetch failed");
+        const json: HitokotoData = await res.json();
+        if (!cancelled) {
+          setData(json);
+        }
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchHitokoto();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { data, loading, error };
+}
+
 export default function Home({
   onNavigate,
   onSelectPost,
@@ -54,6 +98,7 @@ export default function Home({
 }: HomeProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
+  const { data: hitokoto, loading: hitokotoLoading } = useHitokoto();
 
   const featuredPosts = posts.slice(0, 3);
 
@@ -154,7 +199,7 @@ export default function Home({
                     variant="h5"
                     color="text.secondary"
                     sx={{
-                      mb: 5,
+                      mb: 3,
                       fontWeight: 400,
                       maxWidth: 560,
                       lineHeight: 1.8,
@@ -164,6 +209,69 @@ export default function Home({
                     Hi，我是 Cangli。
                     这里记录一些开发、设计，还有平时折腾的东西。
                   </Typography>
+
+                  {/* 一言 */}
+                  <Box
+                    sx={{
+                      mb: 5,
+                      maxWidth: 560,
+                      px: 2,
+                      py: 1.5,
+                      borderLeft: `3px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+                      backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                      borderRadius: "0 8px 8px 0",
+                    }}
+                  >
+                    <AnimatePresence mode="wait">
+                      {hitokotoLoading ? (
+                        <motion.div
+                          key="skeleton"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        >
+                          <Skeleton
+                            variant="text"
+                            width="85%"
+                            sx={{ fontSize: "0.875rem" }}
+                          />
+                          <Skeleton
+                            variant="text"
+                            width="40%"
+                            sx={{ fontSize: "0.75rem", mt: 0.5 }}
+                          />
+                        </motion.div>
+                      ) : hitokoto ? (
+                        <motion.div
+                          key="hitokoto"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
+                        >
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ lineHeight: 1.8, fontStyle: "italic" }}
+                          >
+                            {hitokoto.hitokoto}
+                          </Typography>
+                          {(hitokoto.from_who || hitokoto.from) && (
+                            <Typography
+                              variant="caption"
+                              color="text.disabled"
+                              sx={{ mt: 0.5, display: "block" }}
+                            >
+                              —{" "}
+                              {[hitokoto.from_who, hitokoto.from]
+                                .filter(Boolean)
+                                .join("「") + (hitokoto.from ? "」" : "")}
+                            </Typography>
+                          )}
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </Box>
 
                   <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                     <Button
