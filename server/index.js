@@ -38,7 +38,9 @@ const upload = multer({
     },
 
     filename(req, file, cb) {
-      cb(null, file.originalname);
+      // ✅ 修复中文文件名乱码：Latin-1 → UTF-8 重新解码
+      const fixed = Buffer.from(file.originalname, "latin1").toString("utf8");
+      cb(null, fixed);
     },
   }),
 });
@@ -56,29 +58,36 @@ app.post("/api/posts/upload", upload.single("file"), async (req, res) => {
       });
     }
 
+    // ✅ 修复：从正确的字段名读取，并重组 author 对象
     const {
       title,
       excerpt,
       category,
       tags,
-      author,
+      date,
       readTime,
+      coverImage,
+      authorName,   // FileUpload 发送的是 authorName
+      authorAvatar, // FileUpload 发送的是 authorAvatar
     } = req.body;
 
     const filepath = path.join(POSTS_DIR, req.file.filename);
 
     const raw = await fs.readFile(filepath, "utf-8");
 
+    // ✅ 修复：所有字段提供默认值，避免 undefined 导致 matter.stringify 报错
     const metadata = {
-      title,
-      excerpt,
-      category,
-      tags: tags
-        ? tags.split(",").map((t) => t.trim())
-        : [],
-      author,
-      readTime,
-      date: new Date().toISOString(),
+      title:      title      || "",
+      excerpt:    excerpt    || "",
+      category:   category   || "",
+      tags:       tags ? tags.split(",").map((t) => t.trim()) : [],
+      date:       date       || new Date().toISOString(),
+      readTime:   readTime   || "",
+      coverImage: coverImage || "",
+      author: {
+        name:   authorName   || "",
+        avatar: authorAvatar || "",
+      },
     };
 
     const content = matter.stringify(raw, metadata);
