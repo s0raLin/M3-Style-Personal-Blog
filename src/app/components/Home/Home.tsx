@@ -22,7 +22,7 @@ import {
   Person,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
-import { BlogPost, categories as staticCategories } from "../../types/blog";
+import { BlogPost } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 import { galleryImages } from "@/lib/blogService";
 
@@ -33,16 +33,6 @@ interface HomeProps {
   categories: string[];
 }
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
-    },
-  },
-};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 24 },
@@ -67,9 +57,6 @@ export default function Home({
   const isDarkMode = theme.palette.mode === "dark";
 
   const featuredPosts = posts.slice(0, 3);
-
-  const displayCategories =
-    categories.length > 0 ? categories : staticCategories;
 
   const features = [
     {
@@ -344,7 +331,7 @@ export default function Home({
                 },
                 {
                   label: "分类",
-                  value: displayCategories.filter((c) => c !== "全部").length,
+                  value: categories.filter((c) => c !== "全部").length,
                   icon: <Code />,
                 },
                 {

@@ -43,5 +43,3 @@ export interface AuthorInfo {
   }[];
   projects: { name: string; description: string; tech: string[] }[];
 }
-
-// export const categories = ["全部", "设计", "前端开发", "性能优化"];
