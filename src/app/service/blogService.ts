@@ -1,6 +1,6 @@
 import fm from "front-matter";
 
-import galleryData from "../../../public/gallery/gallery.json";
+import galleryData from "../../../public/gallery/.gallery.json";
 import { BlogPost, GalleryImage } from "../types/blog";
 
 interface GalleryJsonItem {
