@@ -22,6 +22,7 @@ import {
 import { Article, Photo, Delete, Edit, Refresh } from "@mui/icons-material";
 import { toast } from "sonner";
 import FileUpload from "./FileUpload";
+import { Code } from "lucide-react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -178,8 +179,9 @@ export default function AdminDashboard() {
           博客本地管理控制台
         </Typography>
         <Alert severity="info" sx={{ mt: 2 }}>
-          💡 当前工作空间：<code>admin-src</code>{" "}
-          独立伴侣模式。此页面的任何代码和数据绝不会打包至线上 docs 生产目录。
+          💡 当前工作空间: <code>admin-src</code>
+          {"(独立开发模式)"}
+          此模块仅用于内部开发与调试，所有代码与数据不会参与线上 Docs 生产构建。
         </Alert>
       </Box>
 
