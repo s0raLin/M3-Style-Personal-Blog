@@ -56,6 +56,8 @@ const ShikiCodeBlock = memo(
     isDarkMode: boolean;
   }) {
     const [html, setHtml] = useState<string>("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const [copied, setCopied] = useState(false);
 
     const normalizedLang =
@@ -63,6 +65,8 @@ const ShikiCodeBlock = memo(
 
     useEffect(() => {
       let isMounted = true;
+      setLoading(true);
+      setError(false);
 
       async function highlight() {
         try {
@@ -92,10 +96,14 @@ const ShikiCodeBlock = memo(
               theme: isDarkMode ? "github-dark" : "github-light",
             });
             setHtml(highlighted);
-
+            setLoading(false);
           }
         } catch (err) {
           console.error("Shiki 渲染失败:", err);
+          if (isMounted) {
+            setError(true);
+            setLoading(false);
+          }
         }
       }
 
@@ -110,6 +118,159 @@ const ShikiCodeBlock = memo(
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     };
+
+    // ── 骨架屏 ──
+    if (loading) {
+      return (
+        <Box
+          sx={{
+            mb: 2,
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.08)"
+              : "rgba(0,0,0,0.06)",
+          }}
+        >
+          {/* 顶部语言标签骨架 */}
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              bgcolor: isDarkMode
+                ? "rgba(255,255,255,0.04)"
+                : "rgba(0,0,0,0.03)",
+              borderBottom: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(0,0,0,0.05)",
+            }}
+          >
+            <Skeleton
+              variant="rounded"
+              width={60}
+              height={20}
+              sx={{ borderRadius: "6px" }}
+            />
+            <Skeleton
+              variant="rounded"
+              width={28}
+              height={28}
+              sx={{ borderRadius: "8px" }}
+            />
+          </Box>
+          {/* 代码行骨架 */}
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: isDarkMode
+                ? "rgba(255,255,255,0.02)"
+                : "rgba(0,0,0,0.015)",
+            }}
+          >
+            {[100, 75, 88, 55, 92, 68].map((w, i) => (
+              <Skeleton
+                key={i}
+                variant="text"
+                width={`${w}%`}
+                height={20}
+                sx={{
+                  mb: 0.5,
+                  borderRadius: "4px",
+                  animationDelay: `${i * 0.08}s`,
+                  bgcolor: isDarkMode
+                    ? "rgba(255,255,255,0.05)"
+                    : "rgba(0,0,0,0.04)",
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      );
+    }
+
+    // ── 渲染失败的 Fallback UI ──
+    if (error) {
+      return (
+        <Box
+          sx={{
+            mb: 2,
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,100,100,0.25)"
+              : "rgba(211,47,47,0.15)",
+          }}
+        >
+          {/* 错误顶栏 */}
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              bgcolor: isDarkMode
+                ? "rgba(255,100,100,0.08)"
+                : "rgba(211,47,47,0.05)",
+              borderBottom: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,100,100,0.15)"
+                : "rgba(211,47,47,0.1)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <ErrorOutline
+                sx={{ fontSize: 14, color: "error.main", opacity: 0.8 }}
+              />
+              <Typography
+                variant="caption"
+                sx={{ color: "error.main", fontWeight: 600, opacity: 0.9 }}
+              >
+                {normalizedLang}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "text.disabled", fontSize: "0.7rem" }}
+              >
+                · 高亮渲染失败
+              </Typography>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={handleCopy}
+              sx={{ borderRadius: "8px" }}
+            >
+              <CopyIcon sx={{ fontSize: 14 }} />
+            </IconButton>
+          </Box>
+          {/* 纯文本降级显示 */}
+          <Box
+            component="pre"
+            sx={{
+              m: 0,
+              p: 2,
+              overflowX: "auto",
+              fontSize: "0.875rem",
+              lineHeight: 1.7,
+              fontFamily: "'Fira Code', Consolas, Monaco, monospace",
+              bgcolor: isDarkMode
+                ? "rgba(255,255,255,0.02)"
+                : "rgba(0,0,0,0.02)",
+              color: "text.secondary",
+              whiteSpace: "pre",
+            }}
+          >
+            {code}
+          </Box>
+        </Box>
+      );
+    }
 
     // ── 正常渲染：带语言标签 + 复制按钮 ──
     return (
