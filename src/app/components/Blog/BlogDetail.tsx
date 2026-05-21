@@ -9,8 +9,9 @@ import {
   Divider,
   Button,
   Skeleton,
-  Fab, // 引入 M3 核心悬浮按钮
-  Zoom, // 引入优雅的缩放渐变
+  Fab,
+  Zoom,
+  Alert,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -21,18 +22,18 @@ import {
   ContentCopy,
   CalendarToday,
   AccessTime,
-  KeyboardArrowUp, // 引入向上箭头图标
+  KeyboardArrowUp,
+  ErrorOutline,
+  ContentCopy as CopyIcon,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { BlogPost } from "../../types/blog";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { toast } from "sonner";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
-
 import Giscus from "@giscus/react";
-// 引入 shiki 的核心单例创建方法
 import { createHighlighter } from "shiki";
 
 interface BlogDetailProps {
@@ -41,137 +42,387 @@ interface BlogDetailProps {
   isDarkMode: boolean;
 }
 
-/**
- * 专为 Shiki 高亮设计的异步渲染微组件
- * 完美支持 Kotlin 且完全杜绝 React-Markdown 的同步流崩溃错误
- */
-function ShikiCodeBlock({
-  code,
-  language,
-  isDarkMode,
-}: {
-  code: string;
-  language: string;
-  isDarkMode: boolean;
-}) {
-  const [html, setHtml] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+// ─────────────────────────────────────────────
+// 1. Shiki 代码块：骨架屏 + 错误回退
+// ─────────────────────────────────────────────
+const ShikiCodeBlock = memo(
+  function ({
+    code,
+    language,
+    isDarkMode,
+  }: {
+    code: string;
+    language: string;
+    isDarkMode: boolean;
+  }) {
+    const [html, setHtml] = useState<string>("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-  const normalizedLang = language === "kt" ? "kotlin" : language || "plaintext";
+    const normalizedLang =
+      language === "kt" ? "kotlin" : language || "plaintext";
 
-  useEffect(() => {
-    let isMounted = true;
+    useEffect(() => {
+      let isMounted = true;
+      setLoading(true);
+      setError(false);
 
-    async function highlight() {
-      try {
-        const highlighter = await createHighlighter({
-          // 修正：使用全量包中绝对存在的标准主题名称
-          themes: ["github-light", "github-dark"],
-          langs: [
-            "kotlin",
-            "java",
-            "typescript",
-            "tsx",
-            "javascript",
-            "plaintext",
-            "xml",
-            "rust",
-            "scala",
-            "go",
-          ],
-        });
-
-        if (isMounted) {
-          const highlightedHtml = highlighter.codeToHtml(code, {
-            lang: normalizedLang,
-            // 对应上面注册的主题
-            theme: isDarkMode ? "github-dark" : "github-light",
+      async function highlight() {
+        try {
+          const highlighter = await createHighlighter({
+            themes: ["github-light", "github-dark"],
+            langs: [
+              "kotlin",
+              "java",
+              "typescript",
+              "tsx",
+              "javascript",
+              "plaintext",
+              "xml",
+              "rust",
+              "scala",
+              "go",
+              "python",
+              "bash",
+              "json",
+              "css",
+              "html",
+            ],
           });
-          setHtml(highlightedHtml);
-          setLoading(false);
+          if (isMounted) {
+            const highlighted = highlighter.codeToHtml(code, {
+              lang: normalizedLang,
+              theme: isDarkMode ? "github-dark" : "github-light",
+            });
+            setHtml(highlighted);
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Shiki 渲染失败:", err);
+          if (isMounted) {
+            setError(true);
+            setLoading(false);
+          }
         }
-      } catch (error) {
-        console.error("Shiki 渲染失败:", error);
-        if (isMounted) setLoading(false);
       }
+
+      highlight();
+      return () => {
+        isMounted = false;
+      };
+    }, [code, normalizedLang, isDarkMode]);
+
+    const handleCopy = () => {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    // ── 骨架屏 ──
+    if (loading) {
+      return (
+        <Box
+          sx={{
+            mb: 2,
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.08)"
+              : "rgba(0,0,0,0.06)",
+          }}
+        >
+          {/* 顶部语言标签骨架 */}
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              bgcolor: isDarkMode
+                ? "rgba(255,255,255,0.04)"
+                : "rgba(0,0,0,0.03)",
+              borderBottom: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(0,0,0,0.05)",
+            }}
+          >
+            <Skeleton
+              variant="rounded"
+              width={60}
+              height={20}
+              sx={{ borderRadius: "6px" }}
+            />
+            <Skeleton
+              variant="rounded"
+              width={28}
+              height={28}
+              sx={{ borderRadius: "8px" }}
+            />
+          </Box>
+          {/* 代码行骨架 */}
+          <Box
+            sx={{
+              p: 2,
+              bgcolor: isDarkMode
+                ? "rgba(255,255,255,0.02)"
+                : "rgba(0,0,0,0.015)",
+            }}
+          >
+            {[100, 75, 88, 55, 92, 68].map((w, i) => (
+              <Skeleton
+                key={i}
+                variant="text"
+                width={`${w}%`}
+                height={20}
+                sx={{
+                  mb: 0.5,
+                  borderRadius: "4px",
+                  animationDelay: `${i * 0.08}s`,
+                  bgcolor: isDarkMode
+                    ? "rgba(255,255,255,0.05)"
+                    : "rgba(0,0,0,0.04)",
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      );
     }
 
-    highlight();
-    return () => {
-      isMounted = false;
-    };
-  }, [code, normalizedLang, isDarkMode]);
+    // ── 渲染失败的 Fallback UI ──
+    if (error) {
+      return (
+        <Box
+          sx={{
+            mb: 2,
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,100,100,0.25)"
+              : "rgba(211,47,47,0.15)",
+          }}
+        >
+          {/* 错误顶栏 */}
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              bgcolor: isDarkMode
+                ? "rgba(255,100,100,0.08)"
+                : "rgba(211,47,47,0.05)",
+              borderBottom: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,100,100,0.15)"
+                : "rgba(211,47,47,0.1)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <ErrorOutline
+                sx={{ fontSize: 14, color: "error.main", opacity: 0.8 }}
+              />
+              <Typography
+                variant="caption"
+                sx={{ color: "error.main", fontWeight: 600, opacity: 0.9 }}
+              >
+                {normalizedLang}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{ color: "text.disabled", fontSize: "0.7rem" }}
+              >
+                · 高亮渲染失败
+              </Typography>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={handleCopy}
+              sx={{ borderRadius: "8px" }}
+            >
+              <CopyIcon sx={{ fontSize: 14 }} />
+            </IconButton>
+          </Box>
+          {/* 纯文本降级显示 */}
+          <Box
+            component="pre"
+            sx={{
+              m: 0,
+              p: 2,
+              overflowX: "auto",
+              fontSize: "0.875rem",
+              lineHeight: 1.7,
+              fontFamily: "'Fira Code', Consolas, Monaco, monospace",
+              bgcolor: isDarkMode
+                ? "rgba(255,255,255,0.02)"
+                : "rgba(0,0,0,0.02)",
+              color: "text.secondary",
+              whiteSpace: "pre",
+            }}
+          >
+            {code}
+          </Box>
+        </Box>
+      );
+    }
 
-  if (loading) {
+    // ── 正常渲染：带语言标签 + 复制按钮 ──
     return (
-      <Skeleton
-        variant="rounded"
-        height={120}
+      <Box
         sx={{
-          borderRadius: "12px",
           mb: 2,
-          bgcolor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)",
-        }}
-      />
-    );
-  }
-
-  return (
-    <Box
-      dangerouslySetInnerHTML={{ __html: html }}
-      sx={{
-        mb: 2,
-        "& pre": {
-          padding: "16px",
           borderRadius: "12px",
-          overflowX: "auto",
-          fontSize: "0.875rem",
-          fontFamily: "'Fira Code', Consolas, Monaco, monospace",
-          backgroundColor: "transparent !important",
-          margin: "0 !important",
-        },
-      }}
-    />
-  );
-}
+          overflow: "hidden",
+          border: "1px solid",
+          borderColor: isDarkMode
+            ? "rgba(255,255,255,0.08)"
+            : "rgba(0,0,0,0.06)",
+          transition: "border-color 0.2s",
+          "&:hover": {
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.15)"
+              : "rgba(0,0,0,0.12)",
+          },
+          "&:hover .code-copy-btn": { opacity: 1 },
+        }}
+      >
+        {/* 顶部栏：语言标签 + 复制 */}
+        <Box
+          sx={{
+            px: 2,
+            py: 0.75,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            bgcolor: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+            borderBottom: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(0,0,0,0.05)",
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.disabled",
+              fontFamily: "monospace",
+              fontWeight: 600,
+              letterSpacing: "0.05em",
+              textTransform: "lowercase",
+              fontSize: "0.72rem",
+            }}
+          >
+            {normalizedLang}
+          </Typography>
+          <IconButton
+            className="code-copy-btn"
+            size="small"
+            onClick={handleCopy}
+            sx={{
+              opacity: 0,
+              transition: "opacity 0.15s, background-color 0.15s",
+              borderRadius: "8px",
+              p: "4px",
+              "&:hover": {
+                bgcolor: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.06)",
+              },
+            }}
+          >
+            {copied ? (
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: "0.65rem",
+                  color: "success.main",
+                  fontWeight: 700,
+                  px: 0.5,
+                }}
+              >
+                已复制
+              </Typography>
+            ) : (
+              <CopyIcon sx={{ fontSize: 13, color: "text.disabled" }} />
+            )}
+          </IconButton>
+        </Box>
 
+        <Box
+          dangerouslySetInnerHTML={{ __html: html }}
+          sx={{
+            "& pre": {
+              padding: "16px !important",
+              borderRadius: "0 !important",
+              overflowX: "auto",
+              fontSize: "0.875rem",
+              fontFamily: "'Fira Code', Consolas, Monaco, monospace",
+              margin: "0 !important",
+              lineHeight: "1.7 !important",
+            },
+          }}
+        />
+      </Box>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.code === nextProps.code &&
+      prevProps.language === nextProps.language &&
+      prevProps.isDarkMode === nextProps.isDarkMode
+    );
+  },
+);
+
+// ─────────────────────────────────────────────
+// 3. Markdown 样式增强的主组件
+// ─────────────────────────────────────────────
 export default function BlogDetail({
   post,
   onBack,
   isDarkMode,
 }: BlogDetailProps) {
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false); // 控制回到顶部按钮显隐
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // 监听页面滚动
+  // 2. 使用 useMemo 缓存 components 对象，锁定引用
+  const markdownComponents = useMemo(
+    () => ({
+      code({ node, inline, className, children, ...props }: any) {
+        const match = /language-(\w+)/.exec(className || "");
+        return !inline && match ? (
+          <ShikiCodeBlock
+            code={String(children).replace(/\n$/, "")}
+            language={match[1]}
+            isDarkMode={isDarkMode} // 依赖 isDarkMode，当主题切换时需要重新高亮
+          />
+        ) : (
+          <code className={className} {...props}>
+            {children}
+          </code>
+        );
+      },
+    }),
+    [isDarkMode],
+  ); // 👈 关键：只有当深色/浅色模式切换时，才允许重新创建组件引用
+
   useEffect(() => {
-    const handleScroll = () => {
-      // 当页面向下滚动超过 400 像素时显示按钮
-      if (window.scrollY > 400) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-    };
-
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 回到顶部的平滑滚动逻辑
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth", // 平滑滚动效果
-    });
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   const handleShare = (platform: string) => {
     const url = window.location.href;
     const text = `${post.title} - ${post.excerpt}`;
-
     let shareUrl = "";
     switch (platform) {
       case "twitter":
@@ -189,12 +440,13 @@ export default function BlogDetail({
         setShowShareMenu(false);
         return;
     }
-
     if (shareUrl) {
       window.open(shareUrl, "_blank", "width=600,height=400");
       setShowShareMenu(false);
     }
   };
+
+  // if (isLoading) return <BlogDetailSkeleton isDarkMode={isDarkMode} />;
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -232,6 +484,7 @@ export default function BlogDetail({
               />
             </Box>
           )}
+
           <Chip label={post.category} color="primary" sx={{ mb: 2 }} />
           <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
             {post.title}
@@ -239,6 +492,7 @@ export default function BlogDetail({
           <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
             {post.excerpt}
           </Typography>
+
           <Box
             sx={{
               display: "flex",
@@ -271,7 +525,6 @@ export default function BlogDetail({
                 </Box>
               </Box>
             </Box>
-
             <Box sx={{ position: "relative" }}>
               <IconButton
                 color="primary"
@@ -279,7 +532,6 @@ export default function BlogDetail({
               >
                 <Share />
               </IconButton>
-
               {showShareMenu && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9, y: -10 }}
@@ -336,6 +588,7 @@ export default function BlogDetail({
               )}
             </Box>
           </Box>
+
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 4 }}>
             {post.tags.map((tag) => (
               <Chip
@@ -343,91 +596,228 @@ export default function BlogDetail({
                 label={tag}
                 size="small"
                 sx={{
-                  borderRadius: "8px", // M3 规定的标准小组件圆角
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  // 采用类似 M3 Surface Variant / On Surface Variant 的配色
                   bgcolor: isDarkMode
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.05)",
+                    ? "rgba(255,255,255,0.08)"
+                    : "rgba(0,0,0,0.05)",
                   color: isDarkMode
-                    ? "rgba(255, 255, 255, 0.87)"
-                    : "rgba(0, 0, 0, 0.87)",
-                  border: "none", // 彻底抛弃边框，告别锯齿
+                    ? "rgba(255,255,255,0.87)"
+                    : "rgba(0,0,0,0.87)",
+                  border: "none",
                 }}
               />
             ))}
           </Box>
+
           <Divider sx={{ mb: 4 }} />
 
-          {/* 文章正文包裹容器 */}
+          {/* ── 优化后的 Markdown 渲染容器 ── */}
           <Box
             sx={{
-              "& h1, & h2, & h3": {
-                fontWeight: 600,
-                mt: 4,
-                mb: 2,
+              // ── 标题层级 ──
+              "& h1": {
+                fontSize: "2rem",
+                fontWeight: 800,
+                mt: 5,
+                mb: 2.5,
+                lineHeight: 1.3,
+                letterSpacing: "-0.02em",
+                color: "text.primary",
               },
+              "& h2": {
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                mt: 4.5,
+                mb: 2,
+                lineHeight: 1.4,
+                letterSpacing: "-0.015em",
+                paddingBottom: "0.4em",
+                borderBottom: "1px solid",
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.08)",
+              },
+              "& h3": {
+                fontSize: "1.2rem",
+                fontWeight: 700,
+                mt: 3.5,
+                mb: 1.5,
+                lineHeight: 1.5,
+                color: "primary.main",
+              },
+              "& h4": {
+                fontSize: "1.05rem",
+                fontWeight: 600,
+                mt: 2.5,
+                mb: 1,
+                lineHeight: 1.5,
+              },
+
+              // ── 正文 ──
               "& p": {
                 mb: 2,
+                lineHeight: 1.85,
+                fontSize: "1rem",
+                color: "text.primary",
+              },
+
+              // ── 列表 ──
+              "& ul": { mb: 2, pl: 0, listStyle: "none" },
+              "& ul li": {
+                mb: 0.75,
+                pl: "1.5em",
+                position: "relative",
                 lineHeight: 1.8,
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  left: "0.2em",
+                  top: "0.65em",
+                  width: "6px",
+                  height: "6px",
+                  borderRadius: "50%",
+                  backgroundColor: "primary.main",
+                  opacity: 0.7,
+                },
               },
-              "& ul, & ol": {
-                mb: 2,
-                pl: 3,
+              "& ol": { mb: 2, pl: "1.5em" },
+              "& ol li": { mb: 0.75, lineHeight: 1.8, pl: "0.4em" },
+
+              // ── 嵌套列表 ──
+              "& ul ul, & ol ul": { mt: 0.5, mb: 0 },
+              "& ul ul li::before": {
+                width: "4px",
+                height: "4px",
+                opacity: 0.45,
               },
-              "& li": {
-                mb: 1,
-              },
+
+              // ── 引用块 ──
               "& blockquote": {
-                borderLeft: "4px solid",
+                borderLeft: "3px solid",
                 borderColor: "primary.main",
-                pl: 2,
+                pl: 2.5,
                 py: 1,
                 my: 3,
+                mx: 0,
+                borderRadius: "0 8px 8px 0",
                 backgroundColor: isDarkMode
-                  ? "rgba(103, 80, 164, 0.1)"
-                  : "rgba(103, 80, 164, 0.05)",
-                fontStyle: "italic",
+                  ? "rgba(103,80,164,0.08)"
+                  : "rgba(103,80,164,0.04)",
+                "& p": {
+                  mb: 0,
+                  fontStyle: "italic",
+                  color: "text.secondary",
+                  fontSize: "0.97rem",
+                },
               },
-              // 仅对行内代码块（`code`）生效的样式
+
+              // ── 行内代码 ──
               "& :not(pre) > code": {
                 backgroundColor: isDarkMode
-                  ? "rgba(255, 255, 255, 0.1)"
-                  : "rgba(0, 0, 0, 0.05)",
-                padding: "2px 6px",
-                borderRadius: 1,
-                fontFamily: "monospace",
-                fontSize: "0.9em",
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(103,80,164,0.08)",
+                color: isDarkMode ? "#e2b1ff" : "#6750a4",
+                padding: "2px 7px",
+                borderRadius: "6px",
+                fontFamily: "'Fira Code', Consolas, Monaco, monospace",
+                fontSize: "0.875em",
+                fontWeight: 500,
+                letterSpacing: "-0.01em",
               },
+
+              // ── 表格 ──
+              "& table": {
+                width: "100%",
+                mb: 3,
+                borderCollapse: "collapse",
+                fontSize: "0.9rem",
+                borderRadius: "10px",
+                overflow: "hidden",
+                border: "1px solid",
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.08)",
+              },
+              "& th": {
+                px: 2,
+                py: 1.25,
+                textAlign: "left",
+                fontWeight: 700,
+                fontSize: "0.82rem",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                backgroundColor: isDarkMode
+                  ? "rgba(103,80,164,0.2)"
+                  : "rgba(103,80,164,0.07)",
+                color: "primary.main",
+                borderBottom: "1px solid",
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.1)",
+              },
+              "& td": {
+                px: 2,
+                py: 1.25,
+                borderBottom: "1px solid",
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.05)",
+                lineHeight: 1.6,
+                verticalAlign: "top",
+              },
+              "& tr:last-child td": { borderBottom: "none" },
+              "& tr:hover td": {
+                backgroundColor: isDarkMode
+                  ? "rgba(255,255,255,0.03)"
+                  : "rgba(0,0,0,0.02)",
+              },
+
+              // ── 分割线 ──
+              "& hr": {
+                border: "none",
+                borderTop: "1px solid",
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.08)",
+                my: 4,
+              },
+
+              // ── 链接 ──
+              "& a": {
+                color: "primary.main",
+                textDecoration: "none",
+                fontWeight: 500,
+                borderBottom: "1px solid",
+                borderColor: "transparent",
+                transition: "border-color 0.15s",
+                "&:hover": { borderColor: "primary.main" },
+              },
+
+              // ── 图片 ──
+              "& img": {
+                maxWidth: "100%",
+                borderRadius: "10px",
+                my: 2,
+                display: "block",
+                mx: "auto",
+              },
+
+              // ── 强调 ──
+              "& strong": { fontWeight: 700, color: "text.primary" },
+              "& em": { fontStyle: "italic", color: "text.secondary" },
             }}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              components={{
-                code({ node, inline, className, children, ...props }: any) {
-                  const match = /language-(\w+)/.exec(className || "");
-                  // 如果不是行内代码且匹配到了语言，则转交给安全的 Shiki 渲染块
-                  return !inline && match ? (
-                    <ShikiCodeBlock
-                      code={String(children).replace(/\n$/, "")}
-                      language={match[1]}
-                      isDarkMode={isDarkMode}
-                    />
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
+              components={markdownComponents} // 3. 替换为锁定了引用的缓存变量 👈
             >
               {post.content}
             </ReactMarkdown>
           </Box>
 
-          {/* --- M3 评论区开始 --- */}
+          {/* 评论区 */}
           <Divider sx={{ my: 6, opacity: 0.5 }} />
-
           <Box
             component={motion.section}
             initial={{ opacity: 0, y: 20 }}
@@ -435,30 +825,24 @@ export default function BlogDetail({
             viewport={{ once: true }}
             sx={{
               position: "relative",
-              borderRadius: "28px", // M3 Extra Large Rounding
+              borderRadius: "28px",
               overflow: "hidden",
               border: "1px solid",
               borderColor: isDarkMode
                 ? "rgba(255,255,255,0.1)"
-                : "rgba(103, 80, 164, 0.15)",
-
-              // M3 Surface Container styling
+                : "rgba(103,80,164,0.15)",
               backgroundColor: isDarkMode
-                ? "rgba(28, 27, 31, 0.6)" // Surface Container Low
-                : "rgba(254, 247, 255, 0.8)", // Surface Container High
-
+                ? "rgba(28,27,31,0.6)"
+                : "rgba(254,247,255,0.8)",
               backdropFilter: "blur(12px)",
-              transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-
+              transition: "all 0.4s cubic-bezier(0.4,0,0.2,1)",
               "&:hover": {
-                borderColor: "primary.outline",
                 boxShadow: isDarkMode
                   ? "0 8px 32px rgba(0,0,0,0.4)"
-                  : "0 8px 32px rgba(103, 80, 164, 0.08)",
+                  : "0 8px 32px rgba(103,80,164,0.08)",
               },
             }}
           >
-            {/* 头部装饰条 (Primary Indicator) */}
             <Box
               sx={{
                 height: 6,
@@ -470,7 +854,6 @@ export default function BlogDetail({
                 opacity: 0.8,
               }}
             />
-
             <Box
               sx={{
                 px: { xs: 3, md: 4 },
@@ -486,15 +869,12 @@ export default function BlogDetail({
                   variant="h6"
                   sx={{
                     fontWeight: 700,
-                    color: "text.primary",
-                    letterSpacing: "0.02em",
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
                   }}
                 >
-                  <span style={{ fontSize: "1.4rem" }}>💬</span>
-                  讨论交流
+                  <span style={{ fontSize: "1.4rem" }}>💬</span>讨论交流
                 </Typography>
                 <Typography
                   variant="caption"
@@ -511,7 +891,6 @@ export default function BlogDetail({
                   Powered by GitHub Discussions
                 </Typography>
               </Box>
-
               <Chip
                 label="Open"
                 size="small"
@@ -523,17 +902,9 @@ export default function BlogDetail({
                 }}
               />
             </Box>
-
             <Box
               key={post.title}
-              sx={{
-                minHeight: 280,
-                px: { xs: 2, md: 4 },
-                pb: 4,
-                "& iframe": {
-                  transition: "opacity 0.3s ease",
-                },
-              }}
+              sx={{ minHeight: 280, px: { xs: 2, md: 4 }, pb: 4 }}
             >
               <Giscus
                 id="comments"
@@ -553,11 +924,9 @@ export default function BlogDetail({
               />
             </Box>
           </Box>
-          {/* --- 评论区结束 --- */}
         </Paper>
       </motion.div>
 
-      {/* --- M3 回到顶部悬浮组件开始 --- */}
       <Zoom in={showScrollTop}>
         <Fab
           color="primary"
@@ -568,22 +937,18 @@ export default function BlogDetail({
             position: "fixed",
             bottom: { xs: 24, md: 32 },
             right: { xs: 24, md: 32 },
-            borderRadius: "16px", // M3 规范中 Small/Medium FAB 使用的圆角大小
+            borderRadius: "16px",
             boxShadow: isDarkMode
               ? "0 4px 12px rgba(0,0,0,0.5)"
-              : "0 4px 12px rgba(103, 80, 164, 0.2)",
-            // 顺滑的过渡动效
+              : "0 4px 12px rgba(103,80,164,0.2)",
             transition:
-              "transform 0.2s cubic-bezier(0.2, 0, 0, 1), background-color 0.2s",
-            "&:hover": {
-              transform: "scale(1.08)",
-            },
+              "transform 0.2s cubic-bezier(0.2,0,0,1), background-color 0.2s",
+            "&:hover": { transform: "scale(1.08)" },
           }}
         >
           <KeyboardArrowUp />
         </Fab>
       </Zoom>
-      {/* --- M3 回到顶部悬浮组件结束 --- */}
     </Container>
   );
 }
