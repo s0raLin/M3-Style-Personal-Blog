@@ -362,10 +362,10 @@ export default function FileUpload({ type, onUploadSuccess }: FileUploadProps) {
               {uploading && <LinearProgress sx={{ mt: 2 }} />}
 
               <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
+                <Button onClick={handleCancel}>取消</Button>
                 <Button variant="contained" fullWidth onClick={handleUpload}>
                   上传
                 </Button>
-                <Button onClick={handleCancel}>取消</Button>
               </Box>
             </Paper>
           </motion.div>
