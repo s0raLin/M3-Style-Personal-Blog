@@ -446,8 +446,6 @@ export default function BlogDetail({
     }
   };
 
-  // if (isLoading) return <BlogDetailSkeleton isDarkMode={isDarkMode} />;
-
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <motion.div
