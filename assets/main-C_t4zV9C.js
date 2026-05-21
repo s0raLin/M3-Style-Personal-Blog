@@ -713,10 +713,10 @@ author:
 
 1. 打开 VS Code 设置（快捷键 \`Ctrl + ,\`）。
 2. 在顶部的搜索框输入：**\`yaml.schemaStore.enable\`**
-3. 找到 **Yaml: Schema Store › Enable** 这一项，**把它的勾选去掉（设置为 False）**。
+3. 找到  **Yaml: Schema Store › Enable** 这一项，** 把它的勾选去掉（设置为 False）**。
 ![yaml-error](/posts/images/yaml-error.png)
 
-> ** 关掉这个之后，它就不会再去网上扯一些 Enonic XP 之类莫名其妙的规则来恶心你了。而你本地安装的 \`Spring Boot Properties Yaml\` 插件依然可以正常为你提供 \`spring\` 和 \`mybatis\` 的完美补全，两全其美！
+> 关掉这个之后，它就不会再去网上扯一些 Enonic XP 之类莫名其妙的规则来恶心你了。而你本地安装的 \`Spring Boot Properties Yaml\` 插件依然可以正常为你提供 \`spring\` 和 \`mybatis\` 的完美补全，两全其美！
 `,qU=`---
 title: android_white_screen_fix
 excerpt: ""
