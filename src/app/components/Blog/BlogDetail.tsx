@@ -12,6 +12,8 @@ import {
   Fab,
   Zoom,
   Alert,
+  Fade,
+  Dialog,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -27,10 +29,11 @@ import {
   ContentCopy as CopyIcon,
   ImageNotSupported,
 } from "@mui/icons-material";
-import { motion } from "motion/react";
+import { Close as CloseIcon } from "@mui/icons-material";
+import { AnimatePresence, motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BlogPost } from "../../types/blog";
+import { BlogPost, GalleryImage } from "../../types/blog";
 import { useState, useEffect, memo, useMemo } from "react";
 import { toast } from "sonner";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
@@ -382,7 +385,7 @@ const ShikiCodeBlock = memo(
 );
 
 // ─────────────────────────────────────────────
-// 2. Markdown 正文图片组件（支持加载中骨架屏与失败 Fallback）
+// 2. Markdown 正文图片组件（支持加载中骨架屏、失败 Fallback 与高级预览）
 // ─────────────────────────────────────────────
 const MarkdownImage = memo(function MarkdownImage({
   src,
@@ -395,6 +398,13 @@ const MarkdownImage = memo(function MarkdownImage({
 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [openPreview, setOpenPreview] = useState(false); // 🌟 改用布尔值控制显示状态
+
+  // 点击事件处理
+  const handleOpen = () => {
+    if (!loading && !error) setOpenPreview(true);
+  };
+  const handleClose = () => setOpenPreview(false);
 
   if (error) {
     return (
@@ -455,21 +465,137 @@ const MarkdownImage = memo(function MarkdownImage({
           setLoading(false);
           setError(true);
         }}
+        onClick={handleOpen} // 🌟 核心：绑定点击打开预览事件
         sx={{
           maxWidth: "100%",
           maxHeight: "500px",
           borderRadius: "10px",
           display: loading ? "none" : "block",
           mx: "auto",
+          cursor: loading ? "default" : "zoom-in", // 🌟 鼠标悬浮显示放大镜
           boxShadow: isDarkMode
             ? "0 4px 20px rgba(0,0,0,0.4)"
             : "0 4px 16px rgba(0,0,0,0.06)",
           transition: "transform 0.3s cubic-bezier(0.2,0,0,1)",
           "&:hover": {
-            transform: "scale(1.015)",
+            transform: loading ? "none" : "scale(1.015)",
           },
         }}
       />
+
+      {/* 🌟 展开效果：自适应通透毛玻璃 */}
+      <Dialog
+        open={openPreview}
+        onClose={handleClose}
+        maxWidth="lg"
+        TransitionComponent={Fade}
+        transitionDuration={400}
+        PaperProps={{
+          sx: {
+            backgroundColor: "transparent",
+            boxShadow: "none",
+            overflow: "visible", // 允许文字正常渲染
+            mx: { xs: 2, sm: 4 },
+          },
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              // 高级感毛玻璃背景，丢掉原本沉闷死黑
+              backdropFilter: "blur(16px)",
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(15, 15, 15, 0.7)"
+                  : "rgba(255, 255, 255, 0.65)",
+            },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {/* 右上角固定毛玻璃关闭按钮 */}
+          <IconButton
+            onClick={handleClose}
+            sx={{
+              position: "fixed",
+              top: 20,
+              right: 20,
+              color: (theme) =>
+                theme.palette.mode === "dark" ? "text.primary" : "text.secondary",
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(0,0,0,0.05)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid",
+              borderColor: "divider",
+              zIndex: 10,
+              "&:hover": {
+                backgroundColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.15)"
+                    : "rgba(0,0,0,0.1)",
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          {/* 大图显示 */}
+          <Box
+            component="img"
+            src={src}
+            alt={alt}
+            onClick={handleClose} // 点击大图本身直接关闭
+            sx={{
+              maxWidth: "100%",
+              maxHeight: "78vh",
+              objectFit: "contain",
+              borderRadius: "20px", // MD3 风格圆角
+              cursor: "zoom-out",   // 鼠标悬浮变为缩小镜
+              boxShadow: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "0 24px 60px rgba(0, 0, 0, 0.8)"
+                  : "0 24px 60px rgba(0, 0, 0, 0.12)",
+            }}
+          />
+
+          {/* 底部悬浮图片描述（Markdown 的 alt 文本） */}
+          {alt && (
+            <Box
+              sx={{
+                width: "100%",
+                textAlign: "center",
+                mt: 2.5,
+                px: 2,
+                color: (theme) =>
+                  theme.palette.mode === "dark" ? "text.primary" : "text.secondary",
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "0.95rem",
+                  opacity: 0.9,
+                  textShadow: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "none"
+                      : "0 1px 2px rgba(255,255,255,0.5)",
+                }}
+              >
+                {alt}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Dialog>
     </Box>
   );
 });
