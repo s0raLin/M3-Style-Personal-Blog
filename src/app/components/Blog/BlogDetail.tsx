@@ -25,6 +25,7 @@ import {
   KeyboardArrowUp,
   ErrorOutline,
   ContentCopy as CopyIcon,
+  ImageNotSupported,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
@@ -381,6 +382,99 @@ const ShikiCodeBlock = memo(
 );
 
 // ─────────────────────────────────────────────
+// 2. Markdown 正文图片组件（支持加载中骨架屏与失败 Fallback）
+// ─────────────────────────────────────────────
+const MarkdownImage = memo(function MarkdownImage({
+  src,
+  alt,
+  isDarkMode,
+}: {
+  src: string;
+  alt?: string;
+  isDarkMode: boolean;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          height: { xs: 180, sm: 260 },
+          my: 2,
+          borderRadius: "12px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1.5,
+          border: "1px dashed",
+          borderColor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.12)"
+              : "rgba(0,0,0,0.12)",
+          backgroundColor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.02)"
+              : "rgba(0,0,0,0.02)",
+          color: "text.disabled",
+        }}
+      >
+        <ImageNotSupported
+          sx={{ fontSize: 40, opacity: 0.6, color: "error.main" }}
+        />
+        <Typography variant="body2" sx={{ fontSize: "0.85rem", opacity: 0.8 }}>
+          图片加载失败 {alt ? `(${alt})` : ""}
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{ position: "relative", my: 2, width: "100%", textAlign: "center" }}
+    >
+      {loading && (
+        <Skeleton
+          variant="rounded"
+          animation="wave"
+          sx={{
+            width: "100%",
+            height: { xs: 180, sm: 260 },
+            borderRadius: "10px",
+          }}
+        />
+      )}
+      <Box
+        component="img"
+        src={src}
+        alt={alt}
+        onLoad={() => setLoading(false)}
+        onError={() => {
+          setLoading(false);
+          setError(true);
+        }}
+        sx={{
+          maxWidth: "100%",
+          maxHeight: "500px",
+          borderRadius: "10px",
+          display: loading ? "none" : "block",
+          mx: "auto",
+          boxShadow: isDarkMode
+            ? "0 4px 20px rgba(0,0,0,0.4)"
+            : "0 4px 16px rgba(0,0,0,0.06)",
+          transition: "transform 0.3s cubic-bezier(0.2,0,0,1)",
+          "&:hover": {
+            transform: "scale(1.015)",
+          },
+        }}
+      />
+    </Box>
+  );
+});
+
+// ─────────────────────────────────────────────
 // 3. Markdown 样式增强的主组件
 // ─────────────────────────────────────────────
 export default function BlogDetail({
@@ -406,6 +500,12 @@ export default function BlogDetail({
           <code className={className} {...props}>
             {children}
           </code>
+        );
+      },
+      // 🌟 注入自定义图片渲染劫持
+      img({ src, alt }: any) {
+        return (
+          <MarkdownImage src={src || ""} alt={alt} isDarkMode={isDarkMode} />
         );
       },
     }),
@@ -658,7 +758,12 @@ export default function BlogDetail({
               },
 
               // ── 列表 ──
-              "& ul": { mb: 2, pl: 0, listStyle: "none" },
+              // ── 列表 ──
+              "& ul": {
+                mb: 2,
+                pl: 0,
+                listStyle: "none",
+              },
               "& ul li": {
                 mb: 0.75,
                 pl: "1.5em",
@@ -676,15 +781,42 @@ export default function BlogDetail({
                   opacity: 0.7,
                 },
               },
-              "& ol": { mb: 2, pl: "1.5em" },
-              "& ol li": { mb: 0.75, lineHeight: 1.8, pl: "0.4em" },
+
+              // 💡 修复有序列表（ol）：显式声明数字样式，并留足左侧 padding 空间
+              "& ol": {
+                mb: 2,
+                pl: "2em", // 留出 2em 空间确保 10. 11. 这种两位数也能完美显示
+                listStyleType: "decimal", // 强制启用标准的 1. 2. 3. 数字渲染
+                color: "text.primary",
+              },
+              "& ol li": {
+                mb: 0.75,
+                lineHeight: 1.8,
+                pl: "0.2em", // 仅限制文字与数字序号之间的间距，不再挤压序号空间
+                // 确保数字和主题色或正文色保持一致
+                "&::marker": {
+                  color: "primary.main", // 🌟 让有序列表的数字序号也完美跟随你的主题色！
+                  fontWeight: 700,
+                },
+              },
 
               // ── 嵌套列表 ──
-              "& ul ul, & ol ul": { mt: 0.5, mb: 0 },
+              // 确保多层嵌套时， ol 里面的 ul 或者 ul 里面的 ol 不会互相污染样式
+              "& ul ul, & ol ul": {
+                mt: 0.5,
+                mb: 0,
+                pl: "1.2em",
+              },
               "& ul ul li::before": {
                 width: "4px",
                 height: "4px",
                 opacity: 0.45,
+              },
+              "& ul ol, & ol ol": {
+                mt: 0.5,
+                mb: 0,
+                pl: "1.5em",
+                listStyleType: "decimal",
               },
 
               // ── 引用块 ──
