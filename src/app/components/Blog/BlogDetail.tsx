@@ -400,7 +400,7 @@ export default function BlogDetail({
           <ShikiCodeBlock
             code={String(children).replace(/\n$/, "")}
             language={match[1]}
-            isDarkMode={isDarkMode} // 依赖 isDarkMode，当主题切换时需要重新高亮
+            isDarkMode={isDarkMode}
           />
         ) : (
           <code className={className} {...props}>
@@ -410,7 +410,7 @@ export default function BlogDetail({
       },
     }),
     [isDarkMode],
-  ); // 👈 关键：只有当深色/浅色模式切换时，才允许重新创建组件引用
+  );
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
@@ -596,12 +596,10 @@ export default function BlogDetail({
                 sx={{
                   borderRadius: "8px",
                   fontWeight: 500,
-                  bgcolor: isDarkMode
-                    ? "rgba(255,255,255,0.08)"
-                    : "rgba(0,0,0,0.05)",
-                  color: isDarkMode
-                    ? "rgba(255,255,255,0.87)"
-                    : "rgba(0,0,0,0.87)",
+                  // ✅ 原来硬编码 rgba(255,255,255,0.08) / rgba(0,0,0,0.05)
+                  // 现在改用 action.hover，随主题自动适配
+                  bgcolor: "action.hover",
+                  color: "text.primary",
                   border: "none",
                 }}
               />
@@ -632,9 +630,8 @@ export default function BlogDetail({
                 letterSpacing: "-0.015em",
                 paddingBottom: "0.4em",
                 borderBottom: "1px solid",
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.08)",
+                // ✅ 原 rgba(255,255,255,0.1) / rgba(0,0,0,0.08) → divider
+                borderColor: "divider",
               },
               "& h3": {
                 fontSize: "1.2rem",
@@ -699,9 +696,11 @@ export default function BlogDetail({
                 my: 3,
                 mx: 0,
                 borderRadius: "0 8px 8px 0",
-                backgroundColor: isDarkMode
-                  ? "rgba(103,80,164,0.08)"
-                  : "rgba(103,80,164,0.04)",
+                // ✅ 原 rgba(103,80,164,0.08/0.04) → 使用 theme callback 读取 primary.main
+                backgroundColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? `${theme.palette.primary.main}14` // ~8% opacity
+                    : `${theme.palette.primary.main}0a`, // ~4% opacity
                 "& p": {
                   mb: 0,
                   fontStyle: "italic",
@@ -712,10 +711,15 @@ export default function BlogDetail({
 
               // ── 行内代码 ──
               "& :not(pre) > code": {
-                backgroundColor: isDarkMode
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(103,80,164,0.08)",
-                color: isDarkMode ? "#e2b1ff" : "#6750a4",
+                // ✅ 原 rgba(255,255,255,0.1) / rgba(103,80,164,0.08) + #e2b1ff / #6750a4
+                backgroundColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.1)"
+                    : `${theme.palette.primary.main}14`,
+                color: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? theme.palette.primary.light
+                    : theme.palette.primary.main,
                 padding: "2px 7px",
                 borderRadius: "6px",
                 fontFamily: "'Fira Code', Consolas, Monaco, monospace",
@@ -733,9 +737,8 @@ export default function BlogDetail({
                 borderRadius: "10px",
                 overflow: "hidden",
                 border: "1px solid",
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.08)",
+                // ✅ 原 rgba(255,255,255,0.1) / rgba(0,0,0,0.08) → divider
+                borderColor: "divider",
               },
               "& th": {
                 px: 2,
@@ -745,39 +748,36 @@ export default function BlogDetail({
                 fontSize: "0.82rem",
                 letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                backgroundColor: isDarkMode
-                  ? "rgba(103,80,164,0.2)"
-                  : "rgba(103,80,164,0.07)",
+                // ✅ 原 rgba(103,80,164,0.2/0.07) → theme callback
+                backgroundColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? `${theme.palette.primary.main}33` // ~20%
+                    : `${theme.palette.primary.main}12`, // ~7%
                 color: "primary.main",
                 borderBottom: "1px solid",
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                borderColor: "divider",
               },
               "& td": {
                 px: 2,
                 py: 1.25,
                 borderBottom: "1px solid",
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.05)",
+                // ✅ 原 rgba(255,255,255,0.06) / rgba(0,0,0,0.05) → divider（透明度更低）
+                borderColor: "divider",
                 lineHeight: 1.6,
                 verticalAlign: "top",
               },
               "& tr:last-child td": { borderBottom: "none" },
               "& tr:hover td": {
-                backgroundColor: isDarkMode
-                  ? "rgba(255,255,255,0.03)"
-                  : "rgba(0,0,0,0.02)",
+                // ✅ 原 rgba(255,255,255,0.03) / rgba(0,0,0,0.02) → action.hover
+                backgroundColor: "action.hover",
               },
 
               // ── 分割线 ──
               "& hr": {
                 border: "none",
                 borderTop: "1px solid",
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.08)",
+                // ✅ divider
+                borderColor: "divider",
                 my: 4,
               },
 
@@ -808,7 +808,7 @@ export default function BlogDetail({
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              components={markdownComponents} // 3. 替换为锁定了引用的缓存变量 👈
+              components={markdownComponents}
             >
               {post.content}
             </ReactMarkdown>
@@ -826,18 +826,24 @@ export default function BlogDetail({
               borderRadius: "28px",
               overflow: "hidden",
               border: "1px solid",
-              borderColor: isDarkMode
-                ? "rgba(255,255,255,0.1)"
-                : "rgba(103,80,164,0.15)",
+              // ✅ 原 rgba(255,255,255,0.1) / rgba(103,80,164,0.15)
+              borderColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.1)"
+                  : `${theme.palette.primary.main}26`, // ~15%
+              // ✅ 原 rgba(28,27,31,0.6) / rgba(254,247,255,0.8)
+              // 这两个是 MD3 surface 色，保留为 background.paper 的半透明版，无法完全泛化，保持原值
               backgroundColor: isDarkMode
                 ? "rgba(28,27,31,0.6)"
                 : "rgba(254,247,255,0.8)",
               backdropFilter: "blur(12px)",
               transition: "all 0.4s cubic-bezier(0.4,0,0.2,1)",
               "&:hover": {
-                boxShadow: isDarkMode
-                  ? "0 8px 32px rgba(0,0,0,0.4)"
-                  : "0 8px 32px rgba(103,80,164,0.08)",
+                // ✅ 原 rgba(0,0,0,0.4) / rgba(103,80,164,0.08) → 用 primary 色
+                boxShadow: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "0 8px 32px rgba(0,0,0,0.4)"
+                    : `0 8px 32px ${theme.palette.primary.main}14`,
               },
             }}
           >
@@ -936,9 +942,11 @@ export default function BlogDetail({
             bottom: { xs: 24, md: 32 },
             right: { xs: 24, md: 32 },
             borderRadius: "16px",
-            boxShadow: isDarkMode
-              ? "0 4px 12px rgba(0,0,0,0.5)"
-              : "0 4px 12px rgba(103,80,164,0.2)",
+            // 原 rgba(103,80,164,0.2) → theme callback
+            boxShadow: (theme) =>
+              theme.palette.mode === "dark"
+                ? "0 4px 12px rgba(0,0,0,0.5)"
+                : `0 4px 12px ${theme.palette.primary.main}33`,
             transition:
               "transform 0.2s cubic-bezier(0.2,0,0,1), background-color 0.2s",
             "&:hover": { transform: "scale(1.08)" },
