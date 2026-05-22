@@ -20,6 +20,6 @@
     },
     "types": ["react", "react-dom", "vite/client", "node"]
   },
-  "include": ["src", "scripts", "admin-src"],
+  "include": ["src", "scripts", "admin-src", "config/site.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

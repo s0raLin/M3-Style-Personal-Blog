@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import Sitemap from "vite-plugin-sitemap";
+import { SITE_CONFIG } from "./config/site";
 
 function figmaAssetResolver() {
   return {
@@ -23,7 +24,7 @@ export default defineConfig(({ command }) => {
   // 2. 'build' -> 代表生产环境打包（你在终端运行了 npm run build / vite build）
   const isDev = command === "serve";
   return {
-    base: "./",
+    base: SITE_CONFIG.base,
     plugins: [
       figmaAssetResolver(),
       // The React and Tailwind plugins are both required for Make, even if
@@ -39,11 +40,11 @@ export default defineConfig(({ command }) => {
         },
       }),
       Sitemap({
-        hostname: "https://s0ralin.github.io/M3-Style-Personal-Blog/", // 这里只留纯域名
+        hostname: SITE_CONFIG.siteUrl, // 这里只留纯域名
         outDir: "docs",
         // 显式告诉插件你要生成的完整路径
         // 插件默认生成的根路径是 '/'，我们在这里把它映射到你的子路径上
-        dynamicRoutes: ["/M3-Style-Personal-Blog/"],
+        dynamicRoutes: [SITE_CONFIG.base],
         // 既然手动加了子路径，就可以让插件不自动去抓取那个错误的根路径 '/'
         exclude: ["/"],
       }),
@@ -76,7 +77,7 @@ export default defineConfig(({ command }) => {
     server: {
       proxy: {
         "/api": {
-          target: "http://localhost:3001",
+          target: SITE_CONFIG.apiBase,
           changeOrigin: true,
         },
       },

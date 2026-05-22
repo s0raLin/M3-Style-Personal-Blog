@@ -26,7 +26,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 // 1. 引入分离出的 JSON 数据
-import siteData from "../../config/siteData.json";
+import siteData from "../../data/siteData.json";
 // 2. 引入类型定义（可选，有助于提供完善的代码补全）
 import { AuthorInfo } from "../../types/blog";
 
