@@ -19,6 +19,7 @@ const ROOT = path.resolve(__dirname, "..");
 
 const POSTS_DIR = path.join(ROOT, "public/posts");
 const GALLERY_DIR = path.join(ROOT, "public/gallery");
+const GALLERY_META = path.join(GALLERY_DIR, ".gallery.json");
 
 await fs.ensureDir(POSTS_DIR);
 await fs.ensureDir(GALLERY_DIR);
@@ -248,12 +249,10 @@ app.post("/api/gallery/upload", upload.single("file"), async (req, res) => {
       });
     }
 
-    const metadataFile = path.join(GALLERY_DIR, ".gallery.json");
-
     let metadata = [];
 
-    if (await fs.pathExists(metadataFile)) {
-      metadata = await fs.readJson(metadataFile);
+    if (await fs.pathExists(GALLERY_META)) {
+      metadata = await fs.readJson(GALLERY_META);
     }
 
     metadata.push({
@@ -266,7 +265,7 @@ app.post("/api/gallery/upload", upload.single("file"), async (req, res) => {
       createdAt: new Date().toISOString(),
     });
 
-    await fs.writeJson(metadataFile, metadata, {
+    await fs.writeJson(GALLERY_META, metadata, {
       spaces: 2,
     });
 
@@ -288,16 +287,15 @@ app.post("/api/gallery/upload", upload.single("file"), async (req, res) => {
 
 app.get("/api/gallery", async (req, res) => {
   try {
-    const metadataFile = path.join(GALLERY_DIR, "gallery.json");
 
-    if (!(await fs.pathExists(metadataFile))) {
+    if (!(await fs.pathExists(GALLERY_META))) {
       return res.json({
         success: true,
         images: [],
       });
     }
 
-    const images = await fs.readJson(metadataFile);
+    const images = await fs.readJson(GALLERY_META);
 
     res.json({
       success: true,
@@ -317,12 +315,11 @@ app.get("/api/gallery", async (req, res) => {
 
 app.delete("/api/gallery/:filename", async (req, res) => {
   try {
-    const metadataFile = path.join(GALLERY_DIR, "gallery.json");
 
     let images = [];
 
-    if (await fs.pathExists(metadataFile)) {
-      images = await fs.readJson(metadataFile);
+    if (await fs.pathExists(GALLERY_META)) {
+      images = await fs.readJson(GALLERY_META);
     }
 
     const target = images.find(
@@ -342,7 +339,7 @@ app.delete("/api/gallery/:filename", async (req, res) => {
       (img) => img.filename !== req.params.filename
     );
 
-    await fs.writeJson(metadataFile, images, {
+    await fs.writeJson(GALLERY_META, images, {
       spaces: 2,
     });
 
@@ -364,12 +361,11 @@ app.delete("/api/gallery/:filename", async (req, res) => {
 
 app.put("/api/gallery/:filename", async (req, res) => {
   try {
-    const metadataFile = path.join(GALLERY_DIR, "gallery.json");
 
     let images = [];
 
-    if (await fs.pathExists(metadataFile)) {
-      images = await fs.readJson(metadataFile);
+    if (await fs.pathExists(GALLERY_META)) {
+      images = await fs.readJson(GALLERY_META);
     }
 
     const index = images.findIndex(
@@ -388,7 +384,7 @@ app.put("/api/gallery/:filename", async (req, res) => {
       ...req.body,
     };
 
-    await fs.writeJson(metadataFile, images, {
+    await fs.writeJson(GALLERY_META, images, {
       spaces: 2,
     });
 
