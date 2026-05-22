@@ -711,21 +711,29 @@ export default function BlogDetail({
 
               // ── 行内代码 ──
               "& :not(pre) > code": {
-                // ✅ 原 rgba(255,255,255,0.1) / rgba(103,80,164,0.08) + #e2b1ff / #6750a4
+                // 背景色：暗色模式下稍微加深一点透明度，让色块边界更明显
                 backgroundColor: (theme) =>
                   theme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.1)"
+                    ? "rgba(255, 255, 255, 0.08)"
                     : `${theme.palette.primary.main}14`,
-                color: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? theme.palette.primary.light
-                    : theme.palette.primary.main,
-                padding: "2px 7px",
+
+                // 文字颜色：完美跟随主题色，但通过 CSS 滤镜在暗色下自动提亮
+                color: (theme) => theme.palette.primary.main,
+
+                padding: "3px 6px",
                 borderRadius: "6px",
                 fontFamily: "'Fira Code', Consolas, Monaco, monospace",
                 fontSize: "0.875em",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
+
+                // ── 核心优化属性 ──
+                fontWeight: 600, // 1. 提高字重到 600（Semi-Bold），暗色下由于光晕效应，粗体字可读性会翻倍
+                letterSpacing: "0.01em",
+
+                // 2. 利用 MUI 的 theme 钩子，单独在暗色下为文字叠加「提亮」和「少许发光」滤镜
+                filter: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "brightness(1.3) drop-shadow(0px 0px 1px rgba(255,255,255,0.1))"
+                    : "none",
               },
 
               // ── 表格 ──
