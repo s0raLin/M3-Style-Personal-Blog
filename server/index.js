@@ -248,7 +248,7 @@ app.post("/api/gallery/upload", upload.single("file"), async (req, res) => {
       });
     }
 
-    const metadataFile = path.join(GALLERY_DIR, "gallery.json");
+    const metadataFile = path.join(GALLERY_DIR, ".gallery.json");
 
     let metadata = [];
 

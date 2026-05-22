@@ -22,7 +22,6 @@ import {
 import { Article, Photo, Delete, Edit, Refresh } from "@mui/icons-material";
 import { toast } from "sonner";
 import FileUpload from "./FileUpload";
-import { Code } from "lucide-react";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -61,7 +60,6 @@ export default function AdminDashboard() {
   });
 
   const API_BASE = "/api";
-  const currentHost = window.location.origin;
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -345,7 +343,7 @@ export default function AdminDashboard() {
                 <Card variant="outlined">
                   <Box
                     component="img"
-                    src={`${currentHost}${image.url}`}
+                    src={image.url}
                     alt={image.title}
                     sx={{
                       width: "100%",
