@@ -934,11 +934,9 @@ export default function BlogDetail({
 
               // ── 图片 ──
               "& img": {
+                // 这里的属性将被 MarkdownImage 内部的行为安全继承，可以保持干净
                 maxWidth: "100%",
-                borderRadius: "10px",
-                my: 2,
-                display: "block",
-                mx: "auto",
+                height: "auto",
               },
 
               // ── 强调 ──
