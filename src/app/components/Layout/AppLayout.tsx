@@ -15,6 +15,7 @@ import {
   useTheme,
   Container,
   alpha,
+  ButtonBase,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -171,35 +172,26 @@ export default function AppLayout({
             )}
 
             {/* Logo */}
-            <Typography
-              variant="h6"
-              component={motion.div}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              sx={{
-                flexGrow: 1,
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                cursor: "pointer",
-                background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-              onClick={() => handleNavigate("home")}
-            >
-              <Box
-                component="img"
-                src={Logo}
-                alt="SYORI"
+            <Box sx={{ flexGrow: 1 }}>
+              <ButtonBase
+                disableRipple
                 onClick={() => handleNavigate("home")}
                 sx={{
-                  height: 40,
-                  cursor: "pointer",
-                  userSelect: "none",
+                  borderRadius: 3,
+                  px: 1,
+                  py: 0.5,
                 }}
-              />
-            </Typography>
+              >
+                <Box
+                  component="img"
+                  src={Logo}
+                  alt="SYORI"
+                  sx={{
+                    height: 40,
+                  }}
+                />
+              </ButtonBase>
+            </Box>
 
             {/* Desktop Nav */}
             {!isMobile && (

@@ -50,11 +50,7 @@ interface HomeProps {
   categories: string[];
 }
 
-export default function Home({
-  onNavigate,
-  onSelectPost,
-  posts,
-}: HomeProps) {
+export default function Home({ onNavigate, onSelectPost, posts }: HomeProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
@@ -64,8 +60,10 @@ export default function Home({
   const mc = {
     ...m3,
     primary: theme.palette.primary.main,
-    primaryContainer: theme.palette.primary.light || alpha(theme.palette.primary.main, 0.12),
-    onPrimaryContainer: (theme.palette.primary as any)?.dark || theme.palette.primary.main,
+    primaryContainer:
+      theme.palette.primary.light || alpha(theme.palette.primary.main, 0.12),
+    onPrimaryContainer:
+      (theme.palette.primary as any)?.dark || theme.palette.primary.main,
   };
 
   const featuredPosts = posts.slice(0, 3);
@@ -125,7 +123,7 @@ export default function Home({
             overflow: "hidden",
           }}
         >
-          {/* Blob 1 — Primary */}
+          {/* Blob 1 */}
           <Box
             component={motion.div}
             animate={{
@@ -134,11 +132,7 @@ export default function Home({
               scale: [1, 1.1, 0.95, 1],
               rotate: [0, 15, -10, 0],
             }}
-            transition={{
-              duration: 18,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
             sx={{
               position: "absolute",
               width: { xs: 300, md: 560 },
@@ -150,8 +144,7 @@ export default function Home({
               filter: "blur(60px)",
             }}
           />
-
-          {/* Blob 2 — Secondary */}
+          {/* Blob 2 */}
           <Box
             component={motion.div}
             animate={{
@@ -160,11 +153,7 @@ export default function Home({
               scale: [1, 0.92, 1.06, 1],
               rotate: [0, -12, 8, 0],
             }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
             sx={{
               position: "absolute",
               width: { xs: 240, md: 440 },
@@ -176,8 +165,7 @@ export default function Home({
               filter: "blur(50px)",
             }}
           />
-
-          {/* Blob 3 — Tertiary accent */}
+          {/* Blob 3 */}
           <Box
             component={motion.div}
             animate={{
@@ -185,11 +173,7 @@ export default function Home({
               y: [0, -25, 25, 0],
               scale: [1, 1.08, 0.93, 1],
             }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
             sx={{
               position: "absolute",
               width: { xs: 180, md: 320 },
@@ -210,27 +194,18 @@ export default function Home({
             alignItems="center"
             justifyContent="space-between"
           >
-            {/* ── Left Content ── */}
             <Grid size={{ xs: 12, md: 7 }}>
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.7,
-                  ease: [0.05, 0.7, 0.1, 1],
-                }}
+                transition={{ duration: 0.7, ease: [0.05, 0.7, 0.1, 1] }}
               >
                 <Box>
-                  {/* Hero Headline */}
                   <Typography
                     variant="h1"
                     sx={{
                       fontWeight: 800,
-                      fontSize: {
-                        xs: "2.5rem",
-                        sm: "3.2rem",
-                        md: "4.2rem",
-                      },
+                      fontSize: { xs: "2.5rem", sm: "3.2rem", md: "4.2rem" },
                       lineHeight: 1.1,
                       letterSpacing: "-0.04em",
                       mb: 3,
@@ -251,7 +226,6 @@ export default function Home({
                     </Box>
                   </Typography>
 
-                  {/* Subtitle */}
                   <Typography
                     variant="h5"
                     color="text.secondary"
@@ -268,7 +242,6 @@ export default function Home({
                     这里记录一些开发、设计，还有平时折腾的东西。
                   </Typography>
 
-                  {/* CTA Buttons */}
                   <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                     <Button
                       component={motion.button}
@@ -334,7 +307,6 @@ export default function Home({
               </motion.div>
             </Grid>
 
-            {/* ── Right Visual — Floating Glass Card + Blob ── */}
             <Grid
               size={{ xs: 12, md: 5 }}
               sx={{
@@ -342,14 +314,7 @@ export default function Home({
                 justifyContent: "center",
               }}
             >
-              <Box
-                sx={{
-                  position: "relative",
-                  width: 340,
-                  height: 420,
-                }}
-              >
-                {/* Glass Card */}
+              <Box sx={{ position: "relative", width: 340, height: 420 }}>
                 <Box
                   component={motion.div}
                   animate={{ y: [0, -12, 0], rotate: [0, 1, -0.5, 0] }}
@@ -431,7 +396,6 @@ export default function Home({
                   </Box>
                 </Box>
 
-                {/* Floating small dot */}
                 <Box
                   component={motion.div}
                   animate={{
@@ -461,7 +425,6 @@ export default function Home({
           </Grid>
         </Container>
 
-        {/* ── Bottom Gradient Fade ── */}
         <Box
           sx={{
             position: "absolute",
@@ -476,13 +439,9 @@ export default function Home({
       </Box>
 
       {/* ════════════════════════════════════════════
-          LATEST POSTS
+          LATEST POSTS — Horizontal Scroll List
           ════════════════════════════════════════════ */}
-      <Box
-        sx={{
-          py: { xs: 8, md: 12 },
-        }}
-      >
+      <Box sx={{ py: { xs: 8, md: 12 } }}>
         <Container maxWidth="lg">
           {/* Section Header */}
           <Box
@@ -502,7 +461,6 @@ export default function Home({
                   background: `linear-gradient(180deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                 }}
               />
-
               <Typography
                 variant="h4"
                 sx={{ fontWeight: 700, letterSpacing: "-0.01em" }}
@@ -526,190 +484,217 @@ export default function Home({
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 查看全部
               </Typography>
-
               <ArrowForward sx={{ fontSize: 16 }} />
             </Box>
           </Box>
 
-          <Grid container spacing={4}>
+          {/* 横向滚动容器 */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 4,
+              overflowX: "auto",
+              position: "relative",
+              // 负外边距配合正内边距，可以确保卡片的 Hover 阴影和动效不被容器边缘剪裁
+              mx: { xs: -2, sm: -3, md: 0 },
+              px: { xs: 2, sm: 3, md: 0 },
+              py: 2,
+              mt: -2,
+              scrollSnapType: "x mandatory",
+              scrollBehavior: "smooth",
+              WebkitOverflowScrolling: "touch", // 保证 iOS 动量滚动流畅
+              "&::-webkit-scrollbar": { display: "none" }, // 隐藏 Chrome/Safari 滚动条
+              msOverflowStyle: "none", // 隐藏 IE/Edge 滚动条
+              scrollbarWidth: "none", // 隐藏 Firefox 滚动条
+            }}
+          >
             {featuredPosts.map((post, idx) => (
-              <Grid size={{ xs: 12, md: 4 }} key={post.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{
-                    delay: idx * 0.1,
-                    duration: 0.5,
-                    ease: [0.2, 0, 0, 1],
+              <Box
+                key={post.id}
+                component={motion.div}
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{
+                  delay: idx * 0.1,
+                  duration: 0.5,
+                  ease: [0.2, 0, 0, 1],
+                }}
+                whileHover={{ y: -8 }}
+                sx={{
+                  // 核心尺寸控制：桌面端每行分 3 个卡片，移动端固定宽度以实现溢出滚动
+                  flex: {
+                    xs: "0 0 280px", // 移动端
+                    sm: "0 0 340px", // 平板
+                    md: "1 1 0px", // 桌面端平分容器空间
+                  },
+                  maxWidth: { xs: "280px", sm: "340px", md: "none" },
+                  scrollSnapAlign: "start",
+                }}
+              >
+                {/* ── M3 Elevated Card ── */}
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    borderRadius: "12px",
+                    backgroundColor: isDarkMode
+                      ? `color-mix(in srgb, ${mc.surfaceContainerLow} 96%, ${mc.primary})`
+                      : `color-mix(in srgb, ${mc.surfaceContainerLow} 98%, ${mc.primary})`,
+                    border: `1px solid ${mc.outlineVariant}`,
+                    boxShadow: isDarkMode
+                      ? `0px 1px 2px ${mc.shadowColor}, 0px 1px 3px 1px ${mc.shadowColor}`
+                      : `0px 1px 2px rgba(0,0,0,0.15), 0px 1px 3px 1px rgba(0,0,0,0.08)`,
+                    overflow: "hidden",
+                    position: "relative",
+                    transition:
+                      "background-color 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease",
+                    "&:hover": {
+                      backgroundColor: isDarkMode
+                        ? `color-mix(in srgb, ${mc.surfaceContainerHigh} 94%, ${mc.primary})`
+                        : `color-mix(in srgb, ${mc.surfaceContainerHigh} 96%, ${mc.primary})`,
+                      borderColor: mc.primary,
+                      boxShadow: isDarkMode
+                        ? `0px 2px 4px ${mc.shadowColor}, 0px 4px 12px ${mc.shadowColor}`
+                        : `0px 2px 4px rgba(0,0,0,0.12), 0px 4px 12px rgba(0,0,0,0.06)`,
+                    },
                   }}
-                  whileHover={{ y: -8 }}
-                  style={{ height: "100%" }}
                 >
-                  {/* ── M3 Elevated Card ── */}
-                  <Card
+                  <Box
                     sx={{
-                      height: "100%",
+                      position: "absolute",
+                      inset: 0,
+                      pointerEvents: "none",
+                      zIndex: 0,
+                      background: `radial-gradient(ellipse at 0% 0%, ${mc.primary}08 0%, transparent 70%)`,
+                    }}
+                  />
+                  <CardActionArea
+                    onClick={() => onSelectPost(post)}
+                    sx={{
+                      flexGrow: 1,
                       display: "flex",
                       flexDirection: "column",
-                      borderRadius: "12px",
-                      backgroundColor: isDarkMode
-                        ? `color-mix(in srgb, ${mc.surfaceContainerLow} 96%, ${mc.primary})`
-                        : `color-mix(in srgb, ${mc.surfaceContainerLow} 98%, ${mc.primary})`,
-                      border: `1px solid ${mc.outlineVariant}`,
-                      boxShadow: isDarkMode
-                        ? `0px 1px 2px ${mc.shadowColor}, 0px 1px 3px 1px ${mc.shadowColor}`
-                        : `0px 1px 2px rgba(0,0,0,0.15), 0px 1px 3px 1px rgba(0,0,0,0.08)`,
-                      overflow: "hidden",
+                      alignItems: "stretch",
+                      height: "100%",
                       position: "relative",
-                      transition:
-                        "background-color 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease",
-                      "&:hover": {
-                        backgroundColor: isDarkMode
-                          ? `color-mix(in srgb, ${mc.surfaceContainerHigh} 94%, ${mc.primary})`
-                          : `color-mix(in srgb, ${mc.surfaceContainerHigh} 96%, ${mc.primary})`,
-                        borderColor: mc.primary,
-                        boxShadow: isDarkMode
-                          ? `0px 2px 4px ${mc.shadowColor}, 0px 4px 12px ${mc.shadowColor}`
-                          : `0px 2px 4px rgba(0,0,0,0.12), 0px 4px 12px rgba(0,0,0,0.06)`,
-                      },
+                      zIndex: 1,
                     }}
                   >
-                    <Box
+                    <Box sx={{ position: "relative", overflow: "hidden" }}>
+                      <ImagePlaceholder
+                        src={post.coverImage}
+                        alt={post.title}
+                        height={160}
+                        category={post.category}
+                      />
+                      <Chip
+                        label={post.category}
+                        size="small"
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          left: 8,
+                          backgroundColor: mc.primaryContainer,
+                          color: mc.onPrimaryContainer,
+                          fontWeight: 600,
+                          fontSize: "0.65rem",
+                          borderRadius: "6px",
+                          height: 22,
+                          "& .MuiChip-label": { px: 1 },
+                          boxShadow: isDarkMode
+                            ? "0 1px 3px rgba(0,0,0,0.3)"
+                            : "0 1px 3px rgba(0,0,0,0.08)",
+                        }}
+                      />
+                    </Box>
+
+                    <CardContent
                       sx={{
-                        position: "absolute",
-                        inset: 0,
-                        pointerEvents: "none",
-                        zIndex: 0,
-                        background: `radial-gradient(ellipse at 0% 0%, ${mc.primary}08 0%, transparent 70%)`,
-                      }}
-                    />
-                    <CardActionArea
-                      onClick={() => onSelectPost(post)}
-                      sx={{
+                        p: 2,
                         flexGrow: 1,
                         display: "flex",
                         flexDirection: "column",
-                        alignItems: "stretch",
-                        height: "100%",
-                        position: "relative",
-                        zIndex: 1,
+                        gap: 0.5,
                       }}
                     >
-                      <Box sx={{ position: "relative", overflow: "hidden" }}>
-                        <ImagePlaceholder
-                          src={post.coverImage}
-                          alt={post.title}
-                          height={160}
-                          category={post.category}
-                        />
-                        <Chip
-                          label={post.category}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 8,
-                            left: 8,
-                            backgroundColor: mc.primaryContainer,
-                            color: mc.onPrimaryContainer,
-                            fontWeight: 600,
-                            fontSize: "0.65rem",
-                            borderRadius: "6px",
-                            height: 22,
-                            "& .MuiChip-label": { px: 1 },
-                            boxShadow: isDarkMode
-                              ? "0 1px 3px rgba(0,0,0,0.3)"
-                              : "0 1px 3px rgba(0,0,0,0.08)",
-                          }}
-                        />
-                      </Box>
-
-                      <CardContent
+                      <Typography
                         sx={{
-                          p: 2,
-                          flexGrow: 1,
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 0.5,
+                          fontWeight: 500,
+                          fontSize: "0.95rem",
+                          lineHeight: 1.35,
+                          letterSpacing: "0.1px",
+                          color: mc.onSurface,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
                         }}
                       >
-                        <Typography
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "0.95rem",
-                            lineHeight: 1.35,
-                            letterSpacing: "0.1px",
-                            color: mc.onSurface,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                          }}
-                        >
-                          {post.title}
-                        </Typography>
+                        {post.title}
+                      </Typography>
 
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            lineHeight: 1.5,
-                            color: mc.onSurfaceVariant,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            flex: 1,
-                          }}
-                        >
-                          {post.excerpt}
-                        </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          lineHeight: 1.5,
+                          color: mc.onSurfaceVariant,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          flex: 1,
+                        }}
+                      >
+                        {post.excerpt}
+                      </Typography>
 
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 1,
-                            mt: "auto",
-                            pt: 1,
-                            borderTop: `1px solid ${mc.outlineVariant}`,
-                          }}
-                        >
-                          <Avatar
-                            src={post.author.avatar}
-                            sx={{ width: 20, height: 20 }}
-                          />
-                          <Box>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontWeight: 500,
-                                color: mc.onSurface,
-                                fontSize: "0.7rem",
-                                display: "block",
-                              }}
-                            >
-                              {post.author.name}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontSize: "0.62rem",
-                                color: mc.onSurfaceVariant,
-                              }}
-                            >
-                              {post.date} · {post.readTime}
-                            </Typography>
-                          </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                          mt: "auto",
+                          pt: 1,
+                          borderTop: `1px solid ${mc.outlineVariant}`,
+                        }}
+                      >
+                        <Avatar
+                          src={post.author.avatar}
+                          sx={{ width: 20, height: 20 }}
+                        />
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontWeight: 500,
+                              color: mc.onSurface,
+                              fontSize: "0.7rem",
+                              display: "block",
+                            }}
+                          >
+                            {post.author.name}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: "0.62rem",
+                              color: mc.onSurfaceVariant,
+                            }}
+                          >
+                            {post.date} · {post.readTime}
+                          </Typography>
                         </Box>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </motion.div>
-              </Grid>
+                      </Box>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
@@ -732,7 +717,6 @@ export default function Home({
             >
               内容索引
             </Typography>
-
             <Typography variant="body1" color="text.secondary">
               随便看看，也许会有你感兴趣的内容
             </Typography>

@@ -1,20 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="48" viewBox="0 0 180 48">
-    <defs>
-        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#8B5CF6"></stop>
-            <stop offset="100%" stop-color="#EC4899"></stop>
-        </linearGradient>
-    </defs>
-
-    <!-- Icon -->
-    <g transform="translate(4,4)">
-        <rect x="0" y="0" width="40" height="40" rx="12" fill="url(#logoGradient)"></rect>
-
-        <path d="M12 12L28 12L20 20L28 28L12 28L20 20Z" fill="white" opacity="0.95"></path>
-    </g>
-
-    <!-- Text -->
-    <text x="56" y="31" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="url(#logoGradient)">
-        SYORI
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="32" viewBox="0 0 96 32">
+    <text x="0" y="24" font-family="Inter, sans-serif" font-size="24" font-weight="700" letter-spacing="-1" fill="currentColor">
+        syori
     </text>
 </svg>
