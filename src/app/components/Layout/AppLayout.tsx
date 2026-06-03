@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -15,7 +15,7 @@ import {
   useTheme,
   Container,
   alpha,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Menu as MenuIcon,
   Home as HomeIcon,
@@ -25,8 +25,9 @@ import {
   LightMode,
   DarkMode,
   Palette,
-} from '@mui/icons-material';
-import { motion } from 'motion/react';
+} from "@mui/icons-material";
+import { motion } from "motion/react";
+import Logo from "@/assets/logo.svg";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -38,10 +39,10 @@ interface AppLayoutProps {
 }
 
 const menuItems = [
-  { id: 'home', label: '首页', icon: <HomeIcon /> },
-  { id: 'blog', label: '博客', icon: <ArticleIcon /> },
-  { id: 'gallery', label: '图库', icon: <PhotoIcon /> },
-  { id: 'about', label: '关于', icon: <PersonIcon /> },
+  { id: "home", label: "首页", icon: <HomeIcon /> },
+  { id: "blog", label: "博客", icon: <ArticleIcon /> },
+  { id: "gallery", label: "图库", icon: <PhotoIcon /> },
+  { id: "about", label: "关于", icon: <PersonIcon /> },
 ];
 
 export default function AppLayout({
@@ -54,7 +55,7 @@ export default function AppLayout({
 }: AppLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -70,13 +71,16 @@ export default function AppLayout({
       <Box
         sx={{
           p: 2.5,
-          textAlign: 'center',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          textAlign: "center",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '-0.02em' }}>
-          我的博客
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}
+        >
+          个人博客
         </Typography>
       </Box>
       <List sx={{ px: 1, pt: 1 }}>
@@ -86,22 +90,22 @@ export default function AppLayout({
               selected={currentPage === item.id}
               onClick={() => handleNavigate(item.id)}
               sx={{
-                borderRadius: '14px',
+                borderRadius: "14px",
                 mx: 0.5,
                 my: 0.25,
-                transition: 'all 0.2s ease',
-                '&.Mui-selected': {
+                transition: "all 0.2s ease",
+                "&.Mui-selected": {
                   background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)}, ${alpha(theme.palette.primary.dark, 0.9)})`,
                   color: theme.palette.primary.contrastText,
                   boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
-                  '&:hover': {
+                  "&:hover": {
                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                   },
-                  '& .MuiListItemIcon-root': {
+                  "& .MuiListItemIcon-root": {
                     color: theme.palette.primary.contrastText,
                   },
                 },
-                '&:hover': {
+                "&:hover": {
                   backgroundColor: alpha(theme.palette.primary.main, 0.08),
                 },
               }}
@@ -109,15 +113,20 @@ export default function AppLayout({
               <ListItemIcon
                 sx={{
                   minWidth: 40,
-                  color: currentPage === item.id ? 'inherit' : theme.palette.text.secondary,
-                  transition: 'color 0.2s ease',
+                  color:
+                    currentPage === item.id
+                      ? "inherit"
+                      : theme.palette.text.secondary,
+                  transition: "color 0.2s ease",
                 }}
               >
                 {item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={item.label}
-                primaryTypographyProps={{ fontWeight: currentPage === item.id ? 700 : 500 }}
+                primaryTypographyProps={{
+                  fontWeight: currentPage === item.id ? 700 : 500,
+                }}
               />
             </ListItemButton>
           </ListItem>
@@ -127,7 +136,7 @@ export default function AppLayout({
   );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* ════════════════════════════════════════════
           APP BAR — Glassmorphism
           ════════════════════════════════════════════ */}
@@ -136,15 +145,15 @@ export default function AppLayout({
         elevation={0}
         sx={{
           background: isDarkMode
-            ? 'rgba(17, 16, 20, 0.72)'
-            : 'rgba(255, 255, 255, 0.68)',
-          backdropFilter: 'blur(20px) saturate(1.8)',
-          WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
+            ? "rgba(17, 16, 20, 0.72)"
+            : "rgba(255, 255, 255, 0.68)",
+          backdropFilter: "blur(20px) saturate(1.8)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.8)",
           color: theme.palette.text.primary,
-          borderBottom: '1px solid',
+          borderBottom: "1px solid",
           borderColor: isDarkMode
-            ? 'rgba(255,255,255,0.06)'
-            : 'rgba(103,80,164,0.08)',
+            ? "rgba(255,255,255,0.06)"
+            : "rgba(103,80,164,0.08)",
         }}
       >
         <Container maxWidth="lg">
@@ -170,21 +179,31 @@ export default function AppLayout({
               sx={{
                 flexGrow: 1,
                 fontWeight: 700,
-                letterSpacing: '-0.02em',
-                cursor: 'pointer',
+                letterSpacing: "-0.02em",
+                cursor: "pointer",
                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
               }}
-              onClick={() => handleNavigate('home')}
+              onClick={() => handleNavigate("home")}
             >
-              我的博客
+              <Box
+                component="img"
+                src={Logo}
+                alt="SYORI"
+                onClick={() => handleNavigate("home")}
+                sx={{
+                  height: 40,
+                  cursor: "pointer",
+                  userSelect: "none",
+                }}
+              />
             </Typography>
 
             {/* Desktop Nav */}
             {!isMobile && (
-              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+              <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
                 {menuItems.map((item) => {
                   const isActive = currentPage === item.id;
                   return (
@@ -197,21 +216,24 @@ export default function AppLayout({
                         color="inherit"
                         onClick={() => handleNavigate(item.id)}
                         sx={{
-                          borderRadius: '12px',
+                          borderRadius: "12px",
                           px: 2,
                           py: 1,
                           mx: 0.25,
-                          position: 'relative',
-                          overflow: 'hidden',
+                          position: "relative",
+                          overflow: "hidden",
                           backgroundColor: isActive
                             ? alpha(theme.palette.primary.main, 0.1)
-                            : 'transparent',
+                            : "transparent",
                           color: isActive
                             ? theme.palette.primary.main
                             : theme.palette.text.secondary,
-                          transition: 'all 0.25s ease',
-                          '&:hover': {
-                            backgroundColor: alpha(theme.palette.primary.main, 0.06),
+                          transition: "all 0.25s ease",
+                          "&:hover": {
+                            backgroundColor: alpha(
+                              theme.palette.primary.main,
+                              0.06,
+                            ),
                             color: theme.palette.primary.main,
                           },
                         }}
@@ -222,8 +244,8 @@ export default function AppLayout({
                           sx={{
                             ml: 0.8,
                             fontWeight: isActive ? 700 : 500,
-                            fontSize: '0.8rem',
-                            letterSpacing: '0.03em',
+                            fontSize: "0.8rem",
+                            letterSpacing: "0.03em",
                           }}
                         >
                           {item.label}
@@ -232,11 +254,11 @@ export default function AppLayout({
                         {isActive && (
                           <Box
                             sx={{
-                              position: 'absolute',
+                              position: "absolute",
                               bottom: 4,
                               width: 20,
                               height: 3,
-                              borderRadius: '2px',
+                              borderRadius: "2px",
                               background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                             }}
                           />
@@ -249,16 +271,18 @@ export default function AppLayout({
             )}
 
             {/* Theme Controls */}
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 1, gap: 0.5 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", ml: 1, gap: 0.5 }}
+            >
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <IconButton
                   onClick={onThemeToggle}
                   color="inherit"
                   size="small"
                   sx={{
-                    borderRadius: '12px',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
+                    borderRadius: "12px",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
                       backgroundColor: alpha(theme.palette.primary.main, 0.08),
                     },
                   }}
@@ -273,9 +297,9 @@ export default function AppLayout({
                   color="inherit"
                   size="small"
                   sx={{
-                    borderRadius: '12px',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
+                    borderRadius: "12px",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
                       backgroundColor: alpha(theme.palette.primary.main, 0.08),
                     },
                   }}
@@ -294,16 +318,16 @@ export default function AppLayout({
         open={drawerOpen}
         onClose={toggleDrawer}
         sx={{
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             backgroundColor: isDarkMode
-              ? 'rgba(20, 20, 26, 0.95)'
-              : 'rgba(255, 255, 255, 0.92)',
-            backdropFilter: 'blur(20px) saturate(1.8)',
-            WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
-            borderRight: '1px solid',
+              ? "rgba(20, 20, 26, 0.95)"
+              : "rgba(255, 255, 255, 0.92)",
+            backdropFilter: "blur(20px) saturate(1.8)",
+            WebkitBackdropFilter: "blur(20px) saturate(1.8)",
+            borderRight: "1px solid",
             borderColor: isDarkMode
-              ? 'rgba(255,255,255,0.06)'
-              : 'rgba(103,80,164,0.08)',
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(103,80,164,0.08)",
           },
         }}
       >
@@ -316,7 +340,7 @@ export default function AppLayout({
         sx={{
           flexGrow: 1,
           backgroundColor: theme.palette.background.default,
-          minHeight: '100vh',
+          minHeight: "100vh",
         }}
       >
         {children}

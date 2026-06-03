@@ -17,12 +17,31 @@ import {
   Article,
   PhotoLibrary,
   Person,
-  AutoAwesome,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import { BlogPost } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
-import { galleryImages } from "@/app/service/blogService";
+
+function createM3SurfaceTokens(surfaceHex: string, mode: "light" | "dark") {
+  const isDark = mode === "dark";
+  const r = parseInt(surfaceHex.slice(1, 3), 16);
+  const g = parseInt(surfaceHex.slice(3, 5), 16);
+  const b = parseInt(surfaceHex.slice(5, 7), 16);
+  const tint = (factor: number) => {
+    const num = Math.round(factor * 255);
+    return isDark
+      ? `rgb(${Math.min(r + num, 255)}, ${Math.min(g + num, 255)}, ${Math.min(b + num, 255)})`
+      : `rgb(${Math.max(r - num, 0)}, ${Math.max(g - num, 0)}, ${Math.max(b - num, 0)})`;
+  };
+  return {
+    surfaceContainerLow: tint(isDark ? 0.06 : 0.04),
+    surfaceContainerHigh: tint(isDark ? 0.18 : 0.12),
+    onSurface: isDark ? "rgb(230, 225, 229)" : "rgb(28, 27, 31)",
+    onSurfaceVariant: isDark ? "rgb(202, 196, 208)" : "rgb(73, 69, 79)",
+    outlineVariant: isDark ? "rgb(73, 69, 79)" : "rgb(202, 196, 208)",
+    shadowColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.1)",
+  };
+}
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -35,10 +54,19 @@ export default function Home({
   onNavigate,
   onSelectPost,
   posts,
-  categories,
 }: HomeProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
+
+  const surfaceHex =
+    theme.palette.background.paper || theme.palette.background.default;
+  const m3 = createM3SurfaceTokens(surfaceHex, isDarkMode ? "dark" : "light");
+  const mc = {
+    ...m3,
+    primary: theme.palette.primary.main,
+    primaryContainer: theme.palette.primary.light || alpha(theme.palette.primary.main, 0.12),
+    onPrimaryContainer: (theme.palette.primary as any)?.dark || theme.palette.primary.main,
+  };
 
   const featuredPosts = posts.slice(0, 3);
 
@@ -518,31 +546,44 @@ export default function Home({
                   whileHover={{ y: -8 }}
                   style={{ height: "100%" }}
                 >
+                  {/* ── M3 Elevated Card ── */}
                   <Card
                     sx={{
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
-                      borderRadius: "24px",
-                      backgroundColor: theme.palette.background.paper,
-                      border: "1px solid",
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.05)",
-                      boxShadow: "none",
+                      borderRadius: "12px",
+                      backgroundColor: isDarkMode
+                        ? `color-mix(in srgb, ${mc.surfaceContainerLow} 96%, ${mc.primary})`
+                        : `color-mix(in srgb, ${mc.surfaceContainerLow} 98%, ${mc.primary})`,
+                      border: `1px solid ${mc.outlineVariant}`,
+                      boxShadow: isDarkMode
+                        ? `0px 1px 2px ${mc.shadowColor}, 0px 1px 3px 1px ${mc.shadowColor}`
+                        : `0px 1px 2px rgba(0,0,0,0.15), 0px 1px 3px 1px rgba(0,0,0,0.08)`,
                       overflow: "hidden",
+                      position: "relative",
                       transition:
-                        "border-color 0.3s ease, box-shadow 0.3s ease",
+                        "background-color 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease",
                       "&:hover": {
-                        borderColor: isDarkMode
-                          ? "rgba(255,255,255,0.12)"
-                          : alpha(theme.palette.primary.main, 0.2),
+                        backgroundColor: isDarkMode
+                          ? `color-mix(in srgb, ${mc.surfaceContainerHigh} 94%, ${mc.primary})`
+                          : `color-mix(in srgb, ${mc.surfaceContainerHigh} 96%, ${mc.primary})`,
+                        borderColor: mc.primary,
                         boxShadow: isDarkMode
-                          ? "0 8px 32px rgba(0,0,0,0.35)"
-                          : `0 8px 32px ${alpha(theme.palette.primary.main, 0.08)}`,
+                          ? `0px 2px 4px ${mc.shadowColor}, 0px 4px 12px ${mc.shadowColor}`
+                          : `0px 2px 4px rgba(0,0,0,0.12), 0px 4px 12px rgba(0,0,0,0.06)`,
                       },
                     }}
                   >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        pointerEvents: "none",
+                        zIndex: 0,
+                        background: `radial-gradient(ellipse at 0% 0%, ${mc.primary}08 0%, transparent 70%)`,
+                      }}
+                    />
                     <CardActionArea
                       onClick={() => onSelectPost(post)}
                       sx={{
@@ -550,70 +591,76 @@ export default function Home({
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "stretch",
+                        height: "100%",
+                        position: "relative",
+                        zIndex: 1,
                       }}
                     >
                       <Box sx={{ position: "relative", overflow: "hidden" }}>
                         <ImagePlaceholder
                           src={post.coverImage}
                           alt={post.title}
-                          height={220}
+                          height={160}
                           category={post.category}
                         />
-
                         <Chip
                           label={post.category}
                           size="small"
                           sx={{
                             position: "absolute",
-                            top: 16,
-                            left: 16,
-                            backdropFilter: "blur(16px) saturate(1.8)",
-                            WebkitBackdropFilter: "blur(16px) saturate(1.8)",
-                            backgroundColor: isDarkMode
-                              ? "rgba(30,30,35,0.7)"
-                              : "rgba(255,255,255,0.8)",
-                            color: "text.primary",
+                            top: 8,
+                            left: 8,
+                            backgroundColor: mc.primaryContainer,
+                            color: mc.onPrimaryContainer,
                             fontWeight: 600,
-                            border: "1px solid",
-                            borderColor: isDarkMode
-                              ? "rgba(255,255,255,0.08)"
-                              : "rgba(255,255,255,0.6)",
-                            borderRadius: "12px",
+                            fontSize: "0.65rem",
+                            borderRadius: "6px",
+                            height: 22,
+                            "& .MuiChip-label": { px: 1 },
+                            boxShadow: isDarkMode
+                              ? "0 1px 3px rgba(0,0,0,0.3)"
+                              : "0 1px 3px rgba(0,0,0,0.08)",
                           }}
                         />
                       </Box>
 
                       <CardContent
                         sx={{
-                          p: 3,
+                          p: 2,
                           flexGrow: 1,
                           display: "flex",
                           flexDirection: "column",
+                          gap: 0.5,
                         }}
                       >
                         <Typography
-                          variant="h6"
-                          gutterBottom
                           sx={{
-                            fontWeight: 700,
-                            lineHeight: 1.4,
-                            mb: 1.5,
+                            fontWeight: 500,
+                            fontSize: "0.95rem",
+                            lineHeight: 1.35,
+                            letterSpacing: "0.1px",
+                            color: mc.onSurface,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
                           }}
                         >
                           {post.title}
                         </Typography>
 
                         <Typography
-                          variant="body2"
-                          color="text.secondary"
+                          variant="caption"
                           sx={{
-                            mb: 3,
-                            lineHeight: 1.7,
+                            lineHeight: 1.5,
+                            color: mc.onSurfaceVariant,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             display: "-webkit-box",
-                            WebkitLineClamp: 3,
+                            WebkitLineClamp: 2,
                             WebkitBoxOrient: "vertical",
+                            flex: 1,
                           }}
                         >
                           {post.excerpt}
@@ -621,31 +668,36 @@ export default function Home({
 
                         <Box
                           sx={{
-                            mt: "auto",
                             display: "flex",
                             alignItems: "center",
-                            gap: 1.5,
+                            gap: 1,
+                            mt: "auto",
+                            pt: 1,
+                            borderTop: `1px solid ${mc.outlineVariant}`,
                           }}
                         >
                           <Avatar
                             src={post.author.avatar}
-                            sx={{ width: 28, height: 28 }}
+                            sx={{ width: 20, height: 20 }}
                           />
-
                           <Box>
                             <Typography
                               variant="caption"
                               sx={{
-                                fontWeight: 600,
+                                fontWeight: 500,
+                                color: mc.onSurface,
+                                fontSize: "0.7rem",
                                 display: "block",
                               }}
                             >
                               {post.author.name}
                             </Typography>
-
                             <Typography
                               variant="caption"
-                              color="text.secondary"
+                              sx={{
+                                fontSize: "0.62rem",
+                                color: mc.onSurfaceVariant,
+                              }}
                             >
                               {post.date} · {post.readTime}
                             </Typography>

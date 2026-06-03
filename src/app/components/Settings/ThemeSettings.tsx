@@ -13,6 +13,8 @@ import {
   Switch,
   InputAdornment,
   Popover,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import { Close, Palette, Upload, Refresh } from "@mui/icons-material";
 import { motion } from "motion/react";
@@ -22,6 +24,27 @@ import {
 } from "../../utils/themeGenerator";
 import { toast } from "sonner";
 import { HexColorPicker } from "react-colorful"; //调色盘
+
+function createM3SurfaceTokens(surfaceHex: string, mode: "light" | "dark") {
+  const isDark = mode === "dark";
+  const r = parseInt(surfaceHex.slice(1, 3), 16);
+  const g = parseInt(surfaceHex.slice(3, 5), 16);
+  const b = parseInt(surfaceHex.slice(5, 7), 16);
+  const tint = (factor: number) => {
+    const num = Math.round(factor * 255);
+    return isDark
+      ? `rgb(${Math.min(r + num, 255)}, ${Math.min(g + num, 255)}, ${Math.min(b + num, 255)})`
+      : `rgb(${Math.max(r - num, 0)}, ${Math.max(g - num, 0)}, ${Math.max(b - num, 0)})`;
+  };
+  return {
+    surfaceContainerLow: tint(isDark ? 0.06 : 0.04),
+    surfaceContainerHigh: tint(isDark ? 0.18 : 0.12),
+    onSurface: isDark ? "rgb(230, 225, 229)" : "rgb(28, 27, 31)",
+    onSurfaceVariant: isDark ? "rgb(202, 196, 208)" : "rgb(73, 69, 79)",
+    outlineVariant: isDark ? "rgb(73, 69, 79)" : "rgb(202, 196, 208)",
+    shadowColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.1)",
+  };
+}
 
 interface ThemeSettingsProps {
   open: boolean;
@@ -40,6 +63,19 @@ export default function ThemeSettings({
   isDarkMode,
   onDarkModeChange,
 }: ThemeSettingsProps) {
+  const theme = useTheme();
+
+  const surfaceHex =
+    theme.palette.background.paper || theme.palette.background.default;
+  const m3 = createM3SurfaceTokens(surfaceHex, isDarkMode ? "dark" : "light");
+  const m = {
+    ...m3,
+    primary: theme.palette.primary.main,
+    primaryContainer: theme.palette.primary.light || alpha(theme.palette.primary.main, 0.12),
+    onPrimaryContainer: (theme.palette.primary as any)?.dark || theme.palette.primary.main,
+    secondaryContainer: theme.palette.secondary.light || alpha(theme.palette.secondary.main, 0.12),
+  };
+
   const [customColor, setCustomColor] = useState(currentColor);
   const [isExtracting, setIsExtracting] = useState(false);
 
@@ -128,6 +164,14 @@ export default function ThemeSettings({
         sx: {
           width: { xs: "100%", sm: 400 },
           p: 3,
+          backgroundColor: isDarkMode
+            ? `color-mix(in srgb, ${m.surfaceContainerLow} 96%, ${m.primary})`
+            : `color-mix(in srgb, ${m.surfaceContainerLow} 98%, ${m.primary})`,
+          backgroundImage: "none",
+          borderLeft: `1px solid ${m.outlineVariant}`,
+          boxShadow: isDarkMode
+            ? `-4px 0px 16px ${m.shadowColor}`
+            : `-2px 0px 12px rgba(0,0,0,0.06)`,
         },
       }}
     >
@@ -150,10 +194,22 @@ export default function ThemeSettings({
         </IconButton>
       </Box>
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3, borderColor: m.outlineVariant }} />
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+      {/* ── 外观模式 ── */}
+      <Box
+        sx={{
+          mb: 4,
+          p: 2,
+          borderRadius: "12px",
+          backgroundColor: m.surfaceContainerLow,
+          border: `1px solid ${m.outlineVariant}`,
+        }}
+      >
+        <Typography
+          variant="subtitle2"
+          sx={{ mb: 1, fontWeight: 600, color: m.onSurface }}
+        >
           外观模式
         </Typography>
         <FormControlLabel
@@ -173,52 +229,77 @@ export default function ThemeSettings({
         />
       </Box>
 
+      {/* ── 预设主题色 ── */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ mb: 2, fontWeight: 600, color: m.onSurface }}
+        >
           预设主题色
         </Typography>
-        <Grid container spacing={2}>
-          {presetColors.map((preset) => (
-            <Grid size={{ xs: 6 }} key={preset.color}>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Paper
-                  onClick={() => handleColorSelect(preset.color)}
-                  sx={{
-                    p: 2,
-                    cursor: "pointer",
-                    border: currentColor === preset.color ? 2 : 0,
-                    borderColor: "primary.main",
-                    transition: "all 0.3s",
-                    "&:hover": {
-                      boxShadow: 4,
-                    },
-                  }}
+        <Grid container spacing={1.5}>
+          {presetColors.map((preset) => {
+            const isSelected = currentColor === preset.color;
+            return (
+              <Grid size={{ xs: 6 }} key={preset.color}>
+                <motion.div
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
                 >
-                  <Box
+                  <Paper
+                    onClick={() => handleColorSelect(preset.color)}
+                    elevation={0}
                     sx={{
-                      width: "100%",
-                      height: 40,
-                      backgroundColor: preset.color,
-                      borderRadius: 2,
-                      mb: 1,
+                      p: 1.5,
+                      cursor: "pointer",
+                      borderRadius: "12px",
+                      backgroundColor: m.surfaceContainerLow,
+                      border: isSelected ? `2px solid ${m.primary}` : `1px solid ${m.outlineVariant}`,
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: m.surfaceContainerHigh,
+                        borderColor: m.primary,
+                        boxShadow: isDarkMode
+                          ? `0px 2px 4px ${m.shadowColor}`
+                          : `0px 2px 4px rgba(0,0,0,0.08)`,
+                      },
                     }}
-                  />
-                  <Typography variant="caption" align="center" display="block">
-                    {preset.name}
-                  </Typography>
-                </Paper>
-              </motion.div>
-            </Grid>
-          ))}
+                  >
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: 36,
+                        borderRadius: "8px",
+                        backgroundColor: preset.color,
+                        mb: 1,
+                        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      align="center"
+                      display="block"
+                      sx={{
+                        fontWeight: isSelected ? 600 : 400,
+                        color: isSelected ? m.primary : m.onSurfaceVariant,
+                      }}
+                    >
+                      {preset.name}
+                    </Typography>
+                  </Paper>
+                </motion.div>
+              </Grid>
+            );
+          })}
         </Grid>
       </Box>
 
-      {/* 🚀 自定义颜色（已全面美化和修复对齐） */}
+      {/* ── 自定义颜色 ── */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ mb: 2, fontWeight: 600, color: m.onSurface }}
+        >
           自定义颜色
         </Typography>
 
@@ -230,6 +311,9 @@ export default function ThemeSettings({
           placeholder="#6750A4"
           helperText="输入6位HEX颜色代码"
           slotProps={{
+            htmlInput: { sx: { color: m.onSurface } },
+            formHelperText: { sx: { color: m.onSurfaceVariant } },
+            inputLabel: { sx: { color: m.onSurfaceVariant } },
             input: {
               endAdornment: (
                 <InputAdornment position="end">
@@ -241,33 +325,21 @@ export default function ThemeSettings({
                       setAnchorEl(e.currentTarget);
                     }}
                     sx={{
-                      width: 26, // 📌 恢复饱满的大尺寸，保证极佳的视觉聚焦与点击体验
+                      width: 26,
                       height: 26,
                       borderRadius: "50%",
                       cursor: "pointer",
-
-                      // 📌 核心质感提升：去掉显眼的死黑边，换成干净的白边 + 现代多层环境微阴影
-                      border: "2px solid #fff",
-                      boxShadow: `
-                        0 2px 6px rgba(0,0,0,0.12),
-                        0 0 0 1px rgba(0,0,0,0.04),
-                        inset 0 1px 2px rgba(0,0,0,0.06)
-                      `,
-
+                      border: `2px solid ${m.surfaceContainerLow}`,
+                      boxShadow: `0 2px 6px ${m.shadowColor}, 0 0 0 1px rgba(0,0,0,0.04)`,
                       backgroundColor: isValidHex(customColor)
                         ? customColor
                         : "#6750A4",
-                      transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)", // 📌 换用小弹性的贝塞尔曲线，动效更灵动
+                      transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
                       "&:hover": {
                         transform: "scale(1.08)",
-                        boxShadow: `
-                          0 4px 12px rgba(0,0,0,0.16),
-                          0 0 0 1px rgba(0,0,0,0.04)
-                        `,
+                        boxShadow: `0 4px 12px ${m.shadowColor}`,
                       },
-                      "&:active": {
-                        transform: "scale(0.95)", // 点击时轻微下陷反馈
-                      },
+                      "&:active": { transform: "scale(0.95)" },
                     }}
                   />
                 </InputAdornment>
@@ -318,11 +390,18 @@ export default function ThemeSettings({
         </Popover>
       </Box>
 
+      {/* ── 从图片提取颜色 ── */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ mb: 1, fontWeight: 600, color: m.onSurface }}
+        >
           从图片提取颜色
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          variant="caption"
+          sx={{ mb: 2, display: "block", color: m.onSurfaceVariant }}
+        >
           上传图片，系统将自动提取主色调作为主题色
         </Typography>
         <input
@@ -341,27 +420,60 @@ export default function ThemeSettings({
               isExtracting ? <Refresh className="animate-spin" /> : <Upload />
             }
             disabled={isExtracting}
+            sx={{
+              borderRadius: "12px",
+              py: 1.2,
+              borderColor: m.outlineVariant,
+              color: m.onSurface,
+              textTransform: "none",
+              fontWeight: 500,
+              "&:hover": {
+                borderColor: m.primary,
+                backgroundColor: m.primaryContainer,
+                color: m.onPrimaryContainer,
+              },
+            }}
           >
             {isExtracting ? "提取中..." : "上传图片"}
           </Button>
         </label>
       </Box>
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3, borderColor: m.outlineVariant }} />
 
       <Button
         variant="outlined"
         fullWidth
         startIcon={<Refresh />}
         onClick={handleReset}
+        sx={{
+          borderRadius: "12px",
+          py: 1.2,
+          borderColor: m.outlineVariant,
+          color: m.onSurfaceVariant,
+          textTransform: "none",
+          fontWeight: 500,
+          "&:hover": {
+            borderColor: m.primary,
+            backgroundColor: m.primaryContainer,
+            color: m.onPrimaryContainer,
+          },
+        }}
       >
         重置为默认主题
       </Button>
 
+      {/* ── 提示 ── */}
       <Box
-        sx={{ mt: 3, p: 2, backgroundColor: "action.hover", borderRadius: 2 }}
+        sx={{
+          mt: 3,
+          p: 2,
+          borderRadius: "12px",
+          backgroundColor: m.surfaceContainerLow,
+          border: `1px solid ${m.outlineVariant}`,
+        }}
       >
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" sx={{ color: m.onSurfaceVariant }}>
           💡 提示：Material Design 3
           会根据您选择的主题色自动生成完整的配色方案，包括容器色、表面色等。
         </Typography>

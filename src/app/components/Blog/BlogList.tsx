@@ -32,6 +32,38 @@ interface BlogListProps {
   categories: string[];
 }
 
+// M3 标高令牌 — 需与 dynamicTheme 配色体系对应
+// surfaceContainerLowest → surfaceContainerHigh 由底层色叠加 white/black tint 得到
+function createM3SurfaceTokens(surfaceHex: string, mode: "light" | "dark") {
+  const isDark = mode === "dark";
+  // 将 hex 转成 r/g/b
+  const r = parseInt(surfaceHex.slice(1, 3), 16);
+  const g = parseInt(surfaceHex.slice(3, 5), 16);
+  const b = parseInt(surfaceHex.slice(5, 7), 16);
+
+  const tint = (factor: number) => {
+    const num = Math.round(factor * 255);
+    return isDark
+      ? `rgb(${Math.min(r + num, 255)}, ${Math.min(g + num, 255)}, ${Math.min(b + num, 255)})`
+      : `rgb(${Math.max(r - num, 0)}, ${Math.max(g - num, 0)}, ${Math.max(b - num, 0)})`;
+  };
+
+  return {
+    surface: surfaceHex,
+    surfaceLow: tint(isDark ? 0.03 : 0.02),
+    surfaceHigh: tint(isDark ? 0.09 : 0.06),
+    surfaceContainerLow: tint(isDark ? 0.06 : 0.04),
+    surfaceContainer: tint(isDark ? 0.12 : 0.08),
+    surfaceContainerHigh: tint(isDark ? 0.18 : 0.12),
+    surfaceTint: surfaceHex,
+    onSurface: isDark ? "rgb(230, 225, 229)" : "rgb(28, 27, 31)",
+    onSurfaceVariant: isDark ? "rgb(202, 196, 208)" : "rgb(73, 69, 79)",
+    outline: isDark ? "rgb(147, 143, 153)" : "rgb(121, 116, 126)",
+    outlineVariant: isDark ? "rgb(73, 69, 79)" : "rgb(202, 196, 208)",
+    shadowColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.1)",
+  };
+}
+
 export default function BlogList({
   onSelectPost,
   posts,
@@ -39,6 +71,31 @@ export default function BlogList({
 }: BlogListProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
+
+  // 从 MUI 主题提取 M3 令牌
+  const m3 = (() => {
+    const surfaceHex =
+      theme.palette.background.paper || theme.palette.background.default;
+    const surfaceTokens = createM3SurfaceTokens(surfaceHex, isDarkMode ? "dark" : "light");
+    return {
+      ...surfaceTokens,
+      primary: theme.palette.primary.main,
+      onPrimary: theme.palette.primary.contrastText,
+      primaryContainer: theme.palette.primary.light || alpha(theme.palette.primary.main, 0.12),
+      onPrimaryContainer:
+        (theme.palette.primary as any)?.dark || theme.palette.primary.main,
+      secondary: theme.palette.secondary.main,
+      secondaryContainer: theme.palette.secondary.light || alpha(theme.palette.secondary.main, 0.12),
+      onSecondaryContainer:
+        (theme.palette.secondary as any)?.dark || theme.palette.secondary.main,
+      tertiary: (theme.palette as any)?.tertiary?.main || theme.palette.secondary.main,
+      tertiaryContainer:
+        (theme.palette as any)?.tertiary?.light || alpha(theme.palette.secondary.main, 0.10),
+      onTertiaryContainer:
+        (theme.palette as any)?.tertiary?.dark || theme.palette.secondary.main,
+      divider: theme.palette.divider || surfaceTokens.outlineVariant,
+    };
+  })();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("全部");
@@ -315,30 +372,51 @@ export default function BlogList({
                   transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
                   style={{ height: "100%" }}
                 >
+                  {/* ── M3 Elevated Card ── */}
                   <Card
                     sx={{
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
-                      borderRadius: "24px",
-                      backgroundColor: theme.palette.background.paper,
-                      border: "1px solid",
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.05)",
-                      boxShadow: "none",
+                      // M3 card – 12dp radius
+                      borderRadius: "12px",
+                      // surfaceContainerLow 作为默认背景，带 primary tint
+                      backgroundColor: isDarkMode
+                        ? `color-mix(in srgb, ${m3.surfaceContainerLow} 96%, ${m3.primary})`
+                        : `color-mix(in srgb, ${m3.surfaceContainerLow} 98%, ${m3.primary})`,
+                      // outlineVariant 边框
+                      border: `1px solid ${m3.outlineVariant}`,
+                      // M3 Elevation Level 1
+                      boxShadow: isDarkMode
+                        ? `0px 1px 2px ${m3.shadowColor}, 0px 1px 3px 1px ${m3.shadowColor}`
+                        : `0px 1px 2px rgba(0,0,0,0.15), 0px 1px 3px 1px rgba(0,0,0,0.08)`,
                       overflow: "hidden",
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                      position: "relative",
+                      transition:
+                        "background-color 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease",
                       "&:hover": {
-                        borderColor: isDarkMode
-                          ? "rgba(255,255,255,0.14)"
-                          : alpha(theme.palette.primary.main, 0.2),
+                        // surfaceContainerHigh on hover + primary state layer
+                        backgroundColor: isDarkMode
+                          ? `color-mix(in srgb, ${m3.surfaceContainerHigh} 94%, ${m3.primary})`
+                          : `color-mix(in srgb, ${m3.surfaceContainerHigh} 96%, ${m3.primary})`,
+                        borderColor: m3.primary,
+                        // M3 Elevation Level 2
                         boxShadow: isDarkMode
-                          ? "0 8px 32px rgba(0,0,0,0.35)"
-                          : `0 8px 32px ${alpha(theme.palette.primary.main, 0.06)}`,
+                          ? `0px 2px 4px ${m3.shadowColor}, 0px 4px 12px ${m3.shadowColor}`
+                          : `0px 2px 4px rgba(0,0,0,0.12), 0px 4px 12px rgba(0,0,0,0.06)`,
                       },
                     }}
                   >
+                    {/* M3 surface tint overlay */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        inset: 0,
+                        pointerEvents: "none",
+                        zIndex: 0,
+                        background: `radial-gradient(ellipse at 0% 0%, ${m3.primary}08 0%, transparent 70%)`,
+                      }}
+                    />
                     <CardActionArea
                       onClick={() => onSelectPost(post)}
                       sx={{
@@ -347,65 +425,56 @@ export default function BlogList({
                         flexDirection: "column",
                         alignItems: "stretch",
                         height: "100%",
+                        position: "relative",
+                        zIndex: 1,
                       }}
                     >
                       <Box sx={{ position: "relative", overflow: "hidden" }}>
                         <ImagePlaceholder
                           src={post.coverImage}
                           alt={post.title}
-                          height={200}
+                          height={160}
                           category={post.category}
                         />
+                        {/* M3 分类 Chip – primaryContainer 配色 */}
                         <Chip
                           label={post.category}
                           size="small"
                           sx={{
                             position: "absolute",
-                            top: 16,
-                            left: 16,
-                            backdropFilter: "blur(16px) saturate(1.8)",
-                            WebkitBackdropFilter: "blur(16px) saturate(1.8)",
-                            backgroundColor: isDarkMode
-                              ? "rgba(30,30,35,0.7)"
-                              : "rgba(255,255,255,0.8)",
-                            color: "text.primary",
+                            top: 8,
+                            left: 8,
+                            backgroundColor: m3.primaryContainer,
+                            color: m3.onPrimaryContainer,
                             fontWeight: 600,
-                            border: "1px solid",
-                            borderColor: isDarkMode
-                              ? "rgba(255,255,255,0.08)"
-                              : "rgba(255,255,255,0.6)",
-                            borderRadius: "12px",
+                            fontSize: "0.65rem",
+                            borderRadius: "6px",
+                            height: 22,
+                            "& .MuiChip-label": { px: 1 },
+                            boxShadow: isDarkMode
+                              ? "0 1px 3px rgba(0,0,0,0.3)"
+                              : "0 1px 3px rgba(0,0,0,0.08)",
                           }}
                         />
                       </Box>
 
                       <CardContent
                         sx={{
-                          p: 3,
+                          p: 2,
                           flexGrow: 1,
                           display: "flex",
                           flexDirection: "column",
+                          gap: 0.5,
                         }}
                       >
+                        {/* 标题 – M3 title small */}
                         <Typography
-                          variant="h6"
-                          gutterBottom
                           sx={{
-                            fontWeight: 700,
-                            lineHeight: 1.4,
-                            mb: 1.5,
-                            color: "text.primary",
-                          }}
-                        >
-                          {post.title}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            mb: 2.5,
-                            lineHeight: 1.65,
+                            fontWeight: 500,
+                            fontSize: "0.95rem",
+                            lineHeight: 1.35,
+                            letterSpacing: "0.1px",
+                            color: m3.onSurface,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             display: "-webkit-box",
@@ -413,16 +482,32 @@ export default function BlogList({
                             WebkitBoxOrient: "vertical",
                           }}
                         >
+                          {post.title}
+                        </Typography>
+
+                        {/* 摘要 – M3 body small */}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            lineHeight: 1.5,
+                            color: m3.onSurfaceVariant,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            flex: 1,
+                          }}
+                        >
                           {post.excerpt}
                         </Typography>
 
-                        {/* Tags */}
+                        {/* Tags – M3 assist chips */}
                         <Box
                           sx={{
                             display: "flex",
-                            gap: 0.75,
+                            gap: 0.5,
                             flexWrap: "wrap",
-                            mb: 2.5,
                           }}
                         >
                           {post.tags.slice(0, 3).map((tag) => (
@@ -436,54 +521,49 @@ export default function BlogList({
                                 setSelectedTag(tag);
                               }}
                               sx={{
-                                borderRadius: "7px",
-                                fontSize: "0.72rem",
+                                borderRadius: "6px",
+                                fontSize: "0.65rem",
                                 fontWeight: 500,
-                                borderColor: isDarkMode
-                                  ? "rgba(255,255,255,0.08)"
-                                  : "rgba(0,0,0,0.06)",
+                                height: 22,
+                                borderColor: m3.outlineVariant,
+                                color: m3.onSurfaceVariant,
+                                "& .MuiChip-label": { px: 0.8 },
                                 transition: "all 0.2s ease",
                                 "&:hover": {
-                                  backgroundColor: alpha(
-                                    theme.palette.primary.main,
-                                    0.08,
-                                  ),
-                                  borderColor: theme.palette.primary.main,
-                                  color: theme.palette.primary.main,
+                                  backgroundColor: m3.primaryContainer,
+                                  borderColor: m3.primary,
+                                  color: m3.onPrimaryContainer,
                                 },
                               }}
                             />
                           ))}
                         </Box>
 
-                        {/* Author + Meta */}
+                        {/* Author + Meta – M3 caption */}
                         <Box
                           sx={{
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
                             mt: "auto",
-                            pt: 1.5,
-                            borderTop: "1px solid",
-                            borderColor: isDarkMode
-                              ? "rgba(255,255,255,0.06)"
-                              : "rgba(0,0,0,0.04)",
+                            pt: 1,
+                            borderTop: `1px solid ${m3.outlineVariant}`,
                           }}
                         >
                           <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1.2,
-                            }}
+                            sx={{ display: "flex", alignItems: "center", gap: 0.7 }}
                           >
                             <Avatar
                               src={post.author.avatar}
-                              sx={{ width: 26, height: 26 }}
+                              sx={{ width: 20, height: 20 }}
                             />
                             <Typography
                               variant="caption"
-                              sx={{ fontWeight: 600, color: "text.primary" }}
+                              sx={{
+                                fontWeight: 500,
+                                color: m3.onSurface,
+                                fontSize: "0.7rem",
+                              }}
                             >
                               {post.author.name}
                             </Typography>
@@ -493,31 +573,19 @@ export default function BlogList({
                             sx={{
                               display: "flex",
                               alignItems: "center",
-                              gap: 1.5,
-                              color: "text.secondary",
+                              gap: 1,
+                              color: m3.onSurfaceVariant,
                             }}
                           >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0.4,
-                              }}
-                            >
-                              <CalendarToday sx={{ fontSize: 12 }} />
-                              <Typography variant="caption" sx={{ fontSize: "0.7rem" }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.2 }}>
+                              <CalendarToday sx={{ fontSize: 10 }} />
+                              <Typography variant="caption" sx={{ fontSize: "0.62rem" }}>
                                 {post.date}
                               </Typography>
                             </Box>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0.4,
-                              }}
-                            >
-                              <AccessTime sx={{ fontSize: 12 }} />
-                              <Typography variant="caption" sx={{ fontSize: "0.7rem" }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 0.2 }}>
+                              <AccessTime sx={{ fontSize: 10 }} />
+                              <Typography variant="caption" sx={{ fontSize: "0.62rem" }}>
                                 {post.readTime}
                               </Typography>
                             </Box>
