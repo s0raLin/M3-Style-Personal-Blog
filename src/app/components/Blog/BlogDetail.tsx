@@ -11,7 +11,6 @@ import {
   Skeleton,
   Fab,
   Zoom,
-  Alert,
   Fade,
   Dialog,
 } from "@mui/material";
@@ -30,10 +29,10 @@ import {
   ImageNotSupported,
 } from "@mui/icons-material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { BlogPost, GalleryImage } from "../../types/blog";
+import { BlogPost } from "../../types/blog";
 import { useState, useEffect, memo, useMemo } from "react";
 import { toast } from "sonner";
 import ImagePlaceholder from "../Common/ImagePlaceholder";

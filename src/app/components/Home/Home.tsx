@@ -19,7 +19,7 @@ import {
   Person,
   AutoAwesome,
 } from "@mui/icons-material";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { BlogPost } from "../../types/blog";
 import ImagePlaceholder from "../Common/ImagePlaceholder";
 import { galleryImages } from "@/app/service/blogService";
@@ -193,27 +193,6 @@ export default function Home({
                 }}
               >
                 <Box>
-                  {/* Badge */}
-                  <Chip
-                    label="✦ Digital Garden"
-                    size="small"
-                    icon={<AutoAwesome sx={{ fontSize: 14 }} />}
-                    sx={{
-                      mb: 3,
-                      fontWeight: 600,
-                      letterSpacing: "0.06em",
-                      fontSize: "0.8rem",
-                      background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)}, ${alpha(theme.palette.secondary.main, 0.08)})`,
-                      backdropFilter: "blur(12px)",
-                      color: "text.secondary",
-                      border: "1px solid",
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(103, 80, 164, 0.1)",
-                      "& .MuiChip-icon": { color: theme.palette.primary.main },
-                    }}
-                  />
-
                   {/* Hero Headline */}
                   <Typography
                     variant="h1"
@@ -293,10 +272,7 @@ export default function Home({
                       component={motion.button}
                       whileHover={{
                         scale: 1.04,
-                        backgroundColor: alpha(
-                          theme.palette.primary.main,
-                          0.1,
-                        ),
+                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
                       }}
                       whileTap={{ scale: 0.97 }}
                       variant="outlined"
@@ -404,7 +380,11 @@ export default function Home({
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}
+                      sx={{
+                        fontWeight: 600,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                      }}
                     >
                       篇文章
                     </Typography>
@@ -466,142 +446,6 @@ export default function Home({
           }}
         />
       </Box>
-
-      {/* ════════════════════════════════════════════
-          STATS BAR — Glass Card
-          ════════════════════════════════════════════ */}
-      <Container
-        maxWidth="lg"
-        sx={{
-          mt: -7,
-          position: "relative",
-          zIndex: 5,
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.5, ease: [0.2, 0, 0, 1] }}
-        >
-          <Card
-            sx={{
-              borderRadius: "32px",
-              overflow: "hidden",
-              backdropFilter: "blur(28px) saturate(1.8)",
-              WebkitBackdropFilter: "blur(28px) saturate(1.8)",
-              background: isDarkMode
-                ? "rgba(22, 22, 28, 0.68)"
-                : "rgba(255, 255, 255, 0.72)",
-              border: "1px solid",
-              borderColor: isDarkMode
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(255,255,255,0.8)",
-              boxShadow: isDarkMode
-                ? "0 12px 48px rgba(0,0,0,0.4)"
-                : "0 12px 48px rgba(103,80,164,0.06)",
-            }}
-          >
-            <Grid container>
-              {[
-                {
-                  label: "文章",
-                  value: posts.length,
-                  icon: <Article />,
-                },
-                {
-                  label: "分类",
-                  value: categories.filter((c) => c !== "全部").length,
-                  icon: <AutoAwesome />,
-                },
-                {
-                  label: "最近更新",
-                  value: "2026",
-                  icon: <AutoAwesome />,
-                },
-                {
-                  label: "照片",
-                  value: galleryImages.length,
-                  icon: <PhotoLibrary />,
-                },
-              ].map((item, index) => (
-                <Grid
-                  key={item.label}
-                  size={{ xs: 6, md: 3 }}
-                  sx={{
-                    borderRight:
-                      index !== 3
-                        ? `1px solid ${
-                            isDarkMode
-                              ? "rgba(255,255,255,0.05)"
-                              : "rgba(0,0,0,0.04)"
-                          }`
-                        : "none",
-                    borderBottom: {
-                      xs:
-                        index < 2
-                          ? `1px solid ${
-                              isDarkMode
-                                ? "rgba(255,255,255,0.05)"
-                                : "rgba(0,0,0,0.04)"
-                            }`
-                          : "none",
-                      md: "none",
-                    },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      p: { xs: 3, md: 4 },
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1.5,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: "14px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)}, ${alpha(theme.palette.secondary.main, 0.08)})`,
-                        color: "primary.main",
-                      }}
-                    >
-                      {item.icon}
-                    </Box>
-
-                    <Typography
-                      sx={{
-                        fontSize: {
-                          xs: "1.8rem",
-                          md: "2.2rem",
-                        },
-                        fontWeight: 800,
-                        letterSpacing: "-0.04em",
-                        lineHeight: 1,
-                      }}
-                    >
-                      {item.value}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      {item.label}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Card>
-        </motion.div>
-      </Container>
 
       {/* ════════════════════════════════════════════
           LATEST POSTS
@@ -687,7 +531,8 @@ export default function Home({
                         : "rgba(0,0,0,0.05)",
                       boxShadow: "none",
                       overflow: "hidden",
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                      transition:
+                        "border-color 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.12)"
@@ -870,7 +715,8 @@ export default function Home({
                       WebkitBackdropFilter: "blur(16px) saturate(1.6)",
                       boxShadow: "none",
                       cursor: "pointer",
-                      transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                      transition:
+                        "border-color 0.3s ease, box-shadow 0.3s ease",
                       "&:hover": {
                         borderColor: feature.color,
                         boxShadow: `0 12px 40px ${alpha(feature.color, 0.12)}`,
