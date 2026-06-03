@@ -1083,24 +1083,21 @@ export default function BlogDetail({
               borderRadius: "28px",
               overflow: "hidden",
               border: "1px solid",
-              // ✅ 原 rgba(255,255,255,0.1) / rgba(103,80,164,0.15)
               borderColor: (theme) =>
                 theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : `${theme.palette.primary.main}26`, // ~15%
-              // ✅ 原 rgba(28,27,31,0.6) / rgba(254,247,255,0.8)
-              // 这两个是 MD3 surface 色，保留为 background.paper 的半透明版，无法完全泛化，保持原值
+                  ? "rgba(255,255,255,0.08)"
+                  : `${theme.palette.primary.main}1e`,
               backgroundColor: isDarkMode
-                ? "rgba(28,27,31,0.6)"
-                : "rgba(254,247,255,0.8)",
-              backdropFilter: "blur(12px)",
-              transition: "all 0.4s cubic-bezier(0.4,0,0.2,1)",
+                ? "rgba(22, 22, 28, 0.65)"
+                : "rgba(255, 255, 255, 0.6)",
+              backdropFilter: "blur(20px) saturate(1.8)",
+              WebkitBackdropFilter: "blur(20px) saturate(1.8)",
+              transition: "all 0.4s cubic-bezier(0.2,0,0,1)",
               "&:hover": {
-                // ✅ 原 rgba(0,0,0,0.4) / rgba(103,80,164,0.08) → 用 primary 色
                 boxShadow: (theme) =>
                   theme.palette.mode === "dark"
-                    ? "0 8px 32px rgba(0,0,0,0.4)"
-                    : `0 8px 32px ${theme.palette.primary.main}14`,
+                    ? "0 8px 40px rgba(0,0,0,0.5)"
+                    : `0 8px 40px ${theme.palette.primary.main}14`,
               },
             }}
           >

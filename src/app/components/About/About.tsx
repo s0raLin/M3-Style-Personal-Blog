@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react"; // 引入 useState
+import React, { ReactNode, useState } from "react";
 import {
   Container,
   Typography,
@@ -10,9 +10,10 @@ import {
   Link,
   Card,
   CardContent,
-  Divider,
-  Tabs, // 引入 Tabs
-  Tab, // 引入 Tab
+  Tabs,
+  Tab,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import {
   Email,
@@ -21,13 +22,11 @@ import {
   Twitter,
   LinkedIn,
   Work,
-  Code, // 引入新图标
+  Code,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "motion/react";
 
-// 1. 引入分离出的 JSON 数据
 import siteData from "../../data/siteData.json";
-// 2. 引入类型定义（可选，有助于提供完善的代码补全）
 import { AuthorInfo } from "../../types/blog";
 
 export interface Experience {
@@ -44,14 +43,11 @@ export interface Project {
   link?: string;
 }
 
-// 定义 TabPanel 的 Props 类型
 interface TabPanelProps {
   children?: ReactNode;
   index: number;
   value: number;
 }
-
-// 定义 Tab 面板组件
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -82,30 +78,46 @@ function TabPanel(props: TabPanelProps) {
 
 export default function About() {
   const [tabValue, setTabValue] = useState<number>(0);
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
 
   const authorInfo = siteData.authorInfo as AuthorInfo;
 
-  // 处理 Tab 切换的类型
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
-
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      {/* 个人简介卡片 */}
+    <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
+      {/* Profile Card */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, ease: [0.2, 0, 0, 1] }}
       >
         <Paper
           elevation={0}
-          sx={{ p: { xs: 3, md: 5 }, mb: 4, textAlign: "center" }}
+          sx={{
+            p: { xs: 3, md: 5 },
+            mb: 4,
+            textAlign: "center",
+            borderRadius: "32px",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(103,80,164,0.06)",
+            backdropFilter: "blur(16px) saturate(1.6)",
+            WebkitBackdropFilter: "blur(16px) saturate(1.6)",
+            background: isDarkMode
+              ? "rgba(22, 22, 28, 0.6)"
+              : "rgba(255, 255, 255, 0.65)",
+            transition: "box-shadow 0.3s ease",
+            "&:hover": {
+              boxShadow: isDarkMode
+                ? "0 8px 40px rgba(0,0,0,0.3)"
+                : `0 8px 40px ${alpha(theme.palette.primary.main, 0.06)}`,
+            },
+          }}
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -117,19 +129,46 @@ export default function About() {
               delay: 0.1,
             }}
           >
-            <Avatar
-              src={authorInfo.avatar}
+            <Box
               sx={{
-                width: 120,
-                height: 120,
-                margin: "0 auto 24px",
-                border: "4px solid",
-                borderColor: "primary.main",
+                position: "relative",
+                display: "inline-block",
+                mb: 3,
               }}
-            />
+            >
+              {/* Avatar ring glow */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: -4,
+                  borderRadius: "50%",
+                  padding: "3px",
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                  mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                  maskComposite: "exclude",
+                  WebkitMaskComposite: "xor",
+                }}
+              />
+              <Avatar
+                src={authorInfo.avatar}
+                sx={{
+                  width: 120,
+                  height: 120,
+                  border: "4px solid transparent",
+                }}
+              />
+            </Box>
           </motion.div>
 
-          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              mb: 1,
+              letterSpacing: "-0.02em",
+            }}
+          >
             {authorInfo.name}
           </Typography>
           <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -167,40 +206,72 @@ export default function About() {
             {authorInfo.bio}
           </Typography>
 
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href={authorInfo.social.github}
-                target="_blank"
-                rel="noopener"
+          {/* Social Icons */}
+          <Box
+            sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3 }}
+          >
+            {[
+              {
+                icon: <GitHub fontSize="large" />,
+                href: authorInfo.social.github,
+              },
+              {
+                icon: <Twitter fontSize="large" />,
+                href: authorInfo.social.twitter,
+              },
+              {
+                icon: <LinkedIn fontSize="large" />,
+                href: authorInfo.social.linkedin,
+              },
+            ].map((social, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.15, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <GitHub fontSize="large" />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href={authorInfo.social.twitter}
-                target="_blank"
-                rel="noopener"
-              >
-                <Twitter fontSize="large" />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href={authorInfo.social.linkedin}
-                target="_blank"
-                rel="noopener"
-              >
-                <LinkedIn fontSize="large" />
-              </Link>
-            </motion.div>
+                <Link
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener"
+                  underline="none"
+                  sx={{
+                    color: "text.secondary",
+                    transition: "color 0.2s",
+                    "&:hover": { color: "primary.main" },
+                  }}
+                >
+                  {social.icon}
+                </Link>
+              </motion.div>
+            ))}
           </Box>
         </Paper>
       </motion.div>
-      <motion.div variants={itemVariants}>
-        <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, mb: 3 }}>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+
+      {/* Skills */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15, ease: [0.2, 0, 0, 1] }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 3, md: 4 },
+            mb: 3,
+            borderRadius: "24px",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(103,80,164,0.06)",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{ fontWeight: 700, mb: 3, letterSpacing: "-0.01em" }}
+          >
             技能专长
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
@@ -217,12 +288,19 @@ export default function About() {
                   variant="outlined"
                   sx={{
                     fontSize: "0.9rem",
-                    padding: "20px 12px",
+                    py: 2.5,
+                    px: 1,
+                    borderRadius: "12px",
+                    borderWidth: "1.5px",
+                    fontWeight: 500,
+                    transition: "all 0.3s cubic-bezier(0.2,0,0,1)",
                     "&:hover": {
-                      backgroundColor: "primary.main",
-                      color: "primary.contrastText",
+                      backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                      borderColor: theme.palette.primary.main,
+                      color: theme.palette.primary.main,
+                      transform: "translateY(-2px)",
+                      boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
                     },
-                    transition: "all 0.3s",
                   }}
                 />
               </motion.div>
@@ -231,36 +309,75 @@ export default function About() {
         </Paper>
       </motion.div>
 
-      {/* Tabs 切换区域 */}
-      <Paper elevation={0} sx={{ p: { xs: 2, md: 4 }, borderRadius: 2 }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 1 }}>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            centered
-            textColor="primary"
-            indicatorColor="primary"
-          >
-            <Tab
-              icon={<Work fontSize="small" />}
-              iconPosition="start"
-              label="工作经历"
-              sx={{ fontWeight: 600 }}
-            />
-            <Tab
-              icon={<Code fontSize="small" />}
-              iconPosition="start"
-              label="项目经验"
-              sx={{ fontWeight: 600 }}
-            />
-          </Tabs>
-        </Box>
+      {/* Tabs: Experience / Projects */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, md: 4 },
+          borderRadius: "24px",
+          border: "1px solid",
+          borderColor: isDarkMode
+            ? "rgba(255,255,255,0.06)"
+            : "rgba(103,80,164,0.06)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          centered
+          textColor="primary"
+          sx={{
+            mb: 1,
+            "& .MuiTabs-indicator": {
+              height: 3,
+              borderRadius: "2px",
+              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            },
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.95rem",
+              borderRadius: "12px 12px 0 0",
+              minWidth: 140,
+              py: 1.5,
+              transition: "all 0.25s ease",
+              "&:hover": {
+                backgroundColor: alpha(theme.palette.primary.main, 0.04),
+              },
+            },
+          }}
+        >
+          <Tab
+            icon={<Work fontSize="small" />}
+            iconPosition="start"
+            label="工作经历"
+          />
+          <Tab
+            icon={<Code fontSize="small" />}
+            iconPosition="start"
+            label="项目经验"
+          />
+        </Tabs>
 
         <TabPanel value={tabValue} index={0}>
-          <Grid container spacing={3}>
+          <Grid container spacing={2.5}>
             {authorInfo.experience.map((exp, index) => (
               <Grid size={{ xs: 12 }} key={index}>
-                <Card variant="outlined" sx={{ borderRadius: 2 }}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    borderRadius: "20px",
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(0,0,0,0.05)",
+                    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                    "&:hover": {
+                      borderColor: alpha(theme.palette.primary.main, 0.2),
+                      boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.04)}`,
+                    },
+                  }}
+                >
                   <CardContent sx={{ p: 3 }}>
                     <Box
                       sx={{
@@ -277,7 +394,7 @@ export default function About() {
                         <Typography
                           variant="subtitle1"
                           color="primary"
-                          sx={{ fontWeight: 500 }}
+                          sx={{ fontWeight: 600 }}
                         >
                           {exp.company}
                         </Typography>
@@ -287,12 +404,20 @@ export default function About() {
                         size="small"
                         variant="outlined"
                         color="secondary"
+                        sx={{
+                          borderRadius: "10px",
+                          fontWeight: 600,
+                          borderWidth: "1.5px",
+                        }}
                       />
                     </Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ whiteSpace: "pre-line", lineHeight: 1.7 }}
+                      sx={{
+                        whiteSpace: "pre-line",
+                        lineHeight: 1.7,
+                      }}
                     >
                       {exp.description}
                     </Typography>
@@ -311,10 +436,14 @@ export default function About() {
                   variant="outlined"
                   sx={{
                     height: "100%",
-                    borderRadius: 2,
+                    borderRadius: "20px",
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(0,0,0,0.05)",
+                    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
                     "&:hover": {
-                      borderColor: "primary.main",
-                      bgcolor: "rgba(25, 118, 210, 0.02)",
+                      borderColor: theme.palette.primary.main,
+                      boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.06)}`,
                     },
                   }}
                 >
@@ -325,7 +454,11 @@ export default function About() {
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ mb: 2, height: "3em", overflow: "hidden" }}
+                      sx={{
+                        mb: 2,
+                        minHeight: "3em",
+                        lineHeight: 1.6,
+                      }}
                     >
                       {project.description}
                     </Typography>
@@ -335,7 +468,17 @@ export default function About() {
                           key={t}
                           label={t}
                           size="small"
-                          sx={{ fontSize: "0.7rem" }}
+                          sx={{
+                            fontSize: "0.7rem",
+                            borderRadius: "7px",
+                            fontWeight: 500,
+                            backgroundColor: alpha(
+                              theme.palette.primary.main,
+                              0.06,
+                            ),
+                            color: theme.palette.primary.main,
+                            border: "none",
+                          }}
                         />
                       ))}
                     </Box>

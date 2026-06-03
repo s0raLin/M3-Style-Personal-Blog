@@ -2,11 +2,11 @@ import {
   argbFromHex,
   themeFromSourceColor,
   hexFromArgb,
-} from '@material/material-color-utilities';
+} from "@material/material-color-utilities";
 
 export interface DynamicTheme {
   sourceColor: string;
-  scheme: 'light' | 'dark';
+  scheme: "light" | "dark";
   colors: {
     primary: string;
     onPrimary: string;
@@ -40,13 +40,16 @@ export interface DynamicTheme {
   };
 }
 
-export function generateThemeFromColor(sourceColor: string, isDark: boolean): DynamicTheme {
+export function generateThemeFromColor(
+  sourceColor: string,
+  isDark: boolean,
+): DynamicTheme {
   const theme = themeFromSourceColor(argbFromHex(sourceColor));
   const scheme = isDark ? theme.schemes.dark : theme.schemes.light;
 
   return {
     sourceColor,
-    scheme: isDark ? 'dark' : 'light',
+    scheme: isDark ? "dark" : "light",
     colors: {
       primary: hexFromArgb(scheme.primary),
       onPrimary: hexFromArgb(scheme.onPrimary),
@@ -84,13 +87,13 @@ export function generateThemeFromColor(sourceColor: string, isDark: boolean): Dy
 export async function extractColorFromImage(imageUrl: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'Anonymous';
+    img.crossOrigin = "Anonymous";
 
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
       if (!ctx) {
-        reject(new Error('无法创建 canvas context'));
+        reject(new Error("无法创建 canvas context"));
         return;
       }
 
@@ -103,11 +106,13 @@ export async function extractColorFromImage(imageUrl: string): Promise<string> {
         img.width / 4,
         img.height / 4,
         img.width / 2,
-        img.height / 2
+        img.height / 2,
       );
 
       // 计算平均颜色
-      let r = 0, g = 0, b = 0;
+      let r = 0,
+        g = 0,
+        b = 0;
       const pixels = imageData.data.length / 4;
 
       for (let i = 0; i < imageData.data.length; i += 4) {
@@ -120,22 +125,23 @@ export async function extractColorFromImage(imageUrl: string): Promise<string> {
       g = Math.round(g / pixels);
       b = Math.round(b / pixels);
 
-      const hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      const hex =
+        "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
       resolve(hex);
     };
 
-    img.onerror = () => reject(new Error('图片加载失败'));
+    img.onerror = () => reject(new Error("图片加载失败"));
     img.src = imageUrl;
   });
 }
 
 export const presetColors = [
-  { name: 'Material 紫', color: '#6750A4' },
-  { name: '天空蓝', color: '#0EA5E9' },
-  { name: '翠绿', color: '#10B981' },
-  { name: '橙色', color: '#F59E0B' },
-  { name: '玫瑰红', color: '#E11D48' },
-  { name: '靛青', color: '#6366F1' },
-  { name: '青色', color: '#06B6D4' },
-  { name: '粉紫', color: '#A855F7' },
+  { name: "Material 紫", color: "#6750A4" },
+  { name: "天空蓝", color: "#0EA5E9" },
+  { name: "翠绿", color: "#10B981" },
+  { name: "橙色", color: "#F59E0B" },
+  { name: "玫瑰红", color: "#E11D48" },
+  { name: "靛青", color: "#6366F1" },
+  { name: "青色", color: "#06B6D4" },
+  { name: "粉紫", color: "#A855F7" },
 ];
