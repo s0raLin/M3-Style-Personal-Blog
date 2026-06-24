@@ -66,9 +66,9 @@ function TabPanel(props: TabPanelProps) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.35, ease: [0.1, 1, 0.2, 1] }}
           >
-            <Box sx={{ py: 3 }}>{children}</Box>
+            <Box sx={{ py: { xs: 3, md: 4 } }}>{children}</Box>
           </motion.div>
         )}
       </AnimatePresence>
@@ -87,35 +87,40 @@ export default function About() {
     setTabValue(newValue);
   };
 
+  // ── MD3E surface tokens ──
+  const glassBg = isDarkMode
+    ? "rgba(22, 22, 28, 0.55)"
+    : "rgba(255, 255, 255, 0.6)";
+  const glassBorder = isDarkMode
+    ? "rgba(255,255,255,0.06)"
+    : "rgba(103,80,164,0.06)";
+  const glassShadow = isDarkMode
+    ? "0 8px 48px rgba(0,0,0,0.35)"
+    : `0 8px 48px ${alpha(theme.palette.primary.main, 0.06)}`;
+
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
-      {/* Profile Card */}
+    <Container maxWidth="md" sx={{ py: { xs: 4, md: 6 } }}>
+      {/* ═══ MD3E Profile Card — Oversized Glass ═══ */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.2, 0, 0, 1] }}
+        transition={{ duration: 0.55, ease: [0.1, 1, 0.2, 1] }}
       >
         <Paper
           elevation={0}
           sx={{
-            p: { xs: 3, md: 5 },
-            mb: 4,
+            p: { xs: 3.5, md: 5.5 },
+            mb: 5,
             textAlign: "center",
             borderRadius: "32px",
             border: "1px solid",
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(103,80,164,0.06)",
-            backdropFilter: "blur(16px) saturate(1.6)",
-            WebkitBackdropFilter: "blur(16px) saturate(1.6)",
-            background: isDarkMode
-              ? "rgba(22, 22, 28, 0.6)"
-              : "rgba(255, 255, 255, 0.65)",
-            transition: "box-shadow 0.3s ease",
+            borderColor: glassBorder,
+            backdropFilter: "blur(20px) saturate(1.5)",
+            WebkitBackdropFilter: "blur(20px) saturate(1.5)",
+            background: glassBg,
+            transition: "box-shadow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)",
             "&:hover": {
-              boxShadow: isDarkMode
-                ? "0 8px 40px rgba(0,0,0,0.3)"
-                : `0 8px 40px ${alpha(theme.palette.primary.main, 0.06)}`,
+              boxShadow: glassShadow,
             },
           }}
         >
@@ -124,23 +129,22 @@ export default function About() {
             animate={{ scale: 1 }}
             transition={{
               type: "spring",
-              stiffness: 260,
-              damping: 20,
-              delay: 0.1,
+              stiffness: 200,
+              damping: 18,
+              delay: 0.08,
             }}
           >
             <Box
               sx={{
                 position: "relative",
                 display: "inline-block",
-                mb: 3,
+                mb: 3.5,
               }}
             >
-              {/* Avatar ring glow */}
               <Box
                 sx={{
                   position: "absolute",
-                  inset: -4,
+                  inset: -5,
                   borderRadius: "50%",
                   padding: "3px",
                   background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
@@ -153,25 +157,33 @@ export default function About() {
               <Avatar
                 src={authorInfo.avatar}
                 sx={{
-                  width: 120,
-                  height: 120,
+                  width: 128,
+                  height: 128,
                   border: "4px solid transparent",
+                  transition: "transform 0.5s ease",
+                  "&:hover": { transform: "scale(1.04)" },
                 }}
               />
             </Box>
           </motion.div>
 
           <Typography
-            variant="h4"
+            variant="h3"
             sx={{
               fontWeight: 800,
-              mb: 1,
-              letterSpacing: "-0.02em",
+              mb: 0.8,
+              letterSpacing: "-0.03em",
+              fontSize: { xs: "1.8rem", md: "2.4rem" },
             }}
           >
             {authorInfo.name}
           </Typography>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            gutterBottom
+            sx={{ fontWeight: 500, letterSpacing: "0.02em" }}
+          >
             {authorInfo.title}
           </Typography>
 
@@ -180,17 +192,21 @@ export default function About() {
               display: "flex",
               justifyContent: "center",
               flexWrap: "wrap",
-              gap: 3,
-              my: 3,
+              gap: 3.5,
+              my: 3.5,
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Email fontSize="small" color="primary" />
-              <Typography variant="body2">{authorInfo.email}</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {authorInfo.email}
+              </Typography>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <LocationOn fontSize="small" color="primary" />
-              <Typography variant="body2">{authorInfo.location}</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {authorInfo.location}
+              </Typography>
             </Box>
           </Box>
 
@@ -198,36 +214,38 @@ export default function About() {
             variant="body1"
             sx={{
               color: "text.secondary",
-              maxWidth: "600px",
+              maxWidth: 560,
               mx: "auto",
-              lineHeight: 1.8,
+              lineHeight: 1.9,
+              fontSize: "0.95rem",
+              letterSpacing: "0.01em",
             }}
           >
             {authorInfo.bio}
           </Typography>
 
-          {/* Social Icons */}
+          {/* Social Links — MD3E Icon Pills */}
           <Box
-            sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 3 }}
+            sx={{ display: "flex", justifyContent: "center", gap: 1.5, mt: 3.5 }}
           >
             {[
               {
-                icon: <GitHub fontSize="large" />,
+                icon: <GitHub />,
                 href: authorInfo.social.github,
               },
               {
-                icon: <Twitter fontSize="large" />,
+                icon: <Twitter />,
                 href: authorInfo.social.twitter,
               },
               {
-                icon: <LinkedIn fontSize="large" />,
+                icon: <LinkedIn />,
                 href: authorInfo.social.linkedin,
               },
             ].map((social, idx) => (
               <motion.div
                 key={idx}
-                whileHover={{ scale: 1.15, y: -2 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.12, y: -3 }}
+                whileTap={{ scale: 0.94 }}
               >
                 <Link
                   href={social.href}
@@ -235,9 +253,28 @@ export default function About() {
                   rel="noopener"
                   underline="none"
                   sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 44,
+                    height: 44,
+                    borderRadius: "16px",
                     color: "text.secondary",
-                    transition: "color 0.2s",
-                    "&:hover": { color: "primary.main" },
+                    backgroundColor: isDarkMode
+                      ? "rgba(255,255,255,0.04)"
+                      : "rgba(0,0,0,0.03)",
+                    border: "1px solid",
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(0,0,0,0.06)",
+                    backdropFilter: "blur(8px)",
+                    transition: "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)",
+                    "&:hover": {
+                      color: theme.palette.primary.main,
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      borderColor: alpha(theme.palette.primary.main, 0.25),
+                      boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.15)}`,
+                    },
                   }}
                 >
                   {social.icon}
@@ -248,29 +285,29 @@ export default function About() {
         </Paper>
       </motion.div>
 
-      {/* Skills */}
+      {/* ═══ MD3E Skills — Expressive Pills ═══ */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.15, ease: [0.2, 0, 0, 1] }}
+        transition={{ duration: 0.5, delay: 0.12, ease: [0.1, 1, 0.2, 1] }}
       >
         <Paper
           elevation={0}
           sx={{
-            p: { xs: 3, md: 4 },
-            mb: 3,
-            borderRadius: "24px",
+            p: { xs: 3, md: 4.5 },
+            mb: 4,
+            borderRadius: "28px",
             border: "1px solid",
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(103,80,164,0.06)",
-            backdropFilter: "blur(12px)",
+            borderColor: glassBorder,
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            background: glassBg,
           }}
         >
           <Typography
             variant="h5"
             gutterBottom
-            sx={{ fontWeight: 700, mb: 3, letterSpacing: "-0.01em" }}
+            sx={{ fontWeight: 700, mb: 3, letterSpacing: "-0.02em" }}
           >
             技能专长
           </Typography>
@@ -287,19 +324,21 @@ export default function About() {
                   color="primary"
                   variant="outlined"
                   sx={{
-                    fontSize: "0.9rem",
-                    py: 2.5,
-                    px: 1,
-                    borderRadius: "12px",
+                    fontSize: "0.88rem",
+                    py: 2.6,
+                    px: 1.2,
+                    borderRadius: "14px",
                     borderWidth: "1.5px",
-                    fontWeight: 500,
-                    transition: "all 0.3s cubic-bezier(0.2,0,0,1)",
+                    fontWeight: 600,
+                    letterSpacing: "0.01em",
+                    transition: "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)",
+                    backdropFilter: "blur(4px)",
                     "&:hover": {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                      backgroundColor: alpha(theme.palette.primary.main, 0.14),
                       borderColor: theme.palette.primary.main,
                       color: theme.palette.primary.main,
-                      transform: "translateY(-2px)",
-                      boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
+                      transform: "translateY(-3px)",
+                      boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.2)}`,
                     },
                   }}
                 />
@@ -309,17 +348,17 @@ export default function About() {
         </Paper>
       </motion.div>
 
-      {/* Tabs: Experience / Projects */}
+      {/* ═══ MD3E Tabs — Experience / Projects ═══ */}
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 2, md: 4 },
-          borderRadius: "24px",
+          p: { xs: 2.5, md: 4.5 },
+          borderRadius: "28px",
           border: "1px solid",
-          borderColor: isDarkMode
-            ? "rgba(255,255,255,0.06)"
-            : "rgba(103,80,164,0.06)",
-          backdropFilter: "blur(12px)",
+          borderColor: glassBorder,
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          background: glassBg,
         }}
       >
         <Tabs
@@ -338,12 +377,13 @@ export default function About() {
               textTransform: "none",
               fontWeight: 600,
               fontSize: "0.95rem",
-              borderRadius: "12px 12px 0 0",
+              borderRadius: "14px 14px 0 0",
               minWidth: 140,
               py: 1.5,
-              transition: "all 0.25s ease",
+              letterSpacing: "0.01em",
+              transition: "all 0.3s ease",
               "&:hover": {
-                backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                backgroundColor: alpha(theme.palette.primary.main, 0.06),
               },
             },
           }}
@@ -367,34 +407,40 @@ export default function About() {
                 <Card
                   variant="outlined"
                   sx={{
-                    borderRadius: "20px",
+                    borderRadius: "22px",
                     borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
+                      ? "rgba(255,255,255,0.05)"
                       : "rgba(0,0,0,0.05)",
-                    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                    backgroundColor: isDarkMode
+                      ? "rgba(255,255,255,0.02)"
+                      : "rgba(0,0,0,0.01)",
+                    transition: "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)",
                     "&:hover": {
                       borderColor: alpha(theme.palette.primary.main, 0.2),
-                      boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.04)}`,
+                      boxShadow: `0 6px 24px ${alpha(theme.palette.primary.main, 0.06)}`,
+                      transform: "translateY(-2px)",
                     },
                   }}
                 >
-                  <CardContent sx={{ p: 3 }}>
+                  <CardContent sx={{ p: 3.5 }}>
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
-                        mb: 2,
+                        mb: 2.5,
+                        flexWrap: "wrap",
+                        gap: 1,
                       }}
                     >
                       <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: "-0.01em" }}>
                           {exp.title}
                         </Typography>
                         <Typography
                           variant="subtitle1"
                           color="primary"
-                          sx={{ fontWeight: 600 }}
+                          sx={{ fontWeight: 600, letterSpacing: "0.01em" }}
                         >
                           {exp.company}
                         </Typography>
@@ -405,9 +451,10 @@ export default function About() {
                         variant="outlined"
                         color="secondary"
                         sx={{
-                          borderRadius: "10px",
+                          borderRadius: "12px",
                           fontWeight: 600,
                           borderWidth: "1.5px",
+                          fontSize: "0.75rem",
                         }}
                       />
                     </Box>
@@ -416,7 +463,8 @@ export default function About() {
                       color="text.secondary"
                       sx={{
                         whiteSpace: "pre-line",
-                        lineHeight: 1.7,
+                        lineHeight: 1.8,
+                        fontSize: "0.88rem",
                       }}
                     >
                       {exp.description}
@@ -429,35 +477,43 @@ export default function About() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2.5}>
             {authorInfo.projects?.map((project, index) => (
               <Grid size={{ xs: 12, sm: 6 }} key={index}>
                 <Card
                   variant="outlined"
                   sx={{
                     height: "100%",
-                    borderRadius: "20px",
+                    borderRadius: "22px",
                     borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
+                      ? "rgba(255,255,255,0.05)"
                       : "rgba(0,0,0,0.05)",
-                    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+                    backgroundColor: isDarkMode
+                      ? "rgba(255,255,255,0.02)"
+                      : "rgba(0,0,0,0.01)",
+                    transition: "all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1)",
                     "&:hover": {
                       borderColor: theme.palette.primary.main,
-                      boxShadow: `0 4px 20px ${alpha(theme.palette.primary.main, 0.06)}`,
+                      boxShadow: `0 8px 28px ${alpha(theme.palette.primary.main, 0.08)}`,
+                      transform: "translateY(-2px)",
                     },
                   }}
                 >
-                  <CardContent>
-                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 700, mb: 1.2, letterSpacing: "-0.01em" }}
+                    >
                       {project.name}
                     </Typography>
                     <Typography
                       variant="body2"
                       color="text.secondary"
                       sx={{
-                        mb: 2,
+                        mb: 2.5,
                         minHeight: "3em",
-                        lineHeight: 1.6,
+                        lineHeight: 1.7,
+                        fontSize: "0.85rem",
                       }}
                     >
                       {project.description}
@@ -470,11 +526,11 @@ export default function About() {
                           size="small"
                           sx={{
                             fontSize: "0.7rem",
-                            borderRadius: "7px",
+                            borderRadius: "9px",
                             fontWeight: 500,
                             backgroundColor: alpha(
                               theme.palette.primary.main,
-                              0.06,
+                              0.08,
                             ),
                             color: theme.palette.primary.main,
                             border: "none",

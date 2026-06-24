@@ -54,29 +54,18 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.2, 0, 0, 1] }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-          <Box
-            sx={{
-              width: 5,
-              height: 32,
-              borderRadius: "4px",
-              background: `linear-gradient(180deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-            }}
-          />
-          <Typography variant="h3" sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}>
-            图库
-          </Typography>
-        </Box>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, ml: 7 }}>
+      {/* ── M3 Headline ── */}
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 700, letterSpacing: "-0.02em", mb: 1 }}
+        >
+          图库
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
           记录生活中的美好瞬间
         </Typography>
-      </motion.div>
+      </Box>
 
       {/* Category Tabs */}
       <motion.div
@@ -100,7 +89,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
               textTransform: "none",
               fontWeight: 600,
               fontSize: "0.9rem",
-              borderRadius: "12px 12px 0 0",
+              borderRadius: "14px 14px 0 0",
               minWidth: "auto",
               px: 2.5,
               py: 1.5,
@@ -136,7 +125,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                 sx={{
                   position: "relative",
                   overflow: "hidden",
-                  borderRadius: "16px",
+                  borderRadius: "18px",
                   border: "1px solid",
                   borderColor: isDarkMode
                     ? "rgba(255,255,255,0.05)"
@@ -181,7 +170,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                     p: 2.5,
                     opacity: 0,
                     transition: "opacity 0.35s ease",
-                    borderRadius: "16px",
+                     borderRadius: "18px",
                     backdropFilter: "blur(2px)",
                   }}
                 >
@@ -269,7 +258,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                     height: "auto",
                     maxHeight: "90vh",
                     objectFit: "contain",
-                    borderRadius: 8,
+                       borderRadius: "14px",
                   }}
                 />
                 <Box
@@ -278,8 +267,8 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                     backdropFilter: "blur(12px)",
                     color: "white",
                     p: 3,
-                    borderBottomLeftRadius: 8,
-                    borderBottomRightRadius: 8,
+                borderBottomLeftRadius: "14px",
+                borderBottomRightRadius: "14px",
                   }}
                 >
                   <Typography

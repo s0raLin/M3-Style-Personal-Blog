@@ -1,7 +1,5 @@
 import { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
   Typography,
   IconButton,
   Drawer,
@@ -13,7 +11,6 @@ import {
   Box,
   useMediaQuery,
   useTheme,
-  Container,
   alpha,
   ButtonBase,
 } from "@mui/material";
@@ -91,14 +88,14 @@ export default function AppLayout({
               selected={currentPage === item.id}
               onClick={() => handleNavigate(item.id)}
               sx={{
-                borderRadius: "14px",
+                borderRadius: "16px",
                 mx: 0.5,
                 my: 0.25,
-                transition: "all 0.2s ease",
+                transition: "all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)",
                 "&.Mui-selected": {
                   background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)}, ${alpha(theme.palette.primary.dark, 0.9)})`,
                   color: theme.palette.primary.contrastText,
-                  boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                  boxShadow: `0 4px 16px ${alpha(theme.palette.primary.main, 0.35)}`,
                   "&:hover": {
                     background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                   },
@@ -118,7 +115,7 @@ export default function AppLayout({
                     currentPage === item.id
                       ? "inherit"
                       : theme.palette.text.secondary,
-                  transition: "color 0.2s ease",
+                  transition: "color 0.25s ease",
                 }}
               >
                 {item.icon}
@@ -139,170 +136,160 @@ export default function AppLayout({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* ════════════════════════════════════════════
-          APP BAR — Glassmorphism
+          APP BAR — Floating island pill
           ════════════════════════════════════════════ */}
-      <AppBar
-        position="sticky"
-        elevation={0}
+      <Box
         sx={{
-          background: isDarkMode
-            ? "rgba(17, 16, 20, 0.72)"
-            : "rgba(255, 255, 255, 0.68)",
-          backdropFilter: "blur(20px) saturate(1.8)",
-          WebkitBackdropFilter: "blur(20px) saturate(1.8)",
-          color: theme.palette.text.primary,
-          borderBottom: "1px solid",
-          borderColor: isDarkMode
-            ? "rgba(255,255,255,0.06)"
-            : "rgba(103,80,164,0.08)",
+          position: "fixed",
+          top: 12,
+          left: 0,
+          right: 0,
+          zIndex: 1100,
+          display: "flex",
+          justifyContent: "center",
+          px: 2,
+          pointerEvents: "none",
         }}
       >
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ minHeight: { xs: 56, md: 64 } }}>
-            {isMobile && (
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={toggleDrawer}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            px: { xs: 1.5, sm: 2 },
+            py: 0.6,
+            borderRadius: "22px",
+            backgroundColor: isDarkMode
+              ? "rgba(22, 22, 28, 0.75)"
+              : "rgba(255, 255, 255, 0.65)",
+            backdropFilter: "blur(24px) saturate(1.8)",
+            WebkitBackdropFilter: "blur(24px) saturate(1.8)",
+            border: "1px solid",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.08)"
+              : "rgba(103,80,164,0.1)",
+            boxShadow: isDarkMode
+              ? "0 4px 24px rgba(0,0,0,0.3)"
+              : "0 4px 24px rgba(0,0,0,0.06)",
+            pointerEvents: "auto",
+          }}
+        >
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer}
+              size="small"
+              sx={{ borderRadius: "14px" }}
+            >
+              <MenuIcon fontSize="small" />
+            </IconButton>
+          )}
 
-            {/* Logo */}
-            <Box sx={{ flexGrow: 1 }}>
-              <ButtonBase
-                disableRipple
-                onClick={() => handleNavigate("home")}
+          {/* Logo */}
+          {!isMobile && (
+            <ButtonBase
+              disableRipple
+              onClick={() => handleNavigate("home")}
+              sx={{ borderRadius: "14px", px: 0.7, py: 0.3 }}
+            >
+              <Box
+                component="img"
+                src={Logo}
+                alt="SYORI"
+                sx={{ height: 34 }}
+              />
+            </ButtonBase>
+          )}
+
+          {/* Desktop Nav */}
+          {!isMobile &&
+            menuItems.map((item) => {
+              const isActive = currentPage === item.id;
+              return (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <IconButton
+                    color="inherit"
+                    onClick={() => handleNavigate(item.id)}
+                    sx={{
+                      borderRadius: "14px",
+                      px: 1.6,
+                      py: 0.7,
+                      mx: 0.1,
+                      backgroundColor: isActive
+                        ? alpha(theme.palette.primary.main, 0.15)
+                        : "transparent",
+                      color: isActive
+                        ? theme.palette.primary.main
+                        : theme.palette.text.secondary,
+                      transition:
+                        "all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
+                      "&:hover": {
+                        backgroundColor: alpha(
+                          theme.palette.primary.main,
+                          isActive ? 0.22 : 0.1,
+                        ),
+                        color: theme.palette.primary.main,
+                      },
+                    }}
+                  >
+                    {item.icon}
+                    <Typography
+                      variant="button"
+                      sx={{
+                        ml: 0.8,
+                        fontWeight: isActive ? 700 : 500,
+                        fontSize: "0.78rem",
+                        letterSpacing: "0.03em",
+                      }}
+                    >
+                      {item.label}
+                    </Typography>
+                  </IconButton>
+                </motion.div>
+              );
+            })}
+
+          {/* Theme Controls */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
+            <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
+              <IconButton
+                onClick={onThemeToggle}
+                size="small"
                 sx={{
-                  borderRadius: 3,
-                  px: 1,
-                  py: 0.5,
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  },
                 }}
               >
-                <Box
-                  component="img"
-                  src={Logo}
-                  alt="SYORI"
-                  sx={{
-                    height: 40,
-                  }}
-                />
-              </ButtonBase>
-            </Box>
+                {isDarkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
+              </IconButton>
+            </motion.div>
 
-            {/* Desktop Nav */}
-            {!isMobile && (
-              <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-                {menuItems.map((item) => {
-                  const isActive = currentPage === item.id;
-                  return (
-                    <motion.div
-                      key={item.id}
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <IconButton
-                        color="inherit"
-                        onClick={() => handleNavigate(item.id)}
-                        sx={{
-                          borderRadius: "12px",
-                          px: 2,
-                          py: 1,
-                          mx: 0.25,
-                          position: "relative",
-                          overflow: "hidden",
-                          backgroundColor: isActive
-                            ? alpha(theme.palette.primary.main, 0.1)
-                            : "transparent",
-                          color: isActive
-                            ? theme.palette.primary.main
-                            : theme.palette.text.secondary,
-                          transition: "all 0.25s ease",
-                          "&:hover": {
-                            backgroundColor: alpha(
-                              theme.palette.primary.main,
-                              0.06,
-                            ),
-                            color: theme.palette.primary.main,
-                          },
-                        }}
-                      >
-                        {item.icon}
-                        <Typography
-                          variant="button"
-                          sx={{
-                            ml: 0.8,
-                            fontWeight: isActive ? 700 : 500,
-                            fontSize: "0.8rem",
-                            letterSpacing: "0.03em",
-                          }}
-                        >
-                          {item.label}
-                        </Typography>
-                        {/* Active Indicator Dot */}
-                        {isActive && (
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              bottom: 4,
-                              width: 20,
-                              height: 3,
-                              borderRadius: "2px",
-                              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                            }}
-                          />
-                        )}
-                      </IconButton>
-                    </motion.div>
-                  );
-                })}
-              </Box>
-            )}
-
-            {/* Theme Controls */}
-            <Box
-              sx={{ display: "flex", alignItems: "center", ml: 1, gap: 0.5 }}
-            >
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <IconButton
-                  onClick={onThemeToggle}
-                  color="inherit"
-                  size="small"
-                  sx={{
-                    borderRadius: "12px",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                    },
-                  }}
-                >
-                  {isDarkMode ? <LightMode /> : <DarkMode />}
-                </IconButton>
-              </motion.div>
-
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <IconButton
-                  onClick={onOpenThemeSettings}
-                  color="inherit"
-                  size="small"
-                  sx={{
-                    borderRadius: "12px",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.08),
-                    },
-                  }}
-                >
-                  <Palette />
-                </IconButton>
-              </motion.div>
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
+            <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
+              <IconButton
+                onClick={onOpenThemeSettings}
+                size="small"
+                sx={{
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  },
+                }}
+              >
+                <Palette fontSize="small" />
+              </IconButton>
+            </motion.div>
+          </Box>
+        </Box>
+      </Box>
 
       {/* Mobile Drawer */}
       <Drawer
@@ -312,14 +299,15 @@ export default function AppLayout({
         sx={{
           "& .MuiDrawer-paper": {
             backgroundColor: isDarkMode
-              ? "rgba(20, 20, 26, 0.95)"
-              : "rgba(255, 255, 255, 0.92)",
-            backdropFilter: "blur(20px) saturate(1.8)",
-            WebkitBackdropFilter: "blur(20px) saturate(1.8)",
+              ? "rgba(20, 20, 26, 0.96)"
+              : "rgba(255, 255, 255, 0.94)",
+            backdropFilter: "blur(24px) saturate(1.6)",
+            WebkitBackdropFilter: "blur(24px) saturate(1.6)",
             borderRight: "1px solid",
             borderColor: isDarkMode
               ? "rgba(255,255,255,0.06)"
               : "rgba(103,80,164,0.08)",
+            borderRadius: "0 24px 24px 0",
           },
         }}
       >

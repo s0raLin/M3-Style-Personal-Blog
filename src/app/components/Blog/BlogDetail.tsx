@@ -681,14 +681,14 @@ export default function BlogDetail({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, mb: 4 }}>
+        <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, mb: 4, borderRadius: "24px" }}>
           {post.coverImage && (
             <Box
               sx={{
                 mx: -5,
                 mt: -5,
                 mb: 4,
-                borderRadius: "12px 12px 0 0",
+                borderRadius: "20px 20px 0 0",
                 overflow: "hidden",
               }}
             >
@@ -701,7 +701,7 @@ export default function BlogDetail({
             </Box>
           )}
 
-          <Chip label={post.category} color="primary" sx={{ mb: 2 }} />
+          <Chip label={post.category} color="primary" sx={{ mb: 2, borderRadius: "12px" }} />
           <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, mb: 2 }}>
             {post.title}
           </Typography>
@@ -812,7 +812,7 @@ export default function BlogDetail({
                 label={tag}
                 size="small"
                 sx={{
-                  borderRadius: "8px",
+                  borderRadius: "10px",
                   fontWeight: 500,
                   // ✅ 原来硬编码 rgba(255,255,255,0.08) / rgba(0,0,0,0.05)
                   // 现在改用 action.hover，随主题自动适配
