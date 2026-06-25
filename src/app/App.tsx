@@ -68,27 +68,42 @@ function AppContent({
   const location = useLocation();
   const [themeSettingsOpen, setThemeSettingsOpen] = useState(false);
 
+  const pathname = location.pathname;
+
   return (
     <AppLayout
-      currentPage={location.pathname.split("/")[1] || "home"}
-      onNavigate={(page) => navigate(`/${page}`)}
+      currentPage={pathname.startsWith("/blog") ? "blog" : pathname.startsWith("/gallery") ? "gallery" : pathname.startsWith("/about") ? "about" : "home"}
+      onNavigate={(page) => {
+        if (page === "home") {
+          // Scroll to hero if on landing, else navigate
+          if (pathname === "/" || pathname === "/home") {
+            (window as any).__scrollToHero?.();
+            return;
+          }
+        }
+        navigate(`/${page}`);
+      }}
       onThemeToggle={handleThemeToggle}
       isDarkMode={isDarkMode}
       onOpenThemeSettings={() => setThemeSettingsOpen(true)}
     >
       <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route
-          path="/home"
-          element={
-            <Home
-              onNavigate={(page) => navigate(`/${page}`)}
-              onSelectPost={(post) => navigate(`/blog/${post.id}`)}
-              posts={posts}
-              categories={categories}
-            />
-          }
-        />
+        <Route path="/" element={
+          <Home
+            onNavigate={(page) => navigate(`/${page}`)}
+            onSelectPost={(post: BlogPost) => navigate(`/blog/${post.id}`)}
+            posts={posts}
+            categories={categories}
+          />
+        } />
+        <Route path="/home" element={
+          <Home
+            onNavigate={(page) => navigate(`/${page}`)}
+            onSelectPost={(post: BlogPost) => navigate(`/blog/${post.id}`)}
+            posts={posts}
+            categories={categories}
+          />
+        } />
         <Route
           path="/blog"
           element={

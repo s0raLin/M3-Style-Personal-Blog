@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Typography,
   IconButton,
@@ -53,7 +53,22 @@ export default function AppLayout({
   onOpenThemeSettings,
 }: AppLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const theme = useTheme();
+
+  // Show mini player on home page after scrolling past Hero
+  useEffect(() => {
+    if (currentPage !== "home") {
+      setScrolledPastHero(true);
+      return;
+    }
+    const onScroll = () => {
+      setScrolledPastHero(window.scrollY > window.innerHeight * 0.75);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [currentPage]);
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const toggleDrawer = () => {
@@ -428,7 +443,7 @@ export default function AppLayout({
         {/* ════════════════════════════════════════════
             BOTTOM PLAYER BAR (non-home, sticky)
             ════════════════════════════════════════════ */}
-        {currentPage !== "home" && (
+        {(currentPage !== "home" || scrolledPastHero) && (
           <Box
             sx={{
               position: "sticky",
