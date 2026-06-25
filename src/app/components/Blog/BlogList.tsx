@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -399,7 +399,17 @@ export default function BlogList({
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
-  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
+  const [viewMode, setViewMode] = useState<"list" | "grid">(() => {
+    try {
+      const saved = localStorage.getItem("m3blog_viewMode");
+      if (saved === "list" || saved === "grid") return saved;
+    } catch {}
+    return "grid";
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem("m3blog_viewMode", viewMode); } catch {}
+  }, [viewMode]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("全部");
   const [selectedTag, setSelectedTag] = useState("全部");

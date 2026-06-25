@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -32,7 +32,17 @@ export default function Home({
 }: HomeProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
-  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
+  const [viewMode, setViewMode] = useState<"list" | "grid">(() => {
+    try {
+      const saved = localStorage.getItem("m3blog_viewMode");
+      if (saved === "list" || saved === "grid") return saved;
+    } catch {}
+    return "grid";
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem("m3blog_viewMode", viewMode); } catch {}
+  }, [viewMode]);
 
   const recentPosts = posts.slice(0, 6);
   const totalWords = posts.reduce(
