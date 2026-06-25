@@ -348,18 +348,12 @@ const AudioPlayer = memo(function AudioPlayer({
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              backgroundColor: isDarkMode
-                ? onAccentContainer
-                : primaryMain,
-              color: isDarkMode
-                ? alpha(onAccentContainer, 0.9)
-                : "#ffffff",
+              backgroundColor: primaryMain,
+              color: isDarkMode ? "rgba(255, 255, 255, 0.92)" : "#ffffff",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
               transition: "background-color 0.2s ease",
               "&:hover": {
-                backgroundColor: isDarkMode
-                  ? primaryMain
-                  : primaryDark,
+                backgroundColor: primaryDark,
               },
             }}
           >

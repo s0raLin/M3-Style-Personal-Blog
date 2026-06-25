@@ -56,13 +56,13 @@ export function MD3ECard({
   const catBg = alpha(theme.palette.primary.main, 0.85);
   const catColor = theme.palette.primary.contrastText;
 
-  // ── Tag chip colors (secondary container) ──
+  // ── Tag chip colors (primary container) ──
   const tagBg = isDark
-    ? alpha(theme.palette.secondary.main, 0.12)
-    : alpha(theme.palette.secondary.main, 0.08);
+    ? alpha(theme.palette.primary.main, 0.28)
+    : alpha(theme.palette.primary.main, 0.1);
   const tagColor = isDark
-    ? theme.palette.secondary.light
-    : theme.palette.secondary.dark;
+    ? "#ffffff"
+    : theme.palette.primary.dark;
 
   if (variant === "list") {
     return (

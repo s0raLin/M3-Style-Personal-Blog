@@ -25,7 +25,7 @@ import {
   Palette,
 } from "@mui/icons-material";
 import { motion } from "motion/react";
-import Logo from "@/assets/logo.svg";
+import Logo from "@/assets/mitsuki.png";
 import MiniPlayer from "./MiniPlayer";
 
 interface AppLayoutProps {
@@ -295,7 +295,7 @@ export default function AppLayout({
                 component="img"
                 src={Logo}
                 alt="SYORI"
-                sx={{ height: 34 }}
+                sx={{ height: 48 }}
               />
             </ButtonBase>
 
