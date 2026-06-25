@@ -3,23 +3,19 @@ import {
   Container,
   Typography,
   Box,
-  Chip,
   useTheme,
   alpha,
-  Stack,
   ToggleButtonGroup,
   ToggleButton,
-  ButtonBase,
 } from "@mui/material";
 import {
-  CalendarToday,
   ViewList,
   GridView,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "motion/react";
 import { BlogPost } from "../../types/blog";
-import ImagePlaceholder from "../Common/ImagePlaceholder";
 import Hero from "./Hero";
+import { MD3ECard } from "../Blog/BlogList";
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -39,15 +35,18 @@ export default function Home({
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   const recentPosts = posts.slice(0, 6);
-  const totalWords = posts.reduce((sum, p) => sum + (p.content?.length || 0), 0);
+  const totalWords = posts.reduce(
+    (sum, p) => sum + (p.content?.length || 0),
+    0,
+  );
   const estimatedReadingWords = Math.round(totalWords / 400);
 
-  const containerBg = isDarkMode
-    ? alpha(theme.palette.primary.main, 0.03)
-    : alpha(theme.palette.primary.main, 0.02);
-  const itemHoverBg = isDarkMode
-    ? alpha(theme.palette.primary.main, 0.06)
-    : alpha(theme.palette.primary.main, 0.04);
+  const gridColumns = { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" };
+
+  // ── MD3E surface tokens ──
+  const surfaceContainer = isDarkMode
+    ? alpha(theme.palette.background.paper, 0.45)
+    : alpha(theme.palette.primary.main, 0.03);
 
   return (
     <Box sx={{ overflowX: "hidden" }}>
@@ -58,7 +57,7 @@ export default function Home({
         totalReadingMinutes={estimatedReadingWords}
       />
 
-      <Container maxWidth="md" sx={{ py: { xs: 5, md: 7 } }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 5, md: 7 } }}>
         {/* ── Header Row ── */}
         <Box
           sx={{
@@ -74,7 +73,7 @@ export default function Home({
             <Box
               sx={{
                 width: 4,
-                height: 20,
+                height: 24,
                 borderRadius: 2,
                 background: `linear-gradient(180deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
               }}
@@ -84,7 +83,7 @@ export default function Home({
               sx={{
                 fontWeight: 700,
                 letterSpacing: "-0.02em",
-                fontSize: "1.1rem",
+                fontSize: "1.15rem",
                 color: "text.primary",
               }}
             >
@@ -129,133 +128,35 @@ export default function Home({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: 0.2 }}
             >
               <Box
                 sx={{
-                  borderRadius: "24px",
+                  borderRadius: "20px",
                   overflow: "hidden",
-                  backgroundColor: containerBg,
-                  border: "1px solid",
-                  borderColor: theme.palette.divider,
+                  backgroundColor: surfaceContainer,
+                  border: `1px solid ${theme.palette.divider}`,
                   boxShadow: isDarkMode
-                    ? "0 1px 3px rgba(0,0,0,0.2)"
-                    : "0 1px 3px rgba(0,0,0,0.04)",
+                    ? "0 1px 3px rgba(0,0,0,0.15)"
+                    : "0 1px 3px rgba(0,0,0,0.03)",
                 }}
               >
                 {recentPosts.map((post, idx) => (
                   <motion.div
                     key={post.id}
-                    initial={{ opacity: 0, x: -8 }}
+                    initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{
                       duration: 0.3,
-                      delay: idx * 0.05,
+                      delay: idx * 0.04,
                       ease: [0.16, 1, 0.3, 1],
                     }}
                   >
-                    <ButtonBase
-                      onClick={() => onSelectPost(post)}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        px: 2.5,
-                        py: 1.8,
-                        textAlign: "left",
-                        width: "100%",
-                        borderBottom:
-                          idx < recentPosts.length - 1
-                            ? `1px solid ${theme.palette.divider}`
-                            : "none",
-                        transition: "background-color 0.2s ease",
-                        "&:hover": { backgroundColor: itemHoverBg },
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 56,
-                          height: 56,
-                          borderRadius: "12px",
-                          overflow: "hidden",
-                          flexShrink: 0,
-                          bgcolor: isDarkMode
-                            ? "rgba(255,255,255,0.05)"
-                            : "rgba(0,0,0,0.04)",
-                        }}
-                      >
-                        <ImagePlaceholder
-                          src={post.coverImage}
-                          alt={post.title}
-                          height={56}
-                          category={post.category}
-                        />
-                      </Box>
-
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "0.9rem",
-                            lineHeight: 1.4,
-                            color: "text.primary",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            letterSpacing: "0.1px",
-                          }}
-                        >
-                          {post.title}
-                        </Typography>
-                        <Stack
-                          direction="row"
-                          spacing={1.5}
-                          alignItems="center"
-                          sx={{ mt: 0.5 }}
-                        >
-                          <CalendarToday
-                            sx={{ fontSize: 12, color: "text.disabled" }}
-                          />
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: "text.secondary",
-                              fontSize: "0.7rem",
-                              fontWeight: 400,
-                            }}
-                          >
-                            {post.date}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: "text.disabled",
-                              fontSize: "0.7rem",
-                              fontWeight: 400,
-                            }}
-                          >
-                            · {post.readTime}
-                          </Typography>
-                        </Stack>
-                      </Box>
-
-                      {post.category && (
-                        <Chip
-                          label={post.category}
-                          size="small"
-                          sx={{
-                            height: 24,
-                            borderRadius: "8px",
-                            fontWeight: 700,
-                            fontSize: "0.68rem",
-                            backgroundColor: alpha(theme.palette.primary.main, isDarkMode ? 0.12 : 0.1),
-                            color: theme.palette.primary.main,
-                            border: "none",
-                            "& .MuiChip-label": { px: 1 },
-                          }}
-                        />
-                      )}
-                    </ButtonBase>
+                    <MD3ECard
+                      post={post}
+                      onSelectPost={onSelectPost}
+                      variant="list"
+                    />
                   </motion.div>
                 ))}
               </Box>
@@ -266,119 +167,31 @@ export default function Home({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: 0.2 }}
             >
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" },
-                  gap: { xs: 1.5, sm: 2 },
+                  gridTemplateColumns: gridColumns,
+                  gap: 2.5,
                 }}
               >
                 {recentPosts.map((post, idx) => (
                   <motion.div
                     key={post.id}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      duration: 0.25,
-                      delay: idx * 0.04,
+                      duration: 0.3,
+                      delay: idx * 0.05,
                       ease: [0.16, 1, 0.3, 1],
                     }}
                   >
-                    <ButtonBase
-                      onClick={() => onSelectPost(post)}
-                      sx={{
-                        display: "block",
-                        overflow: "hidden",
-                        borderRadius: "12px",
-                        textAlign: "left",
-                        border: "1px solid",
-                        borderColor: theme.palette.divider,
-                        backgroundColor: theme.palette.background.paper,
-                        width: "100%",
-                        transition: "box-shadow 0.25s ease",
-                        "&:hover": {
-                          boxShadow: isDarkMode
-                            ? "0px 2px 6px 2px rgba(0,0,0,0.3), 0px 1px 2px rgba(0,0,0,0.3)"
-                            : "0px 2px 6px 2px rgba(0,0,0,0.15), 0px 1px 2px rgba(0,0,0,0.3)",
-                        },
-                      }}
-                    >
-                      <Box sx={{ position: "relative", overflow: "hidden" }}>
-                        <ImagePlaceholder
-                          src={post.coverImage}
-                          alt={post.title}
-                          height={140}
-                          category={post.category}
-                        />
-                        <Chip
-                          label={post.category}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 8,
-                            left: 8,
-                            height: 24,
-                            borderRadius: "8px",
-                            fontWeight: 700,
-                            fontSize: "0.68rem",
-                            backgroundColor: alpha(theme.palette.primary.main, 0.85),
-                            color: theme.palette.primary.contrastText,
-                            backdropFilter: "blur(8px)",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-                            "& .MuiChip-label": { px: 1 },
-                          }}
-                        />
-                      </Box>
-
-                      <Box sx={{ px: 2, py: 1.5 }}>
-                        <Typography
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "0.85rem",
-                            lineHeight: 1.35,
-                            letterSpacing: "0.1px",
-                            color: "text.primary",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            mb: 0.6,
-                          }}
-                        >
-                          {post.title}
-                        </Typography>
-
-                        <Stack
-                          direction="row"
-                          spacing={1.5}
-                          alignItems="center"
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: "text.secondary",
-                              fontSize: "0.65rem",
-                              fontWeight: 400,
-                            }}
-                          >
-                            {post.date}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: "text.disabled",
-                              fontSize: "0.65rem",
-                              fontWeight: 400,
-                            }}
-                          >
-                            · {post.readTime}
-                          </Typography>
-                        </Stack>
-                      </Box>
-                    </ButtonBase>
+                    <MD3ECard
+                      post={post}
+                      onSelectPost={onSelectPost}
+                      variant="grid"
+                    />
                   </motion.div>
                 ))}
               </Box>

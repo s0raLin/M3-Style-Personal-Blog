@@ -12,6 +12,8 @@ import Gallery from "./components/Gallery/Gallery";
 import About from "./components/About/About";
 import ThemeSettings from "./components/Settings/ThemeSettings";
 import { BlogPost } from "./types/blog";
+import { AudioProvider } from "./service/AudioContext";
+import ScrollToTop from "./components/Common/ScrollToTop";
 import {
   staticPosts,
   galleryImages,
@@ -26,9 +28,6 @@ import {
   useParams,
   useLocation,
 } from "react-router-dom";
-
-import ScrollToTop from "./components/Common/ScrollToTop";
-
 
 const BlogDetailWrapper = ({
   posts,
@@ -174,16 +173,18 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Toaster position="top-center" richColors />
-        <AppContent
-          posts={posts}
-          categories={categories}
-          images={images}
-          isDarkMode={isDarkMode}
-          sourceColor={sourceColor}
-          handleColorChange={handleColorChange}
-          handleDarkModeChange={handleDarkModeChange}
-          handleThemeToggle={handleThemeToggle}
-        />
+        <AudioProvider>
+          <AppContent
+            posts={posts}
+            categories={categories}
+            images={images}
+            isDarkMode={isDarkMode}
+            sourceColor={sourceColor}
+            handleColorChange={handleColorChange}
+            handleDarkModeChange={handleDarkModeChange}
+            handleThemeToggle={handleThemeToggle}
+          />
+        </AudioProvider>
       </ThemeProvider>
     </HashRouter>
   );

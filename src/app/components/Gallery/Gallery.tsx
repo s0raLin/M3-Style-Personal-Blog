@@ -53,16 +53,26 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
       {/* ── M3 Headline ── */}
       <Box sx={{ mb: 3 }}>
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 700, letterSpacing: "-0.02em", mb: 1 }}
-        >
-          图库
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+          <Box
+            sx={{
+              width: 4,
+              height: 24,
+              borderRadius: 2,
+              background: `linear-gradient(180deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            }}
+          />
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 700, letterSpacing: "-0.02em" }}
+          >
+            图库
+          </Typography>
+        </Box>
+        <Typography variant="body1" color="text.secondary" sx={{ ml: 2.8 }}>
           记录生活中的美好瞬间
         </Typography>
       </Box>

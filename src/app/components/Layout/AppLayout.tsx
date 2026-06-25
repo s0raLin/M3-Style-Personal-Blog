@@ -26,6 +26,7 @@ import {
 } from "@mui/icons-material";
 import { motion } from "motion/react";
 import Logo from "@/assets/logo.svg";
+import MiniPlayer from "./MiniPlayer";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -136,7 +137,7 @@ export default function AppLayout({
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* ════════════════════════════════════════════
-          APP BAR — Floating island pill
+          APP BAR — Floating island pill(s)
           ════════════════════════════════════════════ */}
       <Box
         sx={{
@@ -146,35 +147,36 @@ export default function AppLayout({
           right: 0,
           zIndex: 1100,
           display: "flex",
-          justifyContent: "center",
+          justifyContent: isMobile ? "space-between" : "center",
           px: 2,
           pointerEvents: "none",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            px: { xs: 1.5, sm: 2 },
-            py: 0.6,
-            borderRadius: "22px",
-            backgroundColor: isDarkMode
-              ? "rgba(22, 22, 28, 0.75)"
-              : "rgba(255, 255, 255, 0.65)",
-            backdropFilter: "blur(24px) saturate(1.8)",
-            WebkitBackdropFilter: "blur(24px) saturate(1.8)",
-            border: "1px solid",
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.08)"
-              : "rgba(103,80,164,0.1)",
-            boxShadow: isDarkMode
-              ? "0 4px 24px rgba(0,0,0,0.3)"
-              : "0 4px 24px rgba(0,0,0,0.06)",
-            pointerEvents: "auto",
-          }}
-        >
-          {isMobile && (
+        {/* ── Mobile: Left island (nav) ── */}
+        {isMobile && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              px: 1.5,
+              py: 0.6,
+              borderRadius: "22px",
+              backgroundColor: isDarkMode
+                ? "rgba(22, 22, 28, 0.75)"
+                : "rgba(255, 255, 255, 0.65)",
+              backdropFilter: "blur(24px) saturate(1.8)",
+              WebkitBackdropFilter: "blur(24px) saturate(1.8)",
+              border: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(103,80,164,0.1)",
+              boxShadow: isDarkMode
+                ? "0 4px 24px rgba(0,0,0,0.3)"
+                : "0 4px 24px rgba(0,0,0,0.06)",
+              pointerEvents: "auto",
+            }}
+          >
             <IconButton
               color="inherit"
               aria-label="menu"
@@ -184,10 +186,106 @@ export default function AppLayout({
             >
               <MenuIcon fontSize="small" />
             </IconButton>
-          )}
+            <Typography
+              variant="button"
+              sx={{
+                fontWeight: 700,
+                fontSize: "0.78rem",
+                letterSpacing: "0.03em",
+                color: "text.primary",
+                pr: 0.5,
+              }}
+            >
+              {menuItems.find((m) => m.id === currentPage)?.label || "首页"}
+            </Typography>
+          </Box>
+        )}
 
-          {/* Logo */}
-          {!isMobile && (
+        {/* ── Mobile: Right island (theme controls) ── */}
+        {isMobile && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.3,
+              px: 1.5,
+              py: 0.6,
+              borderRadius: "22px",
+              backgroundColor: isDarkMode
+                ? "rgba(22, 22, 28, 0.75)"
+                : "rgba(255, 255, 255, 0.65)",
+              backdropFilter: "blur(24px) saturate(1.8)",
+              WebkitBackdropFilter: "blur(24px) saturate(1.8)",
+              border: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(103,80,164,0.1)",
+              boxShadow: isDarkMode
+                ? "0 4px 24px rgba(0,0,0,0.3)"
+                : "0 4px 24px rgba(0,0,0,0.06)",
+              pointerEvents: "auto",
+            }}
+          >
+            <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
+              <IconButton
+                onClick={onThemeToggle}
+                size="small"
+                sx={{
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  },
+                }}
+              >
+                {isDarkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
+              </IconButton>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
+              <IconButton
+                onClick={onOpenThemeSettings}
+                size="small"
+                sx={{
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  },
+                }}
+              >
+                <Palette fontSize="small" />
+              </IconButton>
+            </motion.div>
+          </Box>
+        )}
+
+        {/* ── Desktop: Single centered island ── */}
+        {!isMobile && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              px: 2,
+              py: 0.6,
+              borderRadius: "22px",
+              backgroundColor: isDarkMode
+                ? "rgba(22, 22, 28, 0.75)"
+                : "rgba(255, 255, 255, 0.65)",
+              backdropFilter: "blur(24px) saturate(1.8)",
+              WebkitBackdropFilter: "blur(24px) saturate(1.8)",
+              border: "1px solid",
+              borderColor: isDarkMode
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(103,80,164,0.1)",
+              boxShadow: isDarkMode
+                ? "0 4px 24px rgba(0,0,0,0.3)"
+                : "0 4px 24px rgba(0,0,0,0.06)",
+              pointerEvents: "auto",
+            }}
+          >
+            {/* Logo */}
             <ButtonBase
               disableRipple
               onClick={() => handleNavigate("home")}
@@ -200,11 +298,9 @@ export default function AppLayout({
                 sx={{ height: 34 }}
               />
             </ButtonBase>
-          )}
 
-          {/* Desktop Nav */}
-          {!isMobile &&
-            menuItems.map((item) => {
+            {/* Desktop Nav */}
+            {menuItems.map((item) => {
               const isActive = currentPage === item.id;
               return (
                 <motion.div
@@ -254,41 +350,42 @@ export default function AppLayout({
               );
             })}
 
-          {/* Theme Controls */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
-            <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
-              <IconButton
-                onClick={onThemeToggle}
-                size="small"
-                sx={{
-                  borderRadius: "12px",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                  },
-                }}
-              >
-                {isDarkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
-              </IconButton>
-            </motion.div>
+            {/* Theme Controls */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
+              <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
+                <IconButton
+                  onClick={onThemeToggle}
+                  size="small"
+                  sx={{
+                    borderRadius: "12px",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                    },
+                  }}
+                >
+                  {isDarkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
+                </IconButton>
+              </motion.div>
 
-            <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
-              <IconButton
-                onClick={onOpenThemeSettings}
-                size="small"
-                sx={{
-                  borderRadius: "12px",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                  },
-                }}
-              >
-                <Palette fontSize="small" />
-              </IconButton>
-            </motion.div>
+              <motion.div whileHover={{ scale: 1.12 }} whileTap={{ scale: 0.9 }}>
+                <IconButton
+                  onClick={onOpenThemeSettings}
+                  size="small"
+                  sx={{
+                    borderRadius: "12px",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                    },
+                  }}
+                >
+                  <Palette fontSize="small" />
+                </IconButton>
+              </motion.div>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
 
       {/* Mobile Drawer */}
@@ -319,12 +416,67 @@ export default function AppLayout({
         component="main"
         sx={{
           flexGrow: 1,
+          pt: currentPage === "home" ? 0 : "72px",
+          pb: currentPage !== "home" ? "64px" : 0,
           backgroundColor: theme.palette.background.default,
           minHeight: "100vh",
         }}
       >
         {children}
       </Box>
+
+      {/* ════════════════════════════════════════════
+          BOTTOM PLAYER BAR (non-home pages only)
+          ════════════════════════════════════════════ */}
+      {currentPage !== "home" && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1100,
+            px: { xs: 0.5, sm: 1 },
+            pb: { xs: 0.5, sm: 1 },
+            pointerEvents: "none",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              pointerEvents: "auto",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 0.8, sm: 1.5 },
+                px: { xs: 1, sm: 1.5 },
+                py: { xs: 1, sm: 1.2 },
+                borderRadius: "20px",
+                width: "100%",
+                maxWidth: 520,
+                backgroundColor: isDarkMode
+                  ? "rgba(22, 22, 28, 0.82)"
+                  : "rgba(255, 255, 255, 0.72)",
+                backdropFilter: "blur(24px) saturate(2)",
+                WebkitBackdropFilter: "blur(24px) saturate(2)",
+                border: "1px solid",
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(103,80,164,0.1)",
+                boxShadow: isDarkMode
+                  ? "0 -4px 24px rgba(0,0,0,0.35)"
+                  : "0 -4px 24px rgba(0,0,0,0.06)",
+              }}
+            >
+              <MiniPlayer />
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }

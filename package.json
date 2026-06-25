@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "new-post": "tsx ./scripts/new-blog.ts new",
-    "build": "vite build",
+    "generate-playlist": "tsx ./scripts/generate-playlist.ts",
+    "build": "npm run generate-playlist && vite build",
     "dev:web": "vite",
     "dev:server": "pnpm --dir server dev",
     "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:server\""
