@@ -269,9 +269,9 @@ export default function Hero({
           top: "8%",
           width: { xs: 280, md: 500 },
           height: { xs: 280, md: 500 },
-          filter: "blur(95px)",
-          opacity: 0.38,
-          animation: "blob-morph-1 18s ease-in-out infinite",
+          filter: { xs: "blur(50px)", md: "blur(95px)" },
+          opacity: { xs: 0.22, md: 0.38 },
+          animation: { xs: "none", md: "blob-morph-1 18s ease-in-out infinite" },
           background:
             "radial-gradient(circle at 50% 50%, #00ffcc, rgba(0,255,204,0.15) 60%, transparent 80%)",
           pointerEvents: "none",
@@ -285,9 +285,9 @@ export default function Hero({
           top: "-5%",
           width: { xs: 340, md: 580 },
           height: { xs: 340, md: 580 },
-          filter: "blur(115px)",
-          opacity: 0.42,
-          animation: "blob-morph-2 22s ease-in-out infinite",
+          filter: { xs: "blur(50px)", md: "blur(115px)" },
+          opacity: { xs: 0.22, md: 0.42 },
+          animation: { xs: "none", md: "blob-morph-2 22s ease-in-out infinite" },
           background:
             "radial-gradient(circle at 50% 50%, #4a3fbf, rgba(74,63,191,0.15) 60%, transparent 80%)",
           pointerEvents: "none",
@@ -301,9 +301,9 @@ export default function Hero({
           top: "35%",
           width: { xs: 290, md: 520 },
           height: { xs: 290, md: 520 },
-          filter: "blur(90px)",
-          opacity: 0.32,
-          animation: "blob-morph-3 20s ease-in-out infinite",
+          filter: { xs: "blur(50px)", md: "blur(90px)" },
+          opacity: { xs: 0.22, md: 0.32 },
+          animation: { xs: "none", md: "blob-morph-3 20s ease-in-out infinite" },
           background:
             "radial-gradient(circle at 50% 50%, #ff1493, rgba(255,20,147,0.15) 60%, transparent 80%)",
           pointerEvents: "none",
@@ -314,6 +314,7 @@ export default function Hero({
       {/* ── Grain overlay ── */}
       <Box
         sx={{
+          display: { xs: "none", md: "block" },
           position: "absolute",
           inset: 0,
           opacity: 0.015,
