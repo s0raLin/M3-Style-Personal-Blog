@@ -71,6 +71,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [isSeeking, setIsSeeking] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const rafIdRef = useRef<number>(0);
+  const lastTimeRef = useRef(0);
   const song = songs[currentIdx] ?? null;
 
   // ── Persist index ──
@@ -89,26 +91,35 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // ── Load source when song changes ──
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !song) return;
-    const src = `${import.meta.env.BASE_URL}${song.file}`;
-    audio.src = src;
-    audio.load();
-    setCurrentTime(0);
-    setDuration(song.duration || 0);
-    setIsPlaying(false);
-  }, [song]);
-
-  // ── Attach event listeners ──
+  // ── rAF loop replaces timeupdate event (avoids excessive re-renders) ──
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onTimeUpdate = () => {
-      if (!isSeeking) setCurrentTime(audio.currentTime);
+    let running = true;
+
+    const tick = () => {
+      if (!running) return;
+      const ct = audio.currentTime;
+      if (Math.abs(ct - lastTimeRef.current) > 0.05) {
+        lastTimeRef.current = ct;
+        setCurrentTime(ct);
+      }
+      rafIdRef.current = requestAnimationFrame(tick);
     };
+
+    rafIdRef.current = requestAnimationFrame(tick);
+    return () => {
+      running = false;
+      cancelAnimationFrame(rafIdRef.current);
+    };
+  }, [songs.length, isSeeking]);
+
+  // ── Attach event listeners (no timeupdate) ──
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
     const onLoadedMetadata = () => {
       if (Number.isFinite(audio.duration) && audio.duration > 0) {
         setDuration(audio.duration);
@@ -123,14 +134,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       if (!audio.ended) setIsPlaying(false);
     };
 
-    audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
 
     return () => {
-      audio.removeEventListener("timeupdate", onTimeUpdate);
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("play", onPlay);
@@ -159,6 +168,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   }, [songs.length]);
 
   const seek = useCallback((t: number) => {
+    lastTimeRef.current = t;
     setCurrentTime(t);
     if (audioRef.current) {
       audioRef.current.currentTime = t;

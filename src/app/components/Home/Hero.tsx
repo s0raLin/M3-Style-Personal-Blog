@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, useMemo, memo, type ReactNode } from "react";
 import { Box, useTheme, alpha } from "@mui/material";
 import { motion } from "motion/react";
 import {
@@ -129,6 +129,370 @@ interface HeroProps {
   totalReadingMinutes?: number;
 }
 
+const AudioPlayer = memo(function AudioPlayer({
+  isDarkMode,
+  songs,
+  currentIdx,
+  song,
+  isPlaying,
+  currentTime,
+  duration,
+  progressPct,
+  togglePlay,
+  prevSong,
+  nextSong,
+  seek,
+  fmtTime,
+  onAccentContainer,
+  textPrimary,
+  textSecondary,
+  textTertiary,
+  surfaceContainerInner,
+  borderInner,
+  primaryMain,
+  primaryDark,
+  alpha,
+}: {
+  isDarkMode: boolean;
+  songs: { length: number }[] | any[];
+  currentIdx: number;
+  song: { title: string; artist: string; duration: number } | null;
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  progressPct: number;
+  togglePlay: () => void;
+  prevSong: () => void;
+  nextSong: () => void;
+  seek: (t: number) => void;
+  fmtTime: (sec: number) => string;
+  onAccentContainer: string;
+  textPrimary: string;
+  textSecondary: string;
+  textTertiary: string;
+  surfaceContainerInner: string;
+  borderInner: string;
+  primaryMain: string;
+  primaryDark: string;
+  alpha: (color: string, opacity: number) => string;
+}) {
+  const [isSeeking, setIsSeeking] = useState(false);
+  const [seekTime, setSeekTime] = useState(0);
+
+  const handleSeekStart = () => {
+    setIsSeeking(true);
+    setSeekTime(currentTime);
+  };
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSeekTime(Number(e.target.value));
+  };
+  const handleSeekEnd = () => {
+    setIsSeeking(false);
+    seek(seekTime);
+  };
+
+  const displayCurrentTime = isSeeking ? seekTime : currentTime;
+  const displayProgressPct = isSeeking
+    ? duration > 0
+      ? (seekTime / duration) * 100
+      : 0
+    : progressPct;
+
+  const displayTitle = song?.title ?? "夜に駆ける";
+  const displayArtist = song?.artist ?? "YOASOBI";
+  const displayDuration = fmtTime(duration || song?.duration || 194);
+  const hasSongs = songs.length > 0;
+
+  return (
+    <Box
+      sx={{
+        p: 2.5,
+        borderRadius: "20px",
+        backgroundColor: surfaceContainerInner,
+        border: `1px solid ${borderInner}`,
+        mb: 3.5,
+      }}
+    >
+      {/* Now Playing header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <MusicNote
+            sx={{
+              fontSize: 16,
+              color: onAccentContainer,
+            }}
+          />
+          <Box
+            sx={{
+              fontSize: "0.72rem",
+              fontWeight: 500,
+              color: textTertiary,
+              letterSpacing: "0.05em",
+            }}
+          >
+            NOW PLAYING
+            {songs.length > 1
+              ? ` · ${currentIdx + 1}/${songs.length}`
+              : ""}
+          </Box>
+        </Box>
+
+        {/* Audio visualizer bars */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 0.3,
+            alignItems: "center",
+            height: 12,
+          }}
+        >
+          {[1.2, 2.2, 1.5, 2.5].map((speed, i) => (
+            <Box
+              key={i}
+              sx={{
+                width: 2,
+                height: 12,
+                backgroundColor: isPlaying
+                  ? onAccentContainer
+                  : alpha(onAccentContainer, 0.15),
+                borderRadius: 1,
+                transformOrigin: "bottom",
+                animation: isPlaying
+                  ? `bar-pulse ${speed}s ease-in-out infinite`
+                  : "none",
+              }}
+            />
+          ))}
+        </Box>
+      </Box>
+
+      {/* Track info + controls row */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          my: 1,
+        }}
+      >
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Box
+            sx={{
+              fontWeight: 600,
+              fontSize: "1.05rem",
+              color: textPrimary,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {displayTitle}
+          </Box>
+          <Box
+            sx={{
+              fontWeight: 400,
+              fontSize: "0.8rem",
+              color: textSecondary,
+              mt: 0.4,
+            }}
+          >
+            {displayArtist}
+          </Box>
+        </Box>
+
+        {/* Controls: prev | play/pause | next */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          {/* Prev */}
+          <Box
+            onClick={hasSongs ? prevSong : undefined}
+            component={motion.div}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.92 }}
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: hasSongs ? "pointer" : "default",
+              opacity: hasSongs ? 1 : 0.35,
+              color: textSecondary,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: hasSongs
+                  ? alpha(onAccentContainer, 0.12)
+                  : "transparent",
+              },
+            }}
+          >
+            <SkipPrevious sx={{ fontSize: 20 }} />
+          </Box>
+
+          {/* Play/Pause */}
+          <Box
+            onClick={togglePlay}
+            component={motion.div}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.96 }}
+            sx={{
+              width: 46,
+              height: 46,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              backgroundColor: isDarkMode
+                ? onAccentContainer
+                : primaryMain,
+              color: isDarkMode
+                ? alpha(onAccentContainer, 0.9)
+                : "#ffffff",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              transition: "background-color 0.2s ease",
+              "&:hover": {
+                backgroundColor: isDarkMode
+                  ? primaryMain
+                  : primaryDark,
+              },
+            }}
+          >
+            {isPlaying ? (
+              <Pause sx={{ fontSize: 22 }} />
+            ) : (
+              <PlayArrow sx={{ fontSize: 22, ml: 0.2 }} />
+            )}
+          </Box>
+
+          {/* Next */}
+          <Box
+            onClick={hasSongs ? nextSong : undefined}
+            component={motion.div}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.92 }}
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: hasSongs ? "pointer" : "default",
+              opacity: hasSongs ? 1 : 0.35,
+              color: textSecondary,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: hasSongs
+                  ? alpha(onAccentContainer, 0.12)
+                  : "transparent",
+              },
+            }}
+          >
+            <SkipNext sx={{ fontSize: 20 }} />
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Draggable Progress bar */}
+      <Box sx={{ mt: 3 }}>
+        <Box
+          sx={{
+            position: "relative",
+            height: 20,
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+            "& input[type=range]": {
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              opacity: 0,
+              cursor: "pointer",
+              margin: 0,
+              zIndex: 2,
+            },
+          }}
+        >
+          {/* Visual track */}
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: 4,
+              borderRadius: 2,
+              backgroundColor: isDarkMode
+                ? "rgba(255, 255, 255, 0.08)"
+                : "rgba(0, 0, 0, 0.06)",
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: 0,
+                width: `${displayProgressPct}%`,
+                backgroundColor: onAccentContainer,
+                borderRadius: 2,
+              }}
+            />
+          </Box>
+
+          <Box
+            component="input"
+            type="range"
+            min={0}
+            max={duration || 1}
+            step={0.1}
+            value={displayCurrentTime}
+            onMouseDown={handleSeekStart}
+            onTouchStart={handleSeekStart}
+            onChange={handleSeekChange}
+            onMouseUp={handleSeekEnd}
+            onTouchEnd={handleSeekEnd}
+          />
+        </Box>
+
+        {/* Time labels */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mt: 1,
+            px: 0.2,
+          }}
+        >
+          <Box
+            sx={{
+              fontSize: "0.7rem",
+              fontWeight: 500,
+              color: textTertiary,
+            }}
+          >
+            {fmtTime(displayCurrentTime)}
+          </Box>
+          <Box
+            sx={{
+              fontSize: "0.7rem",
+              fontWeight: 500,
+              color: textTertiary,
+            }}
+          >
+            {displayDuration}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+});
+
 export default function Hero({
   onNavigate,
   posts,
@@ -201,50 +565,57 @@ export default function Hero({
     ? "rgba(255, 255, 255, 0.92)"
     : "rgba(0, 0, 0, 0.88)";
 
-  // Play button colors
-  const playBtnBg = isDarkMode
-    ? theme.palette.primary.light || "#a8c7fa"
-    : theme.palette.primary.main;
-  const playBtnText = isDarkMode
-    ? alpha(theme.palette.primary.dark || "#0c315a", 0.9)
-    : "#ffffff";
-  const playBtnHover = isDarkMode
-    ? theme.palette.primary.main
-    : theme.palette.primary.dark || "#1a73e8";
-
-  // Progress bar
-  const progressTrack = isDarkMode
-    ? "rgba(255, 255, 255, 0.08)"
-    : "rgba(0, 0, 0, 0.06)";
-
-  // ── Local seek state ──
-  const [isSeeking, setIsSeeking] = useState(false);
-  const [seekTime, setSeekTime] = useState(0);
-
-  const handleSeekStart = () => {
-    setIsSeeking(true);
-    setSeekTime(currentTime);
-  };
-  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSeekTime(Number(e.target.value));
-  };
-  const handleSeekEnd = () => {
-    setIsSeeking(false);
-    seek(seekTime);
-  };
-
-  const displayCurrentTime = isSeeking ? seekTime : currentTime;
-  const displayProgressPct = isSeeking
-    ? duration > 0
-      ? (seekTime / duration) * 100
-      : 0
-    : progressPct;
-
-  // Display values
-  const displayTitle = song?.title ?? "夜に駆ける";
-  const displayArtist = song?.artist ?? "YOASOBI";
-  const displayDuration = fmtTime(duration || song?.duration || 194);
-  const hasSongs = songs.length > 0;
+  // ── AudioPlayer memo props ──
+  const audioPlayerProps = useMemo(
+    () => ({
+      isDarkMode,
+      songs,
+      currentIdx,
+      song,
+      isPlaying,
+      currentTime,
+      duration,
+      progressPct,
+      togglePlay,
+      prevSong,
+      nextSong,
+      seek,
+      fmtTime,
+      onAccentContainer,
+      textPrimary,
+      textSecondary,
+      textTertiary,
+      surfaceContainerInner,
+      borderInner,
+      primaryMain: theme.palette.primary.main,
+      primaryDark: theme.palette.primary.dark || "#1a73e8",
+      alpha,
+    }),
+    [
+      isDarkMode,
+      songs,
+      currentIdx,
+      song,
+      isPlaying,
+      currentTime,
+      duration,
+      progressPct,
+      togglePlay,
+      prevSong,
+      nextSong,
+      seek,
+      fmtTime,
+      onAccentContainer,
+      textPrimary,
+      textSecondary,
+      textTertiary,
+      surfaceContainerInner,
+      borderInner,
+      theme.palette.primary.main,
+      theme.palette.primary.dark,
+      alpha,
+    ],
+  );
 
   return (
     <Box
@@ -262,16 +633,16 @@ export default function Hero({
       <style>{md3eKeyframes}</style>
 
       {/* ═══ Vibrant Liquid Blob Background ═══ */}
-      <Box
-        sx={{
-          position: "absolute",
-          left: "5%",
-          top: "8%",
-          width: { xs: 280, md: 500 },
-          height: { xs: 280, md: 500 },
-          filter: { xs: "blur(50px)", md: "blur(95px)" },
-          opacity: { xs: 0.22, md: 0.38 },
-          animation: { xs: "none", md: "blob-morph-1 18s ease-in-out infinite" },
+    <Box
+      sx={{
+        position: "absolute",
+        left: "5%",
+        top: "8%",
+        width: { xs: 200, md: 500 },
+        height: { xs: 200, md: 500 },
+        filter: { xs: "blur(30px)", md: "blur(95px)" },
+        opacity: { xs: 0.12, md: 0.38 },
+        animation: { xs: "none", md: "blob-morph-1 18s ease-in-out infinite" },
           background:
             "radial-gradient(circle at 50% 50%, #00ffcc, rgba(0,255,204,0.15) 60%, transparent 80%)",
           pointerEvents: "none",
@@ -283,10 +654,10 @@ export default function Hero({
           position: "absolute",
           left: "50%",
           top: "-5%",
-          width: { xs: 340, md: 580 },
-          height: { xs: 340, md: 580 },
-          filter: { xs: "blur(50px)", md: "blur(115px)" },
-          opacity: { xs: 0.22, md: 0.42 },
+          width: { xs: 260, md: 580 },
+          height: { xs: 260, md: 580 },
+          filter: { xs: "blur(30px)", md: "blur(115px)" },
+          opacity: { xs: 0.12, md: 0.42 },
           animation: { xs: "none", md: "blob-morph-2 22s ease-in-out infinite" },
           background:
             "radial-gradient(circle at 50% 50%, #4a3fbf, rgba(74,63,191,0.15) 60%, transparent 80%)",
@@ -299,10 +670,10 @@ export default function Hero({
           position: "absolute",
           left: "25%",
           top: "35%",
-          width: { xs: 290, md: 520 },
-          height: { xs: 290, md: 520 },
-          filter: { xs: "blur(50px)", md: "blur(90px)" },
-          opacity: { xs: 0.22, md: 0.32 },
+          width: { xs: 220, md: 520 },
+          height: { xs: 220, md: 520 },
+          filter: { xs: "blur(30px)", md: "blur(90px)" },
+          opacity: { xs: 0.12, md: 0.32 },
           animation: { xs: "none", md: "blob-morph-3 20s ease-in-out infinite" },
           background:
             "radial-gradient(circle at 50% 50%, #ff1493, rgba(255,20,147,0.15) 60%, transparent 80%)",
@@ -393,287 +764,11 @@ export default function Hero({
             borderRadius: "32px",
             backgroundColor: surfaceContainer,
             border: `1px solid ${borderColor}`,
-            backdropFilter: "blur(24px) saturate(1.2)",
+            backdropFilter: { xs: "none", md: "blur(24px) saturate(1.2)" },
             boxShadow: shadowCard,
           }}
         >
-          {/* ── Nested Audio Component ── */}
-          <Box
-            sx={{
-              p: 2.5,
-              borderRadius: "20px",
-              backgroundColor: surfaceContainerInner,
-              border: `1px solid ${borderInner}`,
-              mb: 3.5,
-            }}
-          >
-            {/* Now Playing header */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <MusicNote
-                  sx={{
-                    fontSize: 16,
-                    color: onAccentContainer,
-                  }}
-                />
-                <Box
-                  sx={{
-                    fontSize: "0.72rem",
-                    fontWeight: 500,
-                    color: textTertiary,
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  NOW PLAYING
-                  {songs.length > 1 ? ` · ${currentIdx + 1}/${songs.length}` : ""}
-                </Box>
-              </Box>
-
-              {/* Audio visualizer bars */}
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 0.3,
-                  alignItems: "center",
-                  height: 12,
-                }}
-              >
-                {[1.2, 2.2, 1.5, 2.5].map((speed, i) => (
-                  <Box
-                    key={i}
-                    sx={{
-                      width: 2,
-                      height: 12,
-                      backgroundColor: isPlaying
-                        ? onAccentContainer
-                        : alpha(onAccentContainer, 0.15),
-                      borderRadius: 1,
-                      transformOrigin: "bottom",
-                      animation: isPlaying
-                        ? `bar-pulse ${speed}s ease-in-out infinite`
-                        : "none",
-                    }}
-                  />
-                ))}
-              </Box>
-            </Box>
-
-            {/* Track info + controls row */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                my: 1,
-              }}
-            >
-              <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Box
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: "1.05rem",
-                    color: textPrimary,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  {displayTitle}
-                </Box>
-                <Box
-                  sx={{
-                    fontWeight: 400,
-                    fontSize: "0.8rem",
-                    color: textSecondary,
-                    mt: 0.4,
-                  }}
-                >
-                  {displayArtist}
-                </Box>
-              </Box>
-
-              {/* Controls: prev | play/pause | next */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                {/* Prev */}
-                <Box
-                  onClick={hasSongs ? prevSong : undefined}
-                  component={motion.div}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.92 }}
-                  sx={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: hasSongs ? "pointer" : "default",
-                    opacity: hasSongs ? 1 : 0.35,
-                    color: textSecondary,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: hasSongs
-                        ? alpha(onAccentContainer, 0.12)
-                        : "transparent",
-                    },
-                  }}
-                >
-                  <SkipPrevious sx={{ fontSize: 20 }} />
-                </Box>
-
-                {/* Play/Pause */}
-                <Box
-                  onClick={togglePlay}
-                  component={motion.div}
-                  whileHover={{ scale: 1.06 }}
-                  whileTap={{ scale: 0.96 }}
-                  sx={{
-                    width: 46,
-                    height: 46,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    backgroundColor: playBtnBg,
-                    color: playBtnText,
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                    transition: "background-color 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: playBtnHover,
-                    },
-                  }}
-                >
-                  {isPlaying ? (
-                    <Pause sx={{ fontSize: 22 }} />
-                  ) : (
-                    <PlayArrow sx={{ fontSize: 22, ml: 0.2 }} />
-                  )}
-                </Box>
-
-                {/* Next */}
-                <Box
-                  onClick={hasSongs ? nextSong : undefined}
-                  component={motion.div}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.92 }}
-                  sx={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: hasSongs ? "pointer" : "default",
-                    opacity: hasSongs ? 1 : 0.35,
-                    color: textSecondary,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: hasSongs
-                        ? alpha(onAccentContainer, 0.12)
-                        : "transparent",
-                    },
-                  }}
-                >
-                  <SkipNext sx={{ fontSize: 20 }} />
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Draggable Progress bar */}
-            <Box sx={{ mt: 3 }}>
-              <Box
-                sx={{
-                  position: "relative",
-                  height: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
-                  "& input[type=range]": {
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    opacity: 0,
-                    cursor: "pointer",
-                    margin: 0,
-                    zIndex: 2,
-                  },
-                }}
-              >
-                {/* Visual track */}
-                <Box
-                  sx={{
-                    position: "relative",
-                    width: "100%",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: progressTrack,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      left: 0,
-                      width: `${displayProgressPct}%`,
-                      backgroundColor: onAccentContainer,
-                      borderRadius: 2,
-                    }}
-                  />
-                </Box>
-
-                <Box
-                  component="input"
-                  type="range"
-                  min={0}
-                  max={duration || 1}
-                  step={0.1}
-                  value={displayCurrentTime}
-                  onMouseDown={handleSeekStart}
-                  onTouchStart={handleSeekStart}
-                  onChange={handleSeekChange}
-                  onMouseUp={handleSeekEnd}
-                  onTouchEnd={handleSeekEnd}
-                />
-              </Box>
-
-              {/* Time labels */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mt: 1,
-                  px: 0.2,
-                }}
-              >
-                <Box
-                  sx={{
-                    fontSize: "0.7rem",
-                    fontWeight: 500,
-                    color: textTertiary,
-                  }}
-                >
-                  {fmtTime(displayCurrentTime)}
-                </Box>
-                <Box
-                  sx={{
-                    fontSize: "0.7rem",
-                    fontWeight: 500,
-                    color: textTertiary,
-                  }}
-                >
-                  {displayDuration}
-                </Box>
-              </Box>
-            </Box>
-          </Box>
+          <AudioPlayer {...audioPlayerProps} />
 
           {/* ── Action Row ── */}
           <Box
