@@ -445,18 +445,18 @@ export default function AppLayout({
             sx={{
               display: "flex",
               justifyContent: "center",
-              pointerEvents: "auto",
+              pointerEvents: "none",
             }}
           >
             <Box
               sx={{
+                pointerEvents: "auto",
                 display: "flex",
                 alignItems: "center",
                 gap: { xs: 0.8, sm: 1.5 },
                 px: { xs: 1, sm: 1.5 },
                 py: { xs: 1, sm: 1.2 },
                 borderRadius: "20px",
-                width: "100%",
                 maxWidth: 520,
                 backgroundColor: isDarkMode
                   ? "rgba(22, 22, 28, 0.82)"

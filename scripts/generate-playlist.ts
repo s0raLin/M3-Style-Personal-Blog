@@ -1,11 +1,9 @@
 /**
- * Build-time script: scans public/audio/ and generates/updates playlist.json.
+ * Build-time script: scans public/audio/ and regenerates playlist.json.
  * Run: npx tsx scripts/generate-playlist.ts
  *
- * Playlist entries can be hand-tuned in src/app/data/playlist.json for
- * title / artist / cover / duration fields.  This script only adds new
- * audio files that aren't already in the json – it never overwrites
- * existing entries so your manual edits are safe.
+ * This script always regenerates the playlist from scratch, preserving any
+ * manual edits made to existing entries (title, artist, cover) when possible.
  */
 
 import fs from "fs";
@@ -27,7 +25,6 @@ interface Song {
   cover: string;
 }
 
-// ─── read existing playlist ────────────────────────────────────────
 function loadPlaylist(): Song[] {
   if (!fs.existsSync(PLAYLIST_PATH)) return [];
   try {
@@ -41,7 +38,6 @@ function savePlaylist(list: Song[]) {
   fs.writeFileSync(PLAYLIST_PATH, JSON.stringify(list, null, 2) + "\n");
 }
 
-// ─── attempt to get duration via ffprobe ────────────────────────────
 function getDurationSec(filePath: string): number {
   try {
     const out = execSync(
@@ -64,39 +60,40 @@ if (!fs.existsSync(AUDIO_DIR)) {
   process.exit(0);
 }
 
+const oldPlaylist = loadPlaylist();
+// Build lookup: bare filename -> old entry
+const oldByFile = new Map<string, Song>();
+for (const s of oldPlaylist) {
+  const bare = s.file.replace(/^audio\//, "");
+  oldByFile.set(bare, s);
+}
+
 const files = fs
   .readdirSync(AUDIO_DIR)
   .filter((f) => audioExts.includes(path.extname(f).toLowerCase()));
 
-const playlist = loadPlaylist();
-const existingFiles = new Set(playlist.map((s) => s.file));
-let added = 0;
+const newPlaylist: Song[] = [];
+let idx = 0;
 
 for (const file of files) {
-  if (existingFiles.has(file)) continue;
-
+  const old = oldByFile.get(file);
   const nameWithoutExt = path.basename(file, path.extname(file));
   const duration =
-    getDurationSec(path.join(AUDIO_DIR, file)) || 194; // fallback
+    getDurationSec(path.join(AUDIO_DIR, file)) || old?.duration || 194;
 
-  const song: Song = {
-    id: String(playlist.length + added + 1),
-    title: nameWithoutExt,
-    artist: "Unknown",
+  newPlaylist.push({
+    id: old?.id ?? String(idx + 1),
+    title: old?.title ?? nameWithoutExt,
+    artist: old?.artist ?? "Unknown",
     file: `audio/${file}`,
     duration,
-    cover: "",
-  };
-
-  playlist.push(song);
-  existingFiles.add(file);
-  added++;
-  console.log(` + added: ${file}  (${duration}s)`);
+    cover: old?.cover ?? "",
+  });
+  idx++;
 }
 
-if (added === 0) {
-  console.log(" Playlist is up to date. No new files.");
-} else {
-  savePlaylist(playlist);
-  console.log(` Done. ${added} new song(s), ${playlist.length} total.`);
-}
+// Remove old entries whose files no longer exist (already handled by rebuilding)
+
+savePlaylist(newPlaylist);
+console.log(` Regenerated playlist: ${newPlaylist.length} song(s).`);
+newPlaylist.forEach((s) => console.log(`   ${s.artist} - ${s.title}  (${s.duration}s)`));
