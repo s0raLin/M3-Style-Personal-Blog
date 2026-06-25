@@ -91,6 +91,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // ── Load source when song changes ──
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !song) return;
+    const src = `${import.meta.env.BASE_URL}${song.file}`;
+    audio.src = src;
+    audio.load();
+    lastTimeRef.current = 0;
+    setCurrentTime(0);
+    setDuration(song.duration || 0);
+    setIsPlaying(false);
+  }, [song]);
+
   // ── rAF loop replaces timeupdate event (avoids excessive re-renders) ──
   useEffect(() => {
     const audio = audioRef.current;
