@@ -396,10 +396,10 @@ export default function AppLayout({
         sx={{
           "& .MuiDrawer-paper": {
             backgroundColor: isDarkMode
-              ? "rgba(20, 20, 26, 0.96)"
-              : "rgba(255, 255, 255, 0.94)",
-            backdropFilter: "blur(24px) saturate(1.6)",
-            WebkitBackdropFilter: "blur(24px) saturate(1.6)",
+              ? "rgba(20, 20, 26, 0.98)"
+              : "rgba(255, 255, 255, 0.98)",
+            backdropFilter: { xs: "none", md: "blur(24px) saturate(1.6)" },
+            WebkitBackdropFilter: { xs: "none", md: "blur(24px) saturate(1.6)" },
             borderRight: "1px solid",
             borderColor: isDarkMode
               ? "rgba(255,255,255,0.06)"
