@@ -1192,7 +1192,7 @@ export default function BlogDetail({
           onClick={scrollToTop}
           sx={{
             position: "fixed",
-            bottom: { xs: 24, md: 32 },
+            bottom: { xs: 70, md: 80 },
             right: { xs: 24, md: 32 },
             borderRadius: "16px",
             // 原 rgba(103,80,164,0.2) → theme callback

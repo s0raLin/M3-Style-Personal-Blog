@@ -417,66 +417,63 @@ export default function AppLayout({
         sx={{
           flexGrow: 1,
           pt: currentPage === "home" ? 0 : "72px",
-          pb: currentPage !== "home" ? "64px" : 0,
           backgroundColor: theme.palette.background.default,
+          display: "flex",
+          flexDirection: "column",
           minHeight: "100vh",
         }}
       >
-        {children}
-      </Box>
+        <Box sx={{ flex: 1 }}>{children}</Box>
 
-      {/* ════════════════════════════════════════════
-          BOTTOM PLAYER BAR (non-home pages only)
-          ════════════════════════════════════════════ */}
-      {currentPage !== "home" && (
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 1100,
-            px: { xs: 0.5, sm: 1 },
-            pb: { xs: 0.5, sm: 1 },
-            pointerEvents: "none",
-          }}
-        >
+        {/* ════════════════════════════════════════════
+            BOTTOM PLAYER BAR (non-home, sticky)
+            ════════════════════════════════════════════ */}
+        {currentPage !== "home" && (
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "center",
-              pointerEvents: "none",
+              position: "sticky",
+              bottom: 0,
+              zIndex: 10,
+              px: { xs: 0.5, sm: 1 },
+              pb: { xs: 0.5, sm: 1 },
             }}
           >
             <Box
               sx={{
-                pointerEvents: "auto",
                 display: "flex",
-                alignItems: "center",
-                gap: { xs: 0.8, sm: 1.5 },
-                px: { xs: 1, sm: 1.5 },
-                py: { xs: 1, sm: 1.2 },
-                borderRadius: "20px",
-                maxWidth: 520,
-                backgroundColor: isDarkMode
-                  ? "rgba(22, 22, 28, 0.82)"
-                  : "rgba(255, 255, 255, 0.72)",
-                backdropFilter: "blur(24px) saturate(2)",
-                WebkitBackdropFilter: "blur(24px) saturate(2)",
-                border: "1px solid",
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(103,80,164,0.1)",
-                boxShadow: isDarkMode
-                  ? "0 -4px 24px rgba(0,0,0,0.35)"
-                  : "0 -4px 24px rgba(0,0,0,0.06)",
+                justifyContent: "center",
               }}
             >
-              <MiniPlayer />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: { xs: 0.8, sm: 1.5 },
+                  px: { xs: 1, sm: 1.5 },
+                  py: { xs: 1, sm: 1.2 },
+                  borderRadius: "20px",
+                  maxWidth: 520,
+                  width: "100%",
+                  backgroundColor: isDarkMode
+                    ? "rgba(22, 22, 28, 0.82)"
+                    : "rgba(255, 255, 255, 0.72)",
+                  backdropFilter: "blur(24px) saturate(2)",
+                  WebkitBackdropFilter: "blur(24px) saturate(2)",
+                  border: "1px solid",
+                  borderColor: isDarkMode
+                    ? "rgba(255,255,255,0.08)"
+                    : "rgba(103,80,164,0.1)",
+                  boxShadow: isDarkMode
+                    ? "0 -4px 24px rgba(0,0,0,0.35)"
+                    : "0 -4px 24px rgba(0,0,0,0.06)",
+                }}
+              >
+                <MiniPlayer />
+              </Box>
             </Box>
           </Box>
-        </Box>
-      )}
+        )}
+      </Box>
     </Box>
   );
 }
