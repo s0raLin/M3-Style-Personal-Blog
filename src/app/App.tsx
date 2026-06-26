@@ -48,7 +48,8 @@ const BlogDetailWrapper = ({
   return (
     <BlogDetail
       post={post}
-      onBack={() => navigate(-1)}
+      posts={posts}
+      onBack={() => navigate("/blog")}
       isDarkMode={isDarkMode}
     />
   );
