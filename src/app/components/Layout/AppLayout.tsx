@@ -27,6 +27,7 @@ import {
 import { motion } from "motion/react";
 import Logo from "@/assets/mitsuki.png";
 import MiniPlayer from "./MiniPlayer";
+import SongDetailPanel from "./SongDetailPanel";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -54,6 +55,7 @@ export default function AppLayout({
 }: AppLayoutProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  const [songDetailOpen, setSongDetailOpen] = useState(false);
   const theme = useTheme();
 
   // Show mini player on home page after scrolling past Hero
@@ -483,11 +485,17 @@ export default function AppLayout({
                     : "0 -4px 24px rgba(0,0,0,0.06)",
                 }}
               >
-                <MiniPlayer />
+                <MiniPlayer onOpenDetail={() => setSongDetailOpen(true)} />
               </Box>
             </Box>
           </Box>
         )}
+
+        {/* Song Detail Panel */}
+        <SongDetailPanel
+          open={songDetailOpen}
+          onClose={() => setSongDetailOpen(false)}
+        />
       </Box>
     </Box>
   );

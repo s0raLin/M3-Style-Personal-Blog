@@ -9,6 +9,20 @@ import {
 } from "react";
 import playlist from "../data/playlist.json";
 
+export interface SongMeta {
+  title: string;
+  artist: string;
+  album?: string;
+  year?: string;
+  genre?: string;
+  cover: string;
+}
+
+export interface LyricLine {
+  time: number; // seconds
+  text: string;
+}
+
 export interface Song {
   id: string;
   title: string;
@@ -16,6 +30,9 @@ export interface Song {
   file: string;
   duration: number;
   cover: string;
+  folder: string;
+  lyricsPath: string;
+  meta: SongMeta;
 }
 
 interface AudioContextType {
@@ -32,6 +49,9 @@ interface AudioContextType {
   seek: (t: number) => void;
   fmtTime: (sec: number) => string;
   setCurrentIdx: (idx: number) => void;
+  lyrics: LyricLine[];
+  currentLyricIdx: number;
+  isLyricsLoading: boolean;
 }
 
 const AudioCtx = createContext<AudioContextType | null>(null);
@@ -61,6 +81,27 @@ function saveIdx(idx: number) {
   } catch {}
 }
 
+// ── LRC Parser ─────────────────────────────────────────────────────
+function parseLRC(lrcText: string): LyricLine[] {
+  const lines: LyricLine[] = [];
+  const tagRegex = /^\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
+  for (const raw of lrcText.split("\n")) {
+    const line = raw.trim();
+    const match = line.match(tagRegex);
+    if (!match) continue;
+    const min = parseInt(match[1], 10);
+    const sec = parseInt(match[2], 10);
+    let ms = parseInt(match[3], 10);
+    if (match[3].length === 3) ms = ms / 10; // hundredths -> milliseconds, divide by 10 to get centiseconds equivalent
+    const time = min * 60 + sec + ms / 100;
+    const text = match[4].trim();
+    if (text) {
+      lines.push({ time, text });
+    }
+  }
+  return lines.sort((a, b) => a.time - b.time);
+}
+
 export function AudioProvider({ children }: { children: ReactNode }) {
   const songs = (playlist && playlist.length > 0 ? playlist : []) as Song[];
 
@@ -69,6 +110,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
+
+  // Lyrics state
+  const [lyrics, setLyrics] = useState<LyricLine[]>([]);
+  const [isLyricsLoading, setIsLyricsLoading] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafIdRef = useRef<number>(0);
@@ -102,6 +147,26 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     setCurrentTime(0);
     setDuration(song.duration || 0);
     setIsPlaying(false);
+
+    // Load lyrics
+    if (song.lyricsPath) {
+      setIsLyricsLoading(true);
+      fetch(`${import.meta.env.BASE_URL}${song.lyricsPath}`)
+        .then((r) => r.text())
+        .then((text) => {
+          const parsed = parseLRC(text);
+          setLyrics(parsed);
+        })
+        .catch(() => {
+          setLyrics([]);
+        })
+        .finally(() => {
+          setIsLyricsLoading(false);
+        });
+    } else {
+      setLyrics([]);
+      setIsLyricsLoading(false);
+    }
   }, [song]);
 
   // ── rAF loop replaces timeupdate event (avoids excessive re-renders) ──
@@ -195,6 +260,20 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  // ── Track current lyric line based on currentTime ──
+  const currentLyricIdx = (() => {
+    if (lyrics.length === 0) return -1;
+    let idx = -1;
+    for (let i = 0; i < lyrics.length; i++) {
+      if (currentTime >= lyrics[i].time) {
+        idx = i;
+      } else {
+        break;
+      }
+    }
+    return idx;
+  })();
+
   const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
@@ -213,6 +292,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         seek,
         fmtTime,
         setCurrentIdx,
+        lyrics,
+        currentLyricIdx,
+        isLyricsLoading,
       }}
     >
       {children}

@@ -25,7 +25,11 @@ import {
 import { motion } from "motion/react";
 import { useAudio } from "../../service/AudioContext";
 
-export default function MiniPlayer() {
+interface MiniPlayerProps {
+  onOpenDetail: () => void;
+}
+
+export default function MiniPlayer({ onOpenDetail }: MiniPlayerProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const {
@@ -76,8 +80,9 @@ export default function MiniPlayer() {
           gap: { xs: 0.8, sm: 1.5 },
         }}
       >
-        {/* Left: cover icon + track info (swipe to change song) */}
+        {/* Left: cover icon + track info (click to open detail, swipe to change song) */}
         <Box
+          onClick={onOpenDetail}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           sx={{
@@ -87,23 +92,41 @@ export default function MiniPlayer() {
             minWidth: 0,
             flex: 1,
             touchAction: "pan-y",
+            cursor: "pointer",
+            "&:hover": {
+              "& .mini-cover": {
+                transform: "scale(1.05)",
+              },
+            },
           }}
         >
-          <Box
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              backgroundColor: alpha(accentColor, isDark ? 0.15 : 0.1),
-              border: `1.5px solid ${alpha(accentColor, 0.25)}`,
-            }}
-          >
-            <MusicNote sx={{ fontSize: 18, color: accentColor }} />
-          </Box>
+              <Box
+                className="mini-cover"
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  backgroundColor: alpha(accentColor, isDark ? 0.15 : 0.1),
+                  border: `1.5px solid ${alpha(accentColor, 0.25)}`,
+                  transition: "transform 0.2s ease",
+                  overflow: "hidden",
+                }}
+              >
+                {song.cover ? (
+                  <Box
+                    component="img"
+                    src={`${import.meta.env.BASE_URL}${song.cover}`}
+                    alt={song.title}
+                    sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <MusicNote sx={{ fontSize: 18, color: accentColor }} />
+                )}
+              </Box>
           <Box sx={{ minWidth: 0 }}>
             <Typography
               variant="body2"

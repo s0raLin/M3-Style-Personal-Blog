@@ -1,37 +1,44 @@
 /**
- * Build-time script: scans public/audio/ and regenerates playlist.json.
- * Run: npx tsx scripts/generate-playlist.ts
+ * Build-time script: scans public/music/ folders and regenerates playlist.json.
+ * Each song is a folder under public/music/ containing:
+ *   - metadata.json  (title, artist, album, year, genre, cover filename)
+ *   - lyrics.lrc     (LRC lyrics file)
+ *   - cover.{jpg,png} (album art)
+ *   - song file      (the actual audio file, symlinked or placed directly)
  *
- * This script always regenerates the playlist from scratch, preserving any
- * manual edits made to existing entries (title, artist, cover) when possible.
+ * Run: npx tsx scripts/generate-playlist.ts
  */
 
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
 
+const MUSIC_DIR = path.resolve(import.meta.dirname, "../public/music");
 const AUDIO_DIR = path.resolve(import.meta.dirname, "../public/audio");
 const PLAYLIST_PATH = path.resolve(
   import.meta.dirname,
   "../src/app/data/playlist.json",
 );
 
+interface SongMeta {
+  title: string;
+  artist: string;
+  album?: string;
+  year?: string;
+  genre?: string;
+  cover: string;
+}
+
 interface Song {
   id: string;
   title: string;
   artist: string;
   file: string;
-  duration: number; // seconds
+  duration: number;
   cover: string;
-}
-
-function loadPlaylist(): Song[] {
-  if (!fs.existsSync(PLAYLIST_PATH)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(PLAYLIST_PATH, "utf-8"));
-  } catch {
-    return [];
-  }
+  folder: string;
+  lyricsPath: string;
+  meta: SongMeta;
 }
 
 function savePlaylist(list: Song[]) {
@@ -52,48 +59,135 @@ function getDurationSec(filePath: string): number {
   }
 }
 
-// ─── main ───────────────────────────────────────────────────────────
 const audioExts = [".mp3", ".wav", ".ogg", ".flac", ".m4a", ".aac", ".opus"];
 
-if (!fs.existsSync(AUDIO_DIR)) {
-  console.log(" public/audio/ does not exist – nothing to do.");
+// Find audio file in a folder or fall back to public/audio/
+function findAudioFile(folderName: string): string | null {
+  const folderPath = path.join(MUSIC_DIR, folderName);
+
+  // First, look for audio files directly in the music folder
+  if (fs.existsSync(folderPath)) {
+    const files = fs.readdirSync(folderPath);
+    const audioFile = files.find((f) =>
+      audioExts.includes(path.extname(f).toLowerCase()),
+    );
+    if (audioFile) {
+      return `music/${folderName}/${audioFile}`;
+    }
+  }
+
+  // Fallback: search in public/audio/ for a file whose name contains the folder name
+  if (fs.existsSync(AUDIO_DIR)) {
+    const audioFiles = fs.readdirSync(AUDIO_DIR);
+    const match = audioFiles.find(
+      (f) =>
+        audioExts.includes(path.extname(f).toLowerCase()) &&
+        (f.includes(folderName) ||
+          decodeURIComponent(f).includes(decodeURIComponent(folderName)) ||
+          folderName.includes(
+            path.basename(f, path.extname(f)).split(" - ")[0],
+          )),
+    );
+    if (match) {
+      return `audio/${match}`;
+    }
+  }
+
+  return null;
+}
+
+// ─── main ───────────────────────────────────────────────────────────
+
+if (!fs.existsSync(MUSIC_DIR)) {
+  console.log(" public/music/ does not exist – nothing to do.");
   process.exit(0);
 }
 
-const oldPlaylist = loadPlaylist();
-// Build lookup: bare filename -> old entry
-const oldByFile = new Map<string, Song>();
-for (const s of oldPlaylist) {
-  const bare = s.file.replace(/^audio\//, "");
-  oldByFile.set(bare, s);
-}
+const folders = fs
+  .readdirSync(MUSIC_DIR)
+  .filter((f) => fs.statSync(path.join(MUSIC_DIR, f)).isDirectory());
 
-const files = fs
-  .readdirSync(AUDIO_DIR)
-  .filter((f) => audioExts.includes(path.extname(f).toLowerCase()));
+if (folders.length === 0) {
+  console.log(" No song folders found in public/music/.");
+  process.exit(0);
+}
 
 const newPlaylist: Song[] = [];
 let idx = 0;
 
-for (const file of files) {
-  const old = oldByFile.get(file);
-  const nameWithoutExt = path.basename(file, path.extname(file));
-  const duration =
-    getDurationSec(path.join(AUDIO_DIR, file)) || old?.duration || 194;
+for (const folder of folders) {
+  const folderPath = path.join(MUSIC_DIR, folder);
+
+  // Load metadata.json
+  let meta: SongMeta = {
+    title: folder,
+    artist: "Unknown",
+    cover: "cover.jpg",
+  };
+  const metaPath = path.join(folderPath, "metadata.json");
+  if (fs.existsSync(metaPath)) {
+    try {
+      meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
+    } catch {
+      console.warn(` Failed to parse metadata.json for "${folder}"`);
+    }
+  }
+
+  // Find cover image
+  let cover = "";
+  const coverCandidates = [
+    meta.cover,
+    "cover.jpg",
+    "cover.jpeg",
+    "cover.png",
+    "cover.webp",
+  ];
+  for (const c of coverCandidates) {
+    if (!c) continue;
+    const coverPath = path.join(folderPath, c);
+    if (fs.existsSync(coverPath)) {
+      cover = `music/${folder}/${c}`;
+      break;
+    }
+  }
+
+  // Find lyrics
+  let lyricsPath = "";
+  const lyricsFile = path.join(folderPath, "lyrics.lrc");
+  if (fs.existsSync(lyricsFile)) {
+    lyricsPath = `music/${folder}/lyrics.lrc`;
+  }
+
+  // Find audio file
+  const audioFile = findAudioFile(folder);
+  if (!audioFile) {
+    console.warn(` No audio file found for "${folder}" – skipping.`);
+    continue;
+  }
+
+  const fullAudioPath = path.resolve(
+    import.meta.dirname,
+    "../public",
+    audioFile,
+  );
+  const duration = getDurationSec(fullAudioPath) || 194;
 
   newPlaylist.push({
-    id: old?.id ?? String(idx + 1),
-    title: old?.title ?? nameWithoutExt,
-    artist: old?.artist ?? "Unknown",
-    file: `audio/${file}`,
+    id: String(idx + 1),
+    title: meta.title,
+    artist: meta.artist,
+    file: audioFile,
     duration,
-    cover: old?.cover ?? "",
+    cover,
+    folder: `music/${folder}`,
+    lyricsPath,
+    meta,
   });
   idx++;
 }
 
-// Remove old entries whose files no longer exist (already handled by rebuilding)
-
 savePlaylist(newPlaylist);
 console.log(` Regenerated playlist: ${newPlaylist.length} song(s).`);
-newPlaylist.forEach((s) => console.log(`   ${s.artist} - ${s.title}  (${s.duration}s)`));
+newPlaylist.forEach((s) =>
+  console.log(`   ${s.artist} - ${s.title}  (${s.duration}s)`),
+);
