@@ -43,7 +43,7 @@ export default function Home({
           totalReadingMinutes={estimatedReadingWords}
         />
       </Box>
-      <Box sx={{ maxWidth: "lg", mx: "auto" }}>
+      <Box sx={{ maxWidth: "lg", mx: "auto", minHeight: "100vh" }}>
         <TopicMatrix />
       </Box>
     </Box>
