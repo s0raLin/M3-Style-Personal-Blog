@@ -83,7 +83,11 @@ function useTagCloud(items: ContentItem[]) {
 // ═══════════════════════════════════════════
 // 4. TopicMatrix component
 // ═══════════════════════════════════════════
-export default function TopicMatrix() {
+interface TopicMatrixProps {
+  onSelectItem?: (item: ContentItem) => void;
+}
+
+export default function TopicMatrix({ onSelectItem }: TopicMatrixProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
 
@@ -212,86 +216,97 @@ export default function TopicMatrix() {
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             >
-              {item.type === 'post' ? (
-                /* ── Post-style card (text-dominant) ── */
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: `1px solid ${cardBorder}`,
-                    borderRadius: '18px',
-                    backgroundColor: theme.palette.background.paper,
-                    transition: 'box-shadow 0.35s ease, border-color 0.35s ease',
-                    '&:hover': {
-                      boxShadow: cardHoverElevation,
-                      borderColor: isDark ? 'rgba(255,255,255,0.12)' : alpha(theme.palette.primary.main, 0.15),
-                    },
-                  }}
-                >
-                  <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.92rem', lineHeight: 1.4 }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.78rem', flex: 1 }}>
-                      {item.excerpt}
-                    </Typography>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      {item.author && (
-                        <Avatar src={item.author.avatar} sx={{ width: 20, height: 20 }} />
-                      )}
-                      <Typography variant="caption" color="text.disabled">
-                        {item.date}
+              <ButtonBase
+                onClick={() => onSelectItem?.(item)}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  textAlign: 'left',
+                  display: 'block',
+                  borderRadius: '18px',
+                }}
+              >
+                {item.type === 'post' ? (
+                  /* ── Post-style card (text-dominant) ── */
+                  <Card
+                    elevation={0}
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      border: `1px solid ${cardBorder}`,
+                      borderRadius: '18px',
+                      backgroundColor: theme.palette.background.paper,
+                      transition: 'box-shadow 0.35s ease, border-color 0.35s ease',
+                      '&:hover': {
+                        boxShadow: cardHoverElevation,
+                        borderColor: isDark ? 'rgba(255,255,255,0.12)' : alpha(theme.palette.primary.main, 0.15),
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.92rem', lineHeight: 1.4 }}>
+                        {item.title}
                       </Typography>
-                    </Stack>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4 }}>
-                      {item.tags.map((t) => (
-                        <Chip key={t} label={t} size="small" variant="outlined" sx={{ borderRadius: '7px', height: 20, fontSize: '0.62rem' }} />
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              ) : (
-                /* ── Photo-style card (image-first) ── */
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    border: `1px solid ${cardBorder}`,
-                    borderRadius: '18px',
-                    backgroundColor: theme.palette.background.paper,
-                    overflow: 'hidden',
-                    transition: 'box-shadow 0.35s ease, border-color 0.35s ease',
-                    '&:hover': {
-                      boxShadow: cardHoverElevation,
-                      borderColor: isDark ? 'rgba(255,255,255,0.12)' : alpha(theme.palette.primary.main, 0.15),
-                    },
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    image={item.coverImage}
-                    alt={item.title}
-                    sx={{ height: 140, objectFit: 'cover' }}
-                  />
-                  <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.88rem' }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {item.excerpt}
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, mt: 'auto' }}>
-                      {item.tags.map((t) => (
-                        <Chip key={t} label={t} size="small" variant="outlined" sx={{ borderRadius: '7px', height: 20, fontSize: '0.62rem' }} />
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              )}
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.78rem', flex: 1 }}>
+                        {item.excerpt}
+                      </Typography>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        {item.author && (
+                          <Avatar src={item.author.avatar} sx={{ width: 20, height: 20 }} />
+                        )}
+                        <Typography variant="caption" color="text.disabled">
+                          {item.date}
+                        </Typography>
+                      </Stack>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4 }}>
+                        {item.tags.map((t) => (
+                          <Chip key={t} label={t} size="small" variant="outlined" sx={{ borderRadius: '7px', height: 20, fontSize: '0.62rem' }} />
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  /* ── Photo-style card (image-first) ── */
+                  <Card
+                    elevation={0}
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      border: `1px solid ${cardBorder}`,
+                      borderRadius: '18px',
+                      backgroundColor: theme.palette.background.paper,
+                      overflow: 'hidden',
+                      transition: 'box-shadow 0.35s ease, border-color 0.35s ease',
+                      '&:hover': {
+                        boxShadow: cardHoverElevation,
+                        borderColor: isDark ? 'rgba(255,255,255,0.12)' : alpha(theme.palette.primary.main, 0.15),
+                      },
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      image={item.coverImage}
+                      alt={item.title}
+                      sx={{ height: 140, objectFit: 'cover' }}
+                    />
+                    <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.88rem' }}>
+                        {item.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {item.excerpt}
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.4, mt: 'auto' }}>
+                        {item.tags.map((t) => (
+                          <Chip key={t} label={t} size="small" variant="outlined" sx={{ borderRadius: '7px', height: 20, fontSize: '0.62rem' }} />
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                )}
+              </ButtonBase>
             </motion.div>
           ))}
         </AnimatePresence>
