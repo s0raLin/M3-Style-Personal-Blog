@@ -1161,7 +1161,7 @@ export default function BlogDetail({
             </Box>
             <Box
               key={post.title}
-              sx={{ minHeight: 280, px: { xs: 2, md: 4 }, pb: 4 }}
+              sx={{ minHeight: 280, px: { xs: 0.5, md: 1 }, pb: 4 }}
             >
               <Giscus
                 id="comments"
