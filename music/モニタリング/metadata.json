@@ -4,5 +4,7 @@
   "album": "モニタリング",
   "year": "2020",
   "genre": "VOCALOID",
-  "cover": "cover.jpg"
+  "cover": "cover.jpg",
+  "audio": "audio.mp3",
+  "lyrics": "lyrics.lrc"
 }
