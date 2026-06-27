@@ -6,19 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M3 Style Personal Blog</title>
     <link rel="icon" type="image/png" href="/M3-Style-Personal-Blog/favicon.png">
+    <!-- 字体预连接：加速 Google Fonts 加载，配合 display=optional 消除 FOUT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
       html, body { height: 100%; margin: 0; }
       #root { height: 100%; }
-      /* 阻止亮→暗闪烁：在 React 加载前应用暗色背景 */
-      html[data-theme-dark] { background: #121212; color-scheme: dark; }
+      /*
+       阻止亮→暗闪烁：
+       1) 暗色背景在 React 渲染之前就生效
+       2) 防止 Tailwind :root 亮色变量短暂闪出
+      */
+      html[data-theme-dark] {
+        background: #121212;
+        color-scheme: dark;
+      }
+      html[data-theme-dark] body {
+        background: #121212;
+        color: #e0e0e0;
+      }
     </style>
-    <script type="module" crossorigin src="/M3-Style-Personal-Blog/assets/main-apXJIsBJ.js"></script>
-    <link rel="stylesheet" crossorigin href="/M3-Style-Personal-Blog/assets/main-E6siNjrU.css">
+    <script type="module" crossorigin src="/M3-Style-Personal-Blog/assets/main-B3T5f0TU.js"></script>
+    <link rel="stylesheet" crossorigin href="/M3-Style-Personal-Blog/assets/main-C72cf7eM.css">
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
   </head>
 
   <body>
-    <!-- 阻塞脚本：同步读取 localStorage，在 React 渲染前设置 data-theme-dark -->
     <script>
       (function() {
         try {
