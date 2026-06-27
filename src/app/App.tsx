@@ -3,7 +3,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import { Toaster } from "sonner";
 import { createDynamicM3Theme } from "./theme/dynamicTheme";
 import { generateThemeFromColor } from "./utils/themeGenerator";
-import { loadThemeSettings, saveThemeSettings, loadThemeSync } from "./utils/storage";
+import { loadThemeSettings, saveThemeSettings, loadThemeSync, saveThemeSync } from "./utils/storage";
 import AppLayout from "./components/Layout/AppLayout";
 import Home from "./components/Home/Home";
 import BlogList from "./components/Blog/BlogList";
@@ -152,10 +152,20 @@ export default function App() {
 
   const images = galleryImages;
 
+  // 首次迁移：若 localforage 有数据但 localStorage 为空，则同步到 localStorage
   useEffect(() => {
     loadThemeSettings().then((settings) => {
-      setIsDarkMode(settings.isDarkMode);
-      setSourceColor(settings.sourceColor);
+      const cur = loadThemeSync();
+      if (
+        cur.isDarkMode === false &&
+        cur.sourceColor === "#6750A4" &&
+        (settings.isDarkMode !== false || settings.sourceColor !== "#6750A4")
+      ) {
+        // localforage 中有非默认数据，但 localStorage 中只有默认值 → 迁移
+        saveThemeSync(settings);
+        setIsDarkMode(settings.isDarkMode);
+        setSourceColor(settings.sourceColor);
+      }
     });
   }, []);
 
