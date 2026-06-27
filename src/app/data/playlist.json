@@ -3,9 +3,9 @@
     "id": "1",
     "title": "numb numb",
     "artist": "TAK, 初音ミク, 重音テト",
-    "file": "audio/numb numb (feat. Hatsune Miku, Kasane Teto) - TAK, 初音ミク, 重音テト.mp3",
+    "file": "music/numb numb/audio.mp3",
     "duration": 167,
-    "cover": "",
+    "cover": "music/numb numb/cover.jpg",
     "folder": "music/numb numb",
     "lyricsPath": "music/numb numb/lyrics.lrc",
     "meta": {
@@ -14,16 +14,18 @@
       "album": "numb numb",
       "year": "2024",
       "genre": "VOCALOID",
-      "cover": "cover.jpg"
+      "cover": "cover.jpg",
+      "audio": "audio.mp3",
+      "lyrics": "lyrics.lrc"
     }
   },
   {
     "id": "2",
     "title": "モニタリング",
     "artist": "DECO*27, 初音ミク",
-    "file": "audio/モニタリング - DECO_27, 初音ミク.mp3",
+    "file": "music/モニタリング/audio.mp3",
     "duration": 177,
-    "cover": "",
+    "cover": "music/モニタリング/cover.jpg",
     "folder": "music/モニタリング",
     "lyricsPath": "music/モニタリング/lyrics.lrc",
     "meta": {
@@ -32,16 +34,18 @@
       "album": "モニタリング",
       "year": "2020",
       "genre": "VOCALOID",
-      "cover": "cover.jpg"
+      "cover": "cover.jpg",
+      "audio": "audio.mp3",
+      "lyrics": "lyrics.lrc"
     }
   },
   {
     "id": "3",
     "title": "妄想感傷代償連盟",
     "artist": "DECO*27, 初音ミク",
-    "file": "audio/妄想感傷代償連盟 - DECO_27, 初音ミク.mp3",
+    "file": "music/妄想感傷代償連盟/audio.mp3",
     "duration": 270,
-    "cover": "",
+    "cover": "music/妄想感傷代償連盟/cover.jpg",
     "folder": "music/妄想感傷代償連盟",
     "lyricsPath": "music/妄想感傷代償連盟/lyrics.lrc",
     "meta": {
@@ -50,7 +54,9 @@
       "album": "妄想感傷代償連盟",
       "year": "2016",
       "genre": "VOCALOID",
-      "cover": "cover.jpg"
+      "cover": "cover.jpg",
+      "audio": "audio.mp3",
+      "lyrics": "lyrics.lrc"
     }
   }
 ]

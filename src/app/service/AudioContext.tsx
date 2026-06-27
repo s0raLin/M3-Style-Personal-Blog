@@ -5,6 +5,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
 } from "react";
 import playlist from "../data/playlist.json";
@@ -109,7 +110,6 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isSeeking, setIsSeeking] = useState(false);
 
   // Lyrics state
   const [lyrics, setLyrics] = useState<LyricLine[]>([]);
@@ -118,7 +118,10 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafIdRef = useRef<number>(0);
   const lastTimeRef = useRef(0);
-  const song = songs[currentIdx] ?? null;
+  const lastSetTimeRef = useRef(0); // throttle setCurrentTime
+  const playWasUserInitiated = useRef(false);
+
+  const song = useMemo(() => songs[currentIdx] ?? null, [songs, currentIdx]);
 
   // ── Persist index ──
   useEffect(() => {
@@ -144,6 +147,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     audio.src = src;
     audio.load();
     lastTimeRef.current = 0;
+    lastSetTimeRef.current = 0;
     setCurrentTime(0);
     setDuration(song.duration || 0);
     setIsPlaying(false);
@@ -169,20 +173,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, [song]);
 
-  // ── rAF loop replaces timeupdate event (avoids excessive re-renders) ──
+  // ── rAF loop: only runs when playing, throttled to ~4 updates/sec ──
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    // Only run rAF loop when audio is actively playing
+    if (!isPlaying) return;
 
     let running = true;
 
     const tick = () => {
       if (!running) return;
       const ct = audio.currentTime;
-      if (Math.abs(ct - lastTimeRef.current) > 0.05) {
-        lastTimeRef.current = ct;
+      // Throttle React state updates to ~250ms intervals (4 Hz)
+      if (Math.abs(ct - lastSetTimeRef.current) > 0.25) {
+        lastSetTimeRef.current = ct;
         setCurrentTime(ct);
       }
+      lastTimeRef.current = ct;
       rafIdRef.current = requestAnimationFrame(tick);
     };
 
@@ -191,9 +200,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       running = false;
       cancelAnimationFrame(rafIdRef.current);
     };
-  }, [songs.length, isSeeking]);
+  }, [isPlaying]);
 
-  // ── Attach event listeners (no timeupdate) ──
+  // ── Attach event listeners ──
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -223,13 +232,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
     };
-  }, [songs.length, isSeeking]);
+  }, [songs.length]);
 
   const togglePlay = useCallback(() => {
     const a = audioRef.current;
     if (!a) return;
     if (a.paused) {
-      a.play().catch(() => {});
+      // Mark as user-initiated for mobile autoplay policy
+      playWasUserInitiated.current = true;
+      a.play().catch((err) => {
+        // Mobile browsers may block play if no prior user gesture
+        console.warn("Audio play failed:", err);
+        playWasUserInitiated.current = false;
+      });
     } else {
       a.pause();
     }
@@ -247,6 +262,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
   const seek = useCallback((t: number) => {
     lastTimeRef.current = t;
+    lastSetTimeRef.current = t;
     setCurrentTime(t);
     if (audioRef.current) {
       audioRef.current.currentTime = t;
@@ -260,8 +276,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  // ── Track current lyric line based on currentTime ──
-  const currentLyricIdx = (() => {
+  // ── Memoized lyric index ──
+  const currentLyricIdx = useMemo(() => {
     if (lyrics.length === 0) return -1;
     let idx = -1;
     for (let i = 0; i < lyrics.length; i++) {
@@ -272,7 +288,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       }
     }
     return idx;
-  })();
+  }, [currentTime, lyrics]);
 
   const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 

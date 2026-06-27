@@ -1,6 +1,6 @@
 import localforage from 'localforage';
 
-// 配置 localforage
+// 配置 localforage (IndexedDB, 异步)
 localforage.config({
   name: 'MaterialBlog',
   storeName: 'settings',
@@ -23,7 +23,28 @@ const DEFAULT_SETTINGS: BlogSettings = {
   },
 };
 
+const LS_THEME_KEY = 'm3blog_theme';
+
+// ── 同步读写 (localStorage) —— 阻止页面刷新闪烁 ──
+
+export function loadThemeSync(): ThemeSettings {
+  try {
+    const raw = localStorage.getItem(LS_THEME_KEY);
+    if (raw) return JSON.parse(raw) as ThemeSettings;
+  } catch {}
+  return DEFAULT_SETTINGS.themeSettings;
+}
+
+export function saveThemeSync(settings: ThemeSettings): void {
+  try {
+    localStorage.setItem(LS_THEME_KEY, JSON.stringify(settings));
+  } catch {}
+}
+
+// ── 异步读写 (localforage) —— 主存储 ──
+
 export async function saveThemeSettings(settings: ThemeSettings): Promise<void> {
+  saveThemeSync(settings); // 同时写 localStorage
   try {
     await localforage.setItem('themeSettings', settings);
   } catch (error) {

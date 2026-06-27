@@ -3,7 +3,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import { Toaster } from "sonner";
 import { createDynamicM3Theme } from "./theme/dynamicTheme";
 import { generateThemeFromColor } from "./utils/themeGenerator";
-import { loadThemeSettings, saveThemeSettings } from "./utils/storage";
+import { loadThemeSettings, saveThemeSettings, loadThemeSync } from "./utils/storage";
 import AppLayout from "./components/Layout/AppLayout";
 import Home from "./components/Home/Home";
 import BlogList from "./components/Blog/BlogList";
@@ -137,8 +137,10 @@ function AppContent({
 }
 
 export default function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [sourceColor, setSourceColor] = useState("#6750A4");
+  // 同步初始化 —— 阻止亮→暗闪烁
+  const savedTheme = loadThemeSync();
+  const [isDarkMode, setIsDarkMode] = useState(savedTheme.isDarkMode);
+  const [sourceColor, setSourceColor] = useState(savedTheme.sourceColor);
 
   const posts = getBlogPosts();
   const categories = useMemo(() => {

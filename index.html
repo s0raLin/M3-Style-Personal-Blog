@@ -1,16 +1,32 @@
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>M3 Style Personal Blog</title>
-      <link rel="icon" type="image/png" href="/favicon.png">
-      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
-    </head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M3 Style Personal Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+      html, body { height: 100%; margin: 0; }
+      #root { height: 100%; }
+      /* 阻止亮→暗闪烁：在 React 加载前应用暗色背景 */
+      html[data-theme-dark] { background: #121212; color-scheme: dark; }
+    </style>
+  </head>
 
-    <body>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </body>
-  </html>
+  <body>
+    <!-- 阻塞脚本：同步读取 localStorage，在 React 渲染前设置 data-theme-dark -->
+    <script>
+      (function() {
+        try {
+          var theme = JSON.parse(localStorage.getItem('m3blog_theme'));
+          if (theme && theme.isDarkMode) {
+            document.documentElement.setAttribute('data-theme-dark', '');
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

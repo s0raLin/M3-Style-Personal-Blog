@@ -77,7 +77,8 @@ export default function SongDetailPanel({ open, onClose }: SongDetailPanelProps)
     seek(ratio * duration);
   };
 
-  if (!song) return null;
+  // Only render when open — avoids expensive backdropFilter in closed state
+  if (!song || !open) return null;
 
   return (
     <Box
@@ -91,7 +92,6 @@ export default function SongDetailPanel({ open, onClose }: SongDetailPanelProps)
         display: "flex",
         alignItems: "flex-end",
         justifyContent: "center",
-        pointerEvents: open ? "auto" : "none",
       }}
     >
       {/* Backdrop */}
@@ -102,13 +102,11 @@ export default function SongDetailPanel({ open, onClose }: SongDetailPanelProps)
           inset: 0,
           bgcolor: "rgba(0,0,0,0.5)",
           backdropFilter: "blur(8px)",
-          transition: "opacity 0.35s ease",
-          opacity: open ? 1 : 0,
         }}
       />
 
       {/* Panel */}
-      <Slide direction="up" in={open} mountOnEnter unmountOnExit timeout={350}>
+      <Slide direction="up" in mountOnEnter unmountOnExit timeout={350}>
         <Box
           sx={{
             position: "relative",
