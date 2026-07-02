@@ -173,6 +173,15 @@ export default function App() {
     saveThemeSettings({ isDarkMode, sourceColor });
   }, [isDarkMode, sourceColor]);
 
+  // 同步 data-theme-dark 属性 —— 确保切换回浅色模式时移除该属性，避免页面标题等继承 body 灰色
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.setAttribute('data-theme-dark', '');
+    } else {
+      document.documentElement.removeAttribute('data-theme-dark');
+    }
+  }, [isDarkMode]);
+
   const dynamicTheme = useMemo(
     () => generateThemeFromColor(sourceColor, isDarkMode),
     [sourceColor, isDarkMode],
